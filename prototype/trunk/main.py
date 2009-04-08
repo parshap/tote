@@ -201,7 +201,6 @@ class PrototypeClient:
 		
 		# Do the drawing.
 		
-		
 		# Determine which tile the player is on.
 		tilex = int(self.player.x / MAP_TILE_SIZE)
 		tiley = int(self.player.y / MAP_TILE_SIZE)
@@ -215,12 +214,14 @@ class PrototypeClient:
 		endx = min(MAP_WIDTH, tilex + tilecountx)
 		starty = max(0, tiley - tilecounty)
 		endy = min(MAP_HEIGHT, tiley + tilecounty)
+		
 		# Draw the background terrain.
+		terrain = self.terrain
 		for x in range(startx, endx):
 			for y in range(starty, endy):
-				self.terrain[x][y].left = x * MAP_TILE_SIZE
-				self.terrain[x][y].bottom = y * MAP_TILE_SIZE
-				self.terrain[x][y].render()
+				terrain[x][y].left = x * MAP_TILE_SIZE
+				terrain[x][y].bottom = y * MAP_TILE_SIZE
+				terrain[x][y].render()
 		
 		# Draw the player.
 		self.player.render()
