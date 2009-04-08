@@ -52,12 +52,18 @@ MOUSE_CONTROLS = {
 # regardless of what buttons are being pressed.
 PLAYER_ALWAYS_FACE_MOUSE = False
 
-# The player's movement speed.
-PLAYER_MOVE_SPEED = 300 # 300 pixels per second
+# The player's movement speed when moving forward.
+PLAYER_SPEED_FORWARD = 300 # pixels per second
+
+# The player's movement speed when moving backward.
+PLAYER_SPEED_BACKWARD = 200 # pixels per second
+
+# The player's movement speed when strafing.
+PLAYER_SPEED_STRAFE = 200 # pixels per second
 
 # The player's rotation speed when changing facing direction using TURN_LEFT
 # and TURN_RIGHT.
-PLAYER_TURN_SPEED = 180 # 180 degrees per second
+PLAYER_SPEED_TURN = 180 # degrees per second
 
 # The map's size.
 MAP_WIDTH = 25 # tiles wide
@@ -148,29 +154,29 @@ class PrototypeClient:
 		
 		# Handle player movement due to keyboard/mouse input.
 		if self.keyboard[KEYBOARD_CONTROLS["UP"]]:
-			self.player.mup(PLAYER_MOVE_SPEED * self.dt)
+			self.player.mup(PLAYER_SPEED_FORWARD * self.dt)
 
 		if self.keyboard[KEYBOARD_CONTROLS["DOWN"]]:
-			self.player.mdown(PLAYER_MOVE_SPEED* self.dt)
+			self.player.mdown(PLAYER_SPEED_FORWARD* self.dt)
 			
 		if self.keyboard[KEYBOARD_CONTROLS["RIGHT"]]:
-			self.player.mright(PLAYER_MOVE_SPEED * self.dt)
+			self.player.mright(PLAYER_SPEED_FORWARD * self.dt)
 			
 		if self.keyboard[KEYBOARD_CONTROLS["LEFT"]]:
-			self.player.mleft(PLAYER_MOVE_SPEED * self.dt)
+			self.player.mleft(PLAYER_SPEED_FORWARD * self.dt)
 			
 		if self.keyboard[KEYBOARD_CONTROLS["FORWARD"]] or \
 		   self.mouse & MOUSE_CONTROLS["MOUSEMOVE"] == MOUSE_CONTROLS["MOUSEMOVE"]:
-			self.player.forward(PLAYER_MOVE_SPEED * self.dt)
+			self.player.forward(PLAYER_SPEED_FORWARD * self.dt)
 			
 		if self.keyboard[KEYBOARD_CONTROLS["BACKWARD"]]:
-			self.player.backward(PLAYER_MOVE_SPEED * self.dt)
+			self.player.backward(PLAYER_SPEED_BACKWARD * self.dt)
 			
 		if self.keyboard[KEYBOARD_CONTROLS["STRAFE_RIGHT"]]:
-			self.player.strafe_right(PLAYER_MOVE_SPEED * self.dt)
+			self.player.strafe_right(PLAYER_SPEED_STRAFE * self.dt)
 			
 		if self.keyboard[KEYBOARD_CONTROLS["STRAFE_LEFT"]]:
-			self.player.strafe_left(PLAYER_MOVE_SPEED * self.dt)
+			self.player.strafe_left(PLAYER_SPEED_STRAFE * self.dt)
 		
 		if self.keyboard[KEYBOARD_CONTROLS["TURN_RIGHT"]]:
 			self.player.turn_right(PLAYER_TURN_SPEED * self.dt)
