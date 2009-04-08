@@ -391,8 +391,15 @@ class Player(rabbyt.Sprite):
 		
 		# Calculate angle offset caused by relative movement.
 		if self.drx != 0 and self.dry != 0:
-			offset -= math.degrees(math.atan(self.dry/self.drx))
-			
+			hyp = math.sqrt(self.drx*self.drx + self.dry*self.dry)
+			offset = math.degrees(math.acos(math.fabs(self.dry)/hyp))
+			if self.drx > 0:
+				offset = -offset
+				if self.dry < 0:
+					offset += 90
+			elif self.dry < 0 and self.dry < 0:
+				offset -= 90
+			print self.drx, self.dry, offset, angle
 		offset += 22.5
 		angle += offset
 		
