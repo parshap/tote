@@ -404,8 +404,6 @@ class Player(rabbyt.Sprite):
 		Moves the player forward in the current facing direction by d units.
 		"""
 		self.dry += d
-		# self.x += math.cos(math.radians(self.rot + 90)) * d
-		# self.y += math.sin(math.radians(self.rot + 90)) * d
 
 	def backward(self, d):
 		"""
@@ -419,8 +417,6 @@ class Player(rabbyt.Sprite):
 		d units.
 		"""
 		self.drx += d
-		# self.x += math.sin(math.radians(self.rot + 90)) * d
-		# self.y -= math.cos(math.radians(self.rot + 90)) * d
 		
 	def strafe_left(self, d):
 		"""
