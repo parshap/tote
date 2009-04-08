@@ -77,12 +77,12 @@ class PrototypeClient:
 		pass
 	
 	def run(self):
-		# Set up the display and attempt 4x AA.
+		# Attempt to set up the display with 0x AA.
 		display = pyglet.window.get_platform().get_default_display() 
 		screen = display.get_default_screen()
 		glconfig = pyglet.gl.Config(double_buffer=True,
 		                            sample_buffers=True,
-		                            samples=8,
+		                            samples=0,
 		                            )
 		try:
 			config = screen.get_best_config(glconfig)
