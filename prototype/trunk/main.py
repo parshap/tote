@@ -63,7 +63,16 @@ PLAYER_SPEED_STRAFE = 200 # pixels per second
 
 # The player's rotation speed when changing facing direction using TURN_LEFT
 # and TURN_RIGHT.
-PLAYER_SPEED_TURN = 180 # degrees per second
+PLAYER_SPEED_TURN = 180 # 180 degrees per second
+
+# PLAYER_DIRECTION_UPDATE_RELATIVE determines if the player sprite image should
+# be updated to reflect the player's movement direction when performing
+# relative movement (strafing).
+PLAYER_DIRECTION_UPDATE_RELATIVE = True
+
+# PLAYER_DIRECTION_UPDATE_BACKWARD determines if the player sprite image should
+# be updated to reflect the player's movement direction when moving backward.
+PLAYER_DIRECTION_UPDATE_BACKWARD = False
 
 # The map's size.
 MAP_WIDTH = 25 # tiles wide
@@ -391,14 +400,17 @@ class Player(rabbyt.Sprite):
 		
 		# Calculate angle offset caused by relative movement.
 		if self.drx != 0 and self.dry != 0:
-			hyp = math.sqrt(self.drx*self.drx + self.dry*self.dry)
-			offset = math.degrees(math.acos(math.fabs(self.dry)/hyp))
-			if self.drx > 0:
-				offset = -offset
-				if self.dry < 0:
-					offset += 90
-			elif self.dry < 0 and self.dry < 0:
-				offset -= 90
+			if PLAYER_DIRECTION_UPDATE_RELATIVE:
+				hyp = math.sqrt(self.drx*self.drx + self.dry*self.dry)
+				offset = math.degrees(math.acos(math.fabs(self.dry)/hyp))
+				if self.drx > 0:
+					offset = -offset
+					if self.dry < 0:
+						offset += 90
+				elif self.dry < 0 and self.dry < 0:
+					offset -= 90
+		if PLAYER_DIRECTION_UPDATE_BACKWARD and self.dry < 0:
+			offset += 180
 		offset += 22.5
 		angle += offset
 		
