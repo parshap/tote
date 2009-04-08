@@ -409,7 +409,7 @@ class Player(rabbyt.Sprite):
 		"""
 		Moves the player backward in the current facing direction by d units.
 		"""
-		self.forward(-d)
+		self.dry -= d
 		
 	def strafe_right(self, d):
 		"""
@@ -423,7 +423,7 @@ class Player(rabbyt.Sprite):
 		Strafes the player right relative to the current facing direction by
 		d units.
 		"""
-		self.strafe_right(-d)
+		self.drx -= d
 		
 	def mup(self, d):
 		self.dy += d
