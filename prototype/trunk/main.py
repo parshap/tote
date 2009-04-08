@@ -19,10 +19,10 @@ import rabbyt
 KEYBOARD_CONTROLS = {
 	# Absolute movement in a cardinal direction, regardless of the player's
 	# current facing direction.
-	"UP": None,
-	"DOWN": None,
-	"LEFT": None,
-	"RIGHT": None,
+	"UP": pyglet.window.key.UP,
+	"DOWN": pyglet.window.key.DOWN,
+	"LEFT": pyglet.window.key.LEFT,
+	"RIGHT": pyglet.window.key.RIGHT,
 	
 	# Relative movement based on the player's current facing direction.
 	"FORWARD": pyglet.window.key.W,
