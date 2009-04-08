@@ -59,7 +59,7 @@ PLAYER_MOVE_SPEED = 300 # 300 pixels per second
 # and TURN_RIGHT.
 PLAYER_TURN_SPEED = 180 # 180 degrees per second
 
-# This is the size of the map.
+# The map's size.
 MAP_WIDTH = 25 # tiles wide
 MAP_HEIGHT = 25 # tiles high
 MAP_TILE_SIZE = 40 # pixel square tiles
