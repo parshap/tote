@@ -186,6 +186,9 @@ class PrototypeClient:
 			self.player.face(self.mousex + self.player.x - self.window.get_size()[0]/2,
 			                 self.mousey + self.player.y - self.window.get_size()[1]/2)
 			
+		# Update the sprite used based on the player's facing direction and movement.
+		self.player.updatedir()
+		
 		# Update the player's x, y coordinates.
 		self.player.updatepos()
 		
@@ -337,6 +340,7 @@ class Player(rabbyt.Sprite):
 		                   ],
 		               ]
 		rabbyt.Sprite.__init__(self, texture=self.regions[0][0])
+		self.angle = 0
 		self.dx = self.dy = self.drx = self.dry = 0
 		
 	def updatepos(self):
@@ -351,10 +355,10 @@ class Player(rabbyt.Sprite):
 			p = bound/drmag
 			dcomprx = self.drx * p
 			dcompry = self.dry * p
-			self.x += math.cos(math.radians(self.rot + 90)) * dcompry
-			self.y += math.sin(math.radians(self.rot + 90)) * dcompry
-			self.x += math.sin(math.radians(self.rot + 90)) * dcomprx
-			self.y -= math.cos(math.radians(self.rot + 90)) * dcomprx
+			self.x += math.cos(math.radians(self.angle + 90)) * dcompry
+			self.y += math.sin(math.radians(self.angle + 90)) * dcompry
+			self.x += math.sin(math.radians(self.angle + 90)) * dcomprx
+			self.y -= math.cos(math.radians(self.angle + 90)) * dcomprx
 			self.drx = self.dry = 0
 			
 		# Calculate the change in position from absolute movements (e.g., from
@@ -370,6 +374,31 @@ class Player(rabbyt.Sprite):
 			
 		# Reset the d- attributes.
 		self.dx = self.dy = self.drx = self.dry = 0
+		
+	def updatedir(self):
+		""" 
+		Update the player's facing direction based on the current angle and
+		movement direction.
+		"""
+		offset = 0
+		angle = self.angle
+		
+		# Calculate angle offset caused by relative movement.
+		if self.drx != 0 and self.dry != 0:
+			offset -= math.degrees(math.atan(self.dry/self.drx))
+			
+		offset += 22.5
+		angle += offset
+		
+		# Calculate angle if movement is absolute.
+		if self.dx != 0 and self.dy != 0:
+			angle = -math.degrees(math.atan(self.dy/self.dx))
+			if self.dy < 0:
+				angle -= 180
+		
+		# Set the texture to the correct image.
+		dir_index = int((angle % 360) // 45)
+		self.texture = self.regions[dir_index][0]
 
 	def clamp(self, left, top, right, bottom):
 		"""
@@ -393,11 +422,11 @@ class Player(rabbyt.Sprite):
 		"""
 		rx, ry = x - self.x, y - self.y
 		if rx == 0:
-			if ry >= 0: self.rot = 0
-			else: self.rot = 180
+			if ry >= 0: self.angle = 0
+			else: self.angle = 180
 		else:
-			if rx >= 0: self.rot = math.degrees(math.atan(ry/rx)) - 90
-			else: self.rot = math.degrees(math.atan(ry/rx)) + 90
+			if rx >= 0: self.angle = math.degrees(math.atan(ry/rx)) - 90
+			else: self.angle = math.degrees(math.atan(ry/rx)) + 90
 			
 	def forward(self, d):
 		"""
@@ -426,22 +455,26 @@ class Player(rabbyt.Sprite):
 		self.drx -= d
 		
 	def mup(self, d):
+		self.angle = 0
 		self.dy += d
 		
 	def mdown(self, d):
+		self.angle = 180
 		self.dy -= d
 		
 	def mleft(self, d):
+		self.angle = 90
 		self.dx -= d
 		
 	def mright(self, d):
+		self.angle = 270
 		self.dx += d
 		
 	def turn_right(self, d):
-		self.rot -= d
+		self.angle -= d
 		
 	def turn_left(self, d):
-		self.rot += d
+		self.angle += d
 
 def main(argv=None):
 	# Get explicitely passed arguments or command line arguments.
