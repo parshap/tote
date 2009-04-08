@@ -99,7 +99,7 @@ class PrototypeClient:
 		self.terrain = [[terrain_dirt] * MAP_WIDTH] * MAP_HEIGHT
 		
 		# Load the player and put it in the middle of the map.
-		self.player = Player("data/player.png")
+		self.player = Player()
 		self.player.x = MAP_WIDTH * MAP_TILE_SIZE / 2
 		self.player.y = MAP_HEIGHT * MAP_TILE_SIZE / 2
 		
@@ -275,7 +275,7 @@ class Player(rabbyt.Sprite):
 	"""
 	This class represents the player's UI element (sprite).
 	"""
-	def __init__(self, image):
+	def __init__(self):
 		texture = pyglet.image.load("data/amg1.png").get_texture()
 		rabbyt.Sprite.__init__(self, texture=texture,
                                shape=[-16, 16, 16, -16],
