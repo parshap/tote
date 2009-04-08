@@ -399,7 +399,6 @@ class Player(rabbyt.Sprite):
 					offset += 90
 			elif self.dry < 0 and self.dry < 0:
 				offset -= 90
-			print self.drx, self.dry, offset, angle
 		offset += 22.5
 		angle += offset
 		
