@@ -277,10 +277,66 @@ class Player(rabbyt.Sprite):
 	This class represents the player's UI element (sprite).
 	"""
 	def __init__(self):
-		texture = pyglet.image.load("data/amg1.png").get_texture()
-		rabbyt.Sprite.__init__(self, texture=texture,
-                               shape=[-16, 16, 16, -16],
-		                       tex_shape=[0, 1, 0.125, 0])
+		self.tile_texture = pyglet.image.load("data/ness.png").get_texture()
+		self.regions = [
+		                   [
+		                       # Facing N
+		                       self.tile_texture.get_region(0, 112, 32, 50),
+		                       self.tile_texture.get_region(32, 112, 32, 50),
+		                       self.tile_texture.get_region(64, 112, 32, 50),
+		                       self.tile_texture.get_region(96, 112, 32, 50),
+		                   ],
+		                   [
+		                       # Facing NW
+		                       self.tile_texture.get_region(0, 262, 32, 50),
+		                       self.tile_texture.get_region(32, 262, 32, 50),
+		                       self.tile_texture.get_region(64, 262, 32, 50),
+		                       self.tile_texture.get_region(96, 262, 32, 50),
+		                   ],
+		                   [
+		                       # Facing W
+		                       self.tile_texture.get_region(0, 312, 32, 50),
+		                       self.tile_texture.get_region(32, 312, 32, 50),
+		                       self.tile_texture.get_region(64, 312, 32, 50),
+		                       self.tile_texture.get_region(96, 312, 32, 50),
+		                   ],
+		                   [
+		                       # Facing SW
+		                       self.tile_texture.get_region(0, 462, 32, 50),
+		                       self.tile_texture.get_region(32, 462, 32, 50),
+		                       self.tile_texture.get_region(64, 462, 32, 50),
+		                       self.tile_texture.get_region(96, 462, 32, 50),
+		                   ],
+		                   [
+		                       # Facing S
+		                       self.tile_texture.get_region(0, 412, 32, 50),
+		                       self.tile_texture.get_region(32, 412, 32, 50),
+		                       self.tile_texture.get_region(64, 412, 32, 50),
+		                       self.tile_texture.get_region(96, 412, 32, 50),
+		                   ],
+		                   [
+		                       # Facing SE
+		                       self.tile_texture.get_region(0, 362, 32, 50),
+		                       self.tile_texture.get_region(32, 362, 32, 50),
+		                       self.tile_texture.get_region(64, 362, 32, 50),
+		                       self.tile_texture.get_region(96, 362, 32, 50),
+		                   ],
+		                   [
+		                       # Facing E
+		                       self.tile_texture.get_region(0, 212, 32, 50),
+		                       self.tile_texture.get_region(32, 212, 32, 50),
+		                       self.tile_texture.get_region(64, 212, 32, 50),
+		                       self.tile_texture.get_region(96, 212, 32, 50),
+		                   ],
+		                   [
+		                       # Facing NE
+		                       self.tile_texture.get_region(0, 162, 32, 50),
+		                       self.tile_texture.get_region(32, 162, 32, 50),
+		                       self.tile_texture.get_region(64, 162, 32, 50),
+		                       self.tile_texture.get_region(96, 162, 32, 50),
+		                   ],
+		               ]
+		rabbyt.Sprite.__init__(self, texture=self.regions[0][0])
 		self.dx = self.dy = self.drx = self.dry = 0
 		
 	def updatepos(self):
