@@ -108,7 +108,7 @@ class PrototypeClient:
 
 		# Load terrain tiles.
 		terrain_grid_image = pyglet.image.ImageGrid(pyglet.image.load("data/tiles.png"),
-		                                             1, 1, MAP_TILE_SIZE, MAP_TILE_SIZE, 0, 0)
+		                                             1, 1, MAP_TILE_SIZE+1, MAP_TILE_SIZE+1, 1, 1)
 		terrain_grid = pyglet.image.TextureGrid(terrain_grid_image)
 		terrain_dirt = rabbyt.Sprite(texture=terrain_grid[0], u=0, v=0)
 		self.terrain = [[terrain_dirt] * MAP_WIDTH] * MAP_HEIGHT
