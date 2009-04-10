@@ -7,10 +7,12 @@ from __future__ import division
 # Python modules
 import sys
 import math
+import ctypes
 
 # Other modules
 import pyglet
 import rabbyt
+import obj
 
 #######################
 ##   CONFIGURATION   ##
@@ -118,6 +120,16 @@ class PrototypeClient:
         self.player.x = MAP_WIDTH * MAP_TILE_SIZE / 2
         self.player.y = MAP_HEIGHT * MAP_TILE_SIZE / 2
         
+        # Load the 3d rabbit model (mesh object)
+        self.rabbit = obj.OBJ("data/rabbit.obj")
+        
+        # Set up lighting.
+        self.fourfv = ctypes.c_float * 4
+        pyglet.gl.glLightfv(pyglet.gl.GL_LIGHT0, pyglet.gl.GL_AMBIENT, self.fourfv(.5, .5, .5, 1.0))
+        pyglet.gl.glLightfv(pyglet.gl.GL_LIGHT0, pyglet.gl.GL_DIFFUSE, self.fourfv(0.8, 0.8, 0.8, 1.0))
+        pyglet.gl.glLightfv(pyglet.gl.GL_LIGHT0, pyglet.gl.GL_POSITION, self.fourfv(0, 0, 0, 1))
+        pyglet.gl.glEnable(pyglet.gl.GL_LIGHT0)
+        
         # Load the FPS display.
         self.fps_display = pyglet.clock.ClockDisplay(color=(1, 1, 1, 0.5))
 
@@ -214,8 +226,8 @@ class PrototypeClient:
         rabbyt.clear((0, 0, 0, 1))
         
         # Center the viewable area around the player.
-        self.view(self.player.x - self.window.get_size()[0]/2,
-                  self.player.y - self.window.get_size()[1]/2)
+        self.context_2d(self.player.x - self.window.get_size()[0]/2,
+                        self.player.y - self.window.get_size()[1]/2)
         
         # Do the drawing.
         
@@ -242,29 +254,86 @@ class PrototypeClient:
                 terrain[x][y].render()
         
         # Draw the player.
-        self.player.render()
+        #self.player.render()
+        
+        # Go into 3d iso mode
+        self.context_3d_isometric(self.player.x - self.window.get_size()[0]/2,
+                                 self.player.y - self.window.get_size()[1]/2)
+        
+        
+        #Draw the rabbit.
+        x = self.player.left
+        y = self.player.bottom
+        #x -= -620
+        #y -= -60
+        #print x, y
+        pyglet.gl.glTranslatef(-self.window.get_size()[0]/2, -self.window.get_size()[1]/2, 0)
+        #pyglet.gl.glTranslatef(40, 80, 0)
+        pyglet.gl.glTranslatef(x+10, y+10, 0)
+        #pyglet.gl.glTranslatef(self.player.x, self.player.y, 0)
+        pyglet.gl.glScalef(10, 10, 10)
+        
+        pyglet.gl.glRotatef(45, 1, 0, 0)
+        pyglet.gl.glRotatef((self.player.angle+180)%360, 0, 1, 0)
+        
+        self.rabbit.draw()
         
         # Set the render mode to HUD mode.
-        self.hud();
+        self.context_hud();
         
         # Draw the FPS. This is a Pyglet sprite and not a Rabbyt sprite, so we
         # use .draw() instead of .render().
         self.fps_display.draw()
+        
     
-    def view(self, x, y):
+    
+    def context_2d(self, x, y):
         """ Set the render mode to draw the viewable area at position x, y. """
-        # Set modelview matrix to move, scale & rotate to camera position"
+        pyglet.gl.glMatrixMode(pyglet.gl.GL_PROJECTION)
+        pyglet.gl.glLoadIdentity()
+        pyglet.gl.glOrtho(0, self.window.get_size()[0], 0, self.window.get_size()[1], -1, 1)
+        
         pyglet.gl.glMatrixMode(pyglet.gl.GL_MODELVIEW)
         pyglet.gl.glLoadIdentity()
-        pyglet.gl.gluLookAt(
-            x, y, +1.0,
-            x, y, -1.0,
-            0, 1, 0.0)
+        pyglet.gl.gluLookAt(x, y, +1,
+                            x, y, -1,
+                            0, 1, 0)
+        pyglet.gl.glDisable(pyglet.gl.GL_DEPTH_TEST)
+        pyglet.gl.glDisable(pyglet.gl.GL_LIGHTING)
+
+    def context_3d_isometric(self, x, y):
+        pyglet.gl.glMatrixMode(pyglet.gl.GL_PROJECTION)
+        pyglet.gl.glLoadIdentity()
+        w = self.window.get_size()[0]
+        h = self.window.get_size()[1]
+        pyglet.gl.glOrtho(-w/2., w/2., -h/2., h/2., 0, 3600) 
+        pyglet.gl.glMatrixMode(pyglet.gl.GL_MODELVIEW)
+        pyglet.gl.glLoadIdentity()
+        pyglet.gl.gluLookAt(x, y, 100,
+                            x, y, 0,
+                            0, 1, 0)
+        #pyglet.gl.glEnable(pyglet.gl.GL_DEPTH_TEST)
+        pyglet.gl.glEnable(pyglet.gl.GL_LIGHTING)
     
-    def hud(self):
+    def context_3d(self):
+        pyglet.gl.glMatrixMode(pyglet.gl.GL_PROJECTION) 
+        pyglet.gl.glLoadIdentity() 
+        pyglet.gl.gluPerspective(90, self.window.get_size()[0]/self.window.get_size()[1], 0.1, 600) 
+        pyglet.gl.glMatrixMode(pyglet.gl.GL_MODELVIEW) 
+        pyglet.gl.glEnable(pyglet.gl.GL_DEPTH_TEST)
+        pyglet.gl.glEnable(pyglet.gl.GL_LIGHTING)
+
+            
+    def context_hud(self):
         """ Set the render mode to draw HUD elements. """
+        pyglet.gl.glMatrixMode(pyglet.gl.GL_PROJECTION)
+        pyglet.gl.glLoadIdentity()
+        pyglet.gl.glOrtho(0, self.window.get_size()[0], 0, self.window.get_size()[1], -1, 1)
+        
         pyglet.gl.glMatrixMode(pyglet.gl.GL_MODELVIEW)
         pyglet.gl.glLoadIdentity()
+        pyglet.gl.glDisable(pyglet.gl.GL_DEPTH_TEST)
+        pyglet.gl.glDisable(pyglet.gl.GL_LIGHTING)
     
     def on_mouse_press(self, x, y, button, modifiers):
         self.mouse |= button
