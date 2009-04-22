@@ -39,7 +39,7 @@ import ogre.renderer.OGRE as ogre
 # exporter to export modules at a very small scale. I think rather than
 # having this here we should probably set it in the constructor for
 # the dotsceneloader.
-GLOBAL_SCALE_FACTOR = 1
+GLOBAL_SCALE_FACTOR = 10
 
 # dictionary to hold the various light types used by ogre and the 
 # equivilents in the blender export
@@ -131,6 +131,8 @@ class DotSceneLoader(object):
                     name = entity['name'].nodeValue
                     mesh = entity['meshFile'].nodeValue
                     ent = self.sceneManager.createEntity(name, mesh)
+                                        
+                    
                     newNode.attachObject(ent)
                     # TODO: The idea is that we can create a list of all
                     # geometry here and then add the ode collision stuff
@@ -149,20 +151,20 @@ class DotSceneLoader(object):
                     light = self.sceneManager.createLight(
                                                   lightattr['name'].nodeValue)
                     light.type = LIGHT_TYPES[lightattr['type'].nodeValue]
-                    light.diffuseColour = (float(diffuse['r'].nodeValue)
-                                           * GLOBAL_SCALE_FACTOR,
-                                           float(diffuse['g'].nodeValue)
-                                           * GLOBAL_SCALE_FACTOR,
+                    light.diffuseColour = (float(diffuse['r'].nodeValue),
+                                           #* GLOBAL_SCALE_FACTOR,
+                                           float(diffuse['g'].nodeValue),
+                                           #* GLOBAL_SCALE_FACTOR,
                                            float(diffuse['b'].nodeValue)
-                                           * GLOBAL_SCALE_FACTOR
+                                           #* GLOBAL_SCALE_FACTOR
                                           )
                                           
-                    light.specularColour = (float(specular['r'].nodeValue)
-                                            * GLOBAL_SCALE_FACTOR,
-                                            float(specular['g'].nodeValue)
-                                            * GLOBAL_SCALE_FACTOR,
+                    light.specularColour = (float(specular['r'].nodeValue),
+                                            #* GLOBAL_SCALE_FACTOR,
+                                            float(specular['g'].nodeValue),
+                                            #* GLOBAL_SCALE_FACTOR,
                                             float(specular['b'].nodeValue)
-                                            * GLOBAL_SCALE_FACTOR
+                                            #* GLOBAL_SCALE_FACTOR
                                            )
                     if attenuation:
                         light.setAttenuation(float(attenuation['range'] \
