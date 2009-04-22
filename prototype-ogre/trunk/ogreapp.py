@@ -66,6 +66,10 @@ class Application(object):
         playerCamera.position = (50, 50, 50)
         playerCamera.lookAt((0,0,0))
         playerCamera.nearClipDistance = 1
+        
+        #set camera to orthographic projection mode
+        playerCamera.setProjectionType(PT_ORTHOGRAPHIC)
+        
         vp = self.root.getAutoCreatedWindow().addViewport(playerCamera)
         vp.backGroundColor = (0, 0, 1)
         playerCamera.aspectRatio = float (vp.actualWidth) / float (vp.actualHeight)
