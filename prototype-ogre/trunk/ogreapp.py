@@ -60,16 +60,29 @@ class Application(object):
     def setupScene(self):
         # LOAD SCENE HERE
         sceneManager = self.root.createSceneManager(ogre.ST_GENERIC, "Default SceneManager")
-        sceneLoader = SceneLoader.DotSceneLoader("myscene.scene", sceneManager)
+        sceneLoader = SceneLoader.DotSceneLoader("testtilescene.scene", sceneManager)
         sceneLoader.parseDotScene()
-        playerCamera = sceneManager.createCamera("PlayerCamera")
-        playerCamera.position = (50, 50, 50)
-        playerCamera.lookAt((0,0,0))
+        
+		#setup camera
+		playerCamera = sceneManager.createCamera("PlayerCamera1")
         playerCamera.nearClipDistance = 1
+        playerCamera.farClipDistance = 500
+        playerCamera.setProjectionType(ogre.PT_ORTHOGRAPHIC)
+		
+		# THIS SPECIFIES THE HEIGHT OF THE ORTHOGRAPHIC WINDOW
+		# the width will be recalculated based on the aspect ratio
+		# in ortho projection mode, decreasing the size of the window
+		# is equivalent to zooming in, increasing is the equivalent of
+		# zooming out
+        playerCamera.setOrthoWindowHeight(200)
         
-        #set camera to orthographic projection mode
-        playerCamera.setProjectionType(PT_ORTHOGRAPHIC)
+        # setup camera node
+        cameraNode = sceneManager.getRootSceneNode().createChildSceneNode('cameraNode1')
+        cameraNode.position = (0, 1, 1)
+        cameraNode.pitch(ogre.Degree(-45))
+        cameraNode.attachObject(playerCamera)
         
+        #setup viewport
         vp = self.root.getAutoCreatedWindow().addViewport(playerCamera)
         vp.backGroundColor = (0, 0, 1)
         playerCamera.aspectRatio = float (vp.actualWidth) / float (vp.actualHeight)
