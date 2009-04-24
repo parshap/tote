@@ -16,14 +16,6 @@
       <scale x="9.125197" y="9.125197" z="9.125197"/>
       <entity name="Plane" meshFile="Plane.mesh"/>
     </node>
-    <node name="Camera">
-      <position x="7.481132" y="5.343665" z="6.507640"/>
-      <quaternion x="-0.212056" y="0.386910" z="0.085793" w="0.893293"/>
-      <scale x="1.000000" y="1.000000" z="1.000000"/>
-      <camera name="Camera" fov="37.849289" projectionType="perspective">
-        <clipping nearPlaneDist="0.100000" farPlaneDist="100.000000"/>
-      </camera>
-    </node>
   </nodes>
   <externals>
     <item type="material">
