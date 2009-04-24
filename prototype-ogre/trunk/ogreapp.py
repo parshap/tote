@@ -2,7 +2,6 @@ import ogre.renderer.OGRE as ogre
 import ogre.io.OIS as OIS
 import ogre.gui.CEGUI as CEGUI
 import SceneLoader
-import math
  
 class ExitListener(ogre.FrameListener):
  
@@ -63,21 +62,27 @@ class Application(object):
         sceneManager = self.root.createSceneManager(ogre.ST_GENERIC, "Default SceneManager")
         sceneLoader = SceneLoader.DotSceneLoader("media/testtilescene.scene", sceneManager)
         sceneLoader.parseDotScene()
-
-        playerCamera = sceneManager.createCamera("PlayerCamera")
-        # playerCamera.position = (0, 1, 0)
-        # playerCamera.lookAt((0,0,0))
-        # playerCamera.setFOVy(math.radians(45))
+        
+		#setup camera
+		playerCamera = sceneManager.createCamera("PlayerCamera1")
         playerCamera.nearClipDistance = 1
-        playerCamera.farClipDistance = 10000
-        # playerCamera.setProjectionType(ogre.PT_PERSPECTIVE)
+        playerCamera.farClipDistance = 500
         playerCamera.setProjectionType(ogre.PT_ORTHOGRAPHIC)
-
-        cameraNode = sceneManager.getRootSceneNode().createChildSceneNode('PlayerCameraNode')
-        cameraNode.position = (0, 100, 100)
-        cameraNode.pitch(ogre.Degree(-90))
+		
+		# THIS SPECIFIES THE HEIGHT OF THE ORTHOGRAPHIC WINDOW
+		# the width will be recalculated based on the aspect ratio
+		# in ortho projection mode, decreasing the size of the window
+		# is equivalent to zooming in, increasing is the equivalent of
+		# zooming out
+        playerCamera.setOrthoWindowHeight(200)
+        
+        # setup camera node
+        cameraNode = sceneManager.getRootSceneNode().createChildSceneNode('cameraNode1')
+        cameraNode.position = (0, 1, 1)
+        cameraNode.pitch(ogre.Degree(-45))
         cameraNode.attachObject(playerCamera)
-  
+        
+        #setup viewport
         vp = self.root.getAutoCreatedWindow().addViewport(playerCamera)
         vp.backGroundColor = (0, 0, 1)
         playerCamera.aspectRatio = float (vp.actualWidth) / float (vp.actualHeight)
