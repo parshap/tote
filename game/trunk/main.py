@@ -1,17 +1,3 @@
-#
-# This base-project contains all you need in order to set up an application
-# with buffered event handling, without the need of SampleFramework or
-# ExampleFrameListener classes. 
-# It is based partially on Basic Tutorial 6 and bits from the SF.
-#
-# As an added bonus, I have added the code required for using CEGUI.
-# It is the same as can be found in the basic tutorials.
-#
-# This code is public domain, feel free to do with it as you please
-# 
-# Alex de Landgraaf, 2008
-#
- 
 import ogre.renderer.OGRE as ogre
 import ogre.io.OIS as OIS
 import ogre.gui.CEGUI as CEGUI
