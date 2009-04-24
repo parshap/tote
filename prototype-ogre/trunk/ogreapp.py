@@ -73,7 +73,7 @@ class Application(object):
 		# the width will be recalculated based on the aspect ratio
 		# in ortho projection mode, decreasing the size of the window
 		# is equivalent to zooming in, increasing is the equivalent of
-		# zooming out
+		# zooming out.
         playerCamera.setOrthoWindowHeight(200)
         
         # setup camera node
@@ -82,7 +82,7 @@ class Application(object):
         cameraNode.pitch(ogre.Degree(-45))
         cameraNode.attachObject(playerCamera)
         
-        #setup viewport
+        # setup viewport
         vp = self.root.getAutoCreatedWindow().addViewport(playerCamera)
         vp.backGroundColor = (0, 0, 1)
         playerCamera.aspectRatio = float (vp.actualWidth) / float (vp.actualHeight)
