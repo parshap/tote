@@ -209,7 +209,7 @@ class Application(object):
         cameraNode.attachObject(self.primaryCamera)
         
         # setup viewport
-        vp = self.root.getAutoCreatedWindow().addViewport(self.primaryCamera)
+        vp = self.renderWindow.addViewport(self.primaryCamera)
         vp.backGroundColor = (0, 0, 1)
         self.primaryCamera.aspectRatio = float (vp.actualWidth) / float (vp.actualHeight)
 
@@ -240,11 +240,22 @@ class Application(object):
  
     def cleanUp(self):
         pass
- 
- 
-if __name__ == '__main__':
+
+
+def main(argv=None):
+    # Get command line arguments or passed parameters.
+    if argv is None:
+        argv = sys.argv
+    
+    # Start the application.
     try:
-        ta = Application()
-        ta.go()
+        app = Application()
+        app.go()
     except ogre.OgreException, e:
         print e
+    
+    # Exit
+    return 1
+ 
+if __name__ == '__main__':
+    main()
