@@ -68,7 +68,7 @@ class EventListener(ogre.FrameListener, ogre.WindowEventListener, OIS.MouseListe
  
         Returning False here exits the application (render loop stops)
         """
- 
+        
         # Capture any buffered events and call any required callback functions
         if self.keyboard:
             self.keyboard.capture()
@@ -175,14 +175,14 @@ class Application(object):
  
     def createRenderWindow(self):
         self.root.initialise(True, self.app_title)
+        self.renderWindow = self.root.getAutoCreatedWindow()
+        self.renderWindow.setDeactivateOnFocusChange(False)
  
     def initializeResourceGroups(self):
         ogre.TextureManager.getSingleton().setDefaultNumMipmaps(5)
         ogre.ResourceGroupManager.getSingleton().initialiseAllResourceGroups()
  
     def setupScene(self):
-        self.renderWindow = self.root.getAutoCreatedWindow()
-        
         self.sceneManager = self.root.createSceneManager(ogre.ST_GENERIC, "PrimarySceneManager")
         self.primaryCamera = self.sceneManager.createCamera("PrimaryCamera")
         
