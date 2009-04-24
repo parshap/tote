@@ -17,7 +17,7 @@ import ogre.io.OIS as OIS
 import ogre.gui.CEGUI as CEGUI
 import SceneLoader
  
-class BaseScene(ogre.FrameListener, ogre.WindowEventListener, OIS.MouseListener, OIS.KeyListener, OIS.JoyStickListener):
+class EventListener(ogre.FrameListener, ogre.WindowEventListener, OIS.MouseListener, OIS.KeyListener, OIS.JoyStickListener):
     """
     This class handles all our ogre and OIS events, mouse/keyboard/joystick
     depending on how you initialize this class. All events are handled
