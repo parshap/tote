@@ -9,11 +9,8 @@ class EventListener(ogre.FrameListener, ogre.WindowEventListener, OIS.MouseListe
     depending on how you initialize this class. All events are handled
     using callbacks (buffered).
     """
- 
-    mouse = None
-    keyboard = None
- 
-    def __init__(self, renderWindow, bufferedMouse, bufferedKeys):
+    
+    def __init__(self):
  
         # Initialize the various listener classes we are a subclass from
         ogre.FrameListener.__init__(self)
@@ -21,7 +18,7 @@ class EventListener(ogre.FrameListener, ogre.WindowEventListener, OIS.MouseListe
         OIS.MouseListener.__init__(self)
         OIS.KeyListener.__init__(self)
  
-        self.renderWindow = renderWindow
+        self.renderWindow = ogre.Root.getSingleton().getAutoCreatedWindow()
  
         # Create the inputManager using the supplied renderWindow
         windowHnd = self.renderWindow.getCustomAttributeInt("WINDOW")
@@ -30,41 +27,29 @@ class EventListener(ogre.FrameListener, ogre.WindowEventListener, OIS.MouseListe
         # Attempt to get the mouse/keyboard input objects,
         # and use this same class for handling the callback functions.
         # These functions are defined later on.
- 
         try:
-            if bufferedMouse:
-                self.mouse = self.inputManager.createInputObjectMouse(OIS.OISMouse, bufferedMouse)
-                self.mouse.setEventCallback(self)
- 
-            if bufferedKeys:
-                self.keyboard = self.inputManager.createInputObjectKeyboard(OIS.OISKeyboard, bufferedKeys)
-                self.keyboard.setEventCallback(self)
- 
+            self.mouse = self.inputManager.createInputObjectMouse(OIS.OISMouse, True)
+            self.mouse.setEventCallback(self)
+            self.keyboard = self.inputManager.createInputObjectKeyboard(OIS.OISKeyboard, True)
+            self.keyboard.setEventCallback(self)
         except Exception, e: # Unable to obtain mouse/keyboard input
             raise e
  
         # Set this to True when we get an event to exit the application
-        self.quitApplication = False
+        self.quit = False
  
         # Listen for any events directed to the window manager's close button
         ogre.WindowEventUtilities.addWindowEventListener(self.renderWindow, self)
+        
     def __del__ (self ):
         # Clean up OIS 
-	print "QUITING"
-        self.delInputObjects()
- 
+        self.inputManager.destroyInputObjectKeyboard(self.keyboard)
+        self.inputManager.destroyInputObjectMouse(self.mouse)
         OIS.InputManager.destroyInputSystem(self.inputManager)
         self.inputManager = None
  
         ogre.WindowEventUtilities.removeWindowEventListener(self.renderWindow, self)
         self.windowClosed(self.renderWindow)
- 
-    def delInputObjects(self):
-        # Clean up the initialized input objects
-        if self.keyboard:
-            self.inputManager.destroyInputObjectKeyboard(self.keyboard)
-        if self.mouse:
-            self.inputManager.destroyInputObjectMouse(self.mouse)
  
     def frameStarted(self, evt):
         """ 
@@ -82,14 +67,16 @@ class EventListener(ogre.FrameListener, ogre.WindowEventListener, OIS.MouseListe
             self.mouse.capture()
  
         # Neatly close our FrameListener if our renderWindow has been shut down
-        if(self.renderWindow.isClosed()):
+        # or we are quitting.
+        if self.renderWindow.isClosed() or self.quit:
             return False
- 
-        return not self.quitApplication
+            
+        return True
  
 ### Window Event Listener callbacks ###
  
     def windowResized(self, renderWindow):
+        # @todo: handle aspect ratio stuff...
         pass
  
     def windowClosed(self, renderWindow):
@@ -130,11 +117,7 @@ class EventListener(ogre.FrameListener, ogre.WindowEventListener, OIS.MouseListe
     def keyPressed(self, evt):
         # Quit the application if we hit the escape button
         if evt.key == OIS.KC_ESCAPE:
-            self.quitApplication = True
- 
-	if evt.key == OIS.KC_1:
-	    print "hello"
- 
+            self.quit = True
         return True
  
     def keyReleased(self, evt):
@@ -155,7 +138,7 @@ class Application(object):
         self.createFrameListener()
         self.setupCEGUI()
         self.startRenderLoop()
-        #self.cleanUp()
+        self.cleanUp()
  
     def createRoot(self):
         self.root = ogre.Root()
@@ -223,7 +206,7 @@ class Application(object):
  
  
     def createFrameListener(self):
-        self.eventListener = EventListener(self.renderWindow, True, True)
+        self.eventListener = EventListener()
         self.root.addFrameListener(self.eventListener)
  
     def setupCEGUI(self):
@@ -246,14 +229,7 @@ class Application(object):
         self.root.startRendering()
  
     def cleanUp(self):
-        # Clean up CEGUI
-	print "CLEANING"
-        #del self.renderer
-        del self.system
- 
-        # Clean up Ogre
-        #del self.exitListener
-        del self.root
+        pass
  
  
 if __name__ == '__main__':
