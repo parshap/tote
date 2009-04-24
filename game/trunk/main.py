@@ -22,7 +22,13 @@ class EventListener(ogre.FrameListener, ogre.WindowEventListener, OIS.MouseListe
  
         # Create the inputManager using the supplied renderWindow
         windowHnd = self.renderWindow.getCustomAttributeInt("WINDOW")
-        self.inputManager = OIS.createPythonInputSystem([("WINDOW",str(windowHnd))])
+        paramList = [("WINDOW", str(windowHnd)), \
+                     ("w32_mouse", "DISCL_FOREGROUND"), \
+                     ("w32_mouse", "DISCL_NONEXCLUSIVE"), \
+                     ("w32_keyboard", "DISCL_FOREGROUND"), \
+                     ("w32_keyboard", "DISCL_NONEXCLUSIVE"),]
+                     # @todo: add mac/linux parameters
+        self.inputManager = OIS.createPythonInputSystem(paramList)
  
         # Attempt to get the mouse/keyboard input objects,
         # and use this same class for handling the callback functions.
@@ -34,6 +40,9 @@ class EventListener(ogre.FrameListener, ogre.WindowEventListener, OIS.MouseListe
             self.keyboard.setEventCallback(self)
         except Exception, e: # Unable to obtain mouse/keyboard input
             raise e
+        
+        # Set up initial window size.
+        self.windowResized(self.renderWindow)
  
         # Set this to True when we get an event to exit the application
         self.quit = False
@@ -76,8 +85,10 @@ class EventListener(ogre.FrameListener, ogre.WindowEventListener, OIS.MouseListe
 ### Window Event Listener callbacks ###
  
     def windowResized(self, renderWindow):
+        self.mouse.getMouseState().width = renderWindow.width
+        self.mouse.getMouseState().height = renderWindow.height
         # @todo: handle aspect ratio stuff...
-        pass
+        
  
     def windowClosed(self, renderWindow):
         # Only close for window that created OIS
@@ -156,7 +167,6 @@ class Application(object):
                 typeName = item.key
                 archName = item.value
                 ogre.ResourceGroupManager.getSingleton().addResourceLocation(archName, typeName, secName)
- 
  
     def setupRenderSystem(self):
         # Show the config dialog if we don't yet have an ogre.cfg file
