@@ -1,6 +1,7 @@
 import ogre.renderer.OGRE as ogre
 import ogre.io.OIS as OIS
 import ogre.gui.CEGUI as CEGUI
+import sys
 import SceneLoader
  
 class EventListener(ogre.FrameListener, ogre.WindowEventListener, OIS.MouseListener, OIS.KeyListener):
