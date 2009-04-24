@@ -17,25 +17,23 @@ import ogre.io.OIS as OIS
 import ogre.gui.CEGUI as CEGUI
 import SceneLoader
  
-class EventListener(ogre.FrameListener, ogre.WindowEventListener, OIS.MouseListener, OIS.KeyListener, OIS.JoyStickListener):
+class EventListener(ogre.FrameListener, ogre.WindowEventListener, OIS.MouseListener, OIS.KeyListener):
     """
-    This class handles all our ogre and OIS events, mouse/keyboard/joystick
+    This class handles all our ogre and OIS events, mouse/keyboard/
     depending on how you initialize this class. All events are handled
     using callbacks (buffered).
     """
  
     mouse = None
     keyboard = None
-    joy = None
  
-    def __init__(self, renderWindow, bufferedMouse, bufferedKeys, bufferedJoy):
+    def __init__(self, renderWindow, bufferedMouse, bufferedKeys):
  
         # Initialize the various listener classes we are a subclass from
         ogre.FrameListener.__init__(self)
         ogre.WindowEventListener.__init__(self)
         OIS.MouseListener.__init__(self)
         OIS.KeyListener.__init__(self)
-        OIS.JoyStickListener.__init__(self)
  
         self.renderWindow = renderWindow
  
@@ -56,11 +54,7 @@ class EventListener(ogre.FrameListener, ogre.WindowEventListener, OIS.MouseListe
                 self.keyboard = self.inputManager.createInputObjectKeyboard(OIS.OISKeyboard, bufferedKeys)
                 self.keyboard.setEventCallback(self)
  
-            if bufferedJoy:
-                self.joy = self.inputManager.createInputObjectJoyStick(OIS.OISJoyStick, bufferedJoy)
-                self.joy.setEventCallback(self)
- 
-        except Exception, e: # Unable to obtain mouse/keyboard/joy input
+        except Exception, e: # Unable to obtain mouse/keyboard input
             raise e
  
         # Set this to True when we get an event to exit the application
@@ -85,8 +79,6 @@ class EventListener(ogre.FrameListener, ogre.WindowEventListener, OIS.MouseListe
             self.inputManager.destroyInputObjectKeyboard(self.keyboard)
         if self.mouse:
             self.inputManager.destroyInputObjectMouse(self.mouse)
-        if self.joy:
-            self.inputManager.destroyInputObjectJoyStick(self.joy)
  
     def frameStarted(self, evt):
         """ 
@@ -102,15 +94,6 @@ class EventListener(ogre.FrameListener, ogre.WindowEventListener, OIS.MouseListe
             self.keyboard.capture()
         if self.mouse:
             self.mouse.capture()
-        if self.joy:
-            self.joy.capture()
- 
-            # joystick test
-            axes_int = self.joy.getJoyStickState().mAxes
-            axes = []
-            for i in axes_int:
-                axes.append(i.abs)			
-            print axes
  
         # Neatly close our FrameListener if our renderWindow has been shut down
         if(self.renderWindow.isClosed()):
@@ -169,17 +152,6 @@ class EventListener(ogre.FrameListener, ogre.WindowEventListener, OIS.MouseListe
         return True
  
     def keyReleased(self, evt):
-        return True
- 
-### Joystick Listener callbacks ###
- 
-    def buttonPressed(self, evt, id):
-        return True
- 
-    def buttonReleased(self, evt, id):
-        return True
- 
-    def axisMoved(self, evt, id):
         return True
  
 class Application(object):
@@ -265,7 +237,7 @@ class Application(object):
  
  
     def createFrameListener(self):
-        self.eventListener = EventListener(self.renderWindow, True, True, False) # switch the final "False" into "True" to get joystick support
+        self.eventListener = EventListener(self.renderWindow, True, True)
         self.root.addFrameListener(self.eventListener)
  
     def setupCEGUI(self):
