@@ -4,7 +4,56 @@ import ogre.gui.CEGUI as CEGUI
 import sys
 import SceneLoader
 
-class PlayScene(ogre.FrameListener, ogre.WindowEventListener, OIS.MouseListener, OIS.KeyListener):
+
+class InputHandler(OIS.MouseListener, OIS.KeyListener):
+    def __init__(self, mouse, keyboard, scene):
+        OIS.MouseListener.__init__(self)
+        OIS.KeyListener.__init__(self)
+        self.mouse = mouse
+        self.keyboard = keyboard
+        self.scene = scene
+
+    def capture(self):
+        self.mouse.capture()
+        self.keyboard.capture()
+
+    def mouseMoved(self, event):
+        # Pass the location of the mouse pointer over to CEGUI
+        CEGUI.System.getSingleton().injectMouseMove(event.get_state().X.rel, event.get_state().Y.rel)
+        return True
+
+    def mousePressed(self, event, id):
+        # Handle any CEGUI mouseButton events
+        CEGUI.System.getSingleton().injectMouseButtonDown(self.convertOISButtonToCEGUI(id))
+        return True
+
+    def mouseReleased(self, event, id):
+        # Handle any CEGUI mouseButton events
+        CEGUI.System.getSingleton().injectMouseButtonUp(self.convertOISButtonToCEGUI(id))
+        return True
+
+    def convertOISButtonToCEGUI(self, oisID):
+        """ Converts an OIS mouse button ID to a CEGUI mouse button ID """
+        if oisID == OIS.MB_Left:
+            return CEGUI.LeftButton
+        elif oisID == OIS.MB_Right:
+            return CEGUI.RightButton
+        elif oisID == OIS.MB_Middle:
+            return CEGUI.MiddleButton
+        else:
+            return CEGUI.LeftButton
+
+    def keyPressed(self, event):
+        # Quit the application if we hit the escape button
+        if event.key == OIS.KC_ESCAPE:
+            self.scene.quit = True
+        return True
+
+    def keyReleased(self, event):
+        return True
+
+
+class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
     """
     This class handles all our ogre and OIS events, mouse/keyboard/
     depending on how you initialize this class. All events are handled
@@ -12,18 +61,18 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener, OIS.MouseListener,
     """
 
     def __init__(self, sceneManager):
-
         # Initialize the various listener classes we are a subclass from
         ogre.FrameListener.__init__(self)
         ogre.WindowEventListener.__init__(self)
-        OIS.MouseListener.__init__(self)
-        OIS.KeyListener.__init__(self)
 
         
         self.renderWindow = ogre.Root.getSingleton().getAutoCreatedWindow()
         self.sceneManager = sceneManager
         self.camera = self.sceneManager.getCamera("PrimaryCamera")
         self.cameraNode = self.sceneManager.getSceneNode("PrimaryCamera")
+        
+        # Set up the scene.
+        self.setupScene()
 
         # Create the inputManager using the supplied renderWindow
         windowHnd = self.renderWindow.getCustomAttributeInt("WINDOW")
@@ -35,22 +84,21 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener, OIS.MouseListener,
                      # @todo: add mac/linux parameters
         self.inputManager = OIS.createPythonInputSystem(paramList)
 
-        # Attempt to get the mouse/keyboard input objects,
-        # and use this same class for handling the callback functions.
-        # These functions are defined later on.
+        # Attempt to get the mouse/keyboard input device objects.
         try:
             self.mouse = self.inputManager.createInputObjectMouse(OIS.OISMouse, True)
-            self.mouse.setEventCallback(self)
             self.keyboard = self.inputManager.createInputObjectKeyboard(OIS.OISKeyboard, True)
-            self.keyboard.setEventCallback(self)
-        except Exception, e: # Unable to obtain mouse/keyboard input
-            raise e
+        except Exception: # Unable to obtain mouse/keyboard input
+            raise
+
+        # Use an InputHandler object to handle the callback functions.
+        self.inputHandler = InputHandler(mouse=self.mouse, keyboard=self.keyboard,
+                                         scene=self)
+        self.mouse.setEventCallback(self.inputHandler)
+        self.keyboard.setEventCallback(self.inputHandler)
 
         # Set up initial window size.
         self.windowResized(self.renderWindow)
-        
-        # Set up the scene.
-        self.setupScene()
 
         # Set this to True when we get an event to exit the application
         self.quit = False
@@ -98,11 +146,8 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener, OIS.MouseListener,
         Returning False here exits the application (render loop stops)
         """
 
-        # Capture any buffered events and call any required callback functions
-        if self.keyboard:
-            self.keyboard.capture()
-        if self.mouse:
-            self.mouse.capture()
+        # Capture any buffered events (and fire any callbacks).
+        self.inputHandler.capture()
 
         # Neatly close our FrameListener if our renderWindow has been shut down
         # or we are quitting.
