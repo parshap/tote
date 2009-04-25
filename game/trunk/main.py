@@ -116,7 +116,9 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener, OIS.MouseListener,
     def windowResized(self, renderWindow):
         self.mouse.getMouseState().width = renderWindow.width
         self.mouse.getMouseState().height = renderWindow.height
-        # @todo: handle aspect ratio stuff...
+        vp = self.camera.getViewport()
+        self.camera.aspectRatio = float (vp.actualWidth) / float (vp.actualHeight)
+        # @todo: Scale the image so viewable area remains the same.
 
     def windowClosed(self, renderWindow):
         # Only close for window that created OIS
@@ -221,7 +223,7 @@ class Application(object):
 
         # setup viewport
         vp = self.renderWindow.addViewport(camera)
-        vp.backGroundColor = (0, 0, 1)
+        vp.backGroundColor = (0, 0, 0)
         camera.aspectRatio = float (vp.actualWidth) / float (vp.actualHeight)
 
     def createFrameListener(self):
