@@ -61,7 +61,7 @@ class EventListener(ogre.FrameListener, ogre.WindowEventListener, OIS.MouseListe
         ogre.WindowEventUtilities.removeWindowEventListener(self.renderWindow, self)
         self.windowClosed(self.renderWindow)
  
-    def frameStarted(self, evt):
+    def frameStarted(self, event):
         """ 
         Called before a frame is displayed, handles events
         (also those via callback functions, as you need to call capture()
@@ -98,23 +98,24 @@ class EventListener(ogre.FrameListener, ogre.WindowEventListener, OIS.MouseListe
  
 ### Mouse Listener callbacks ###
  
-    def mouseMoved(self, evt):
+    def mouseMoved(self, event):
         # Pass the location of the mouse pointer over to CEGUI
-        CEGUI.System.getSingleton().injectMouseMove(evt.get_state().X.rel, evt.get_state().Y.rel)
+        CEGUI.System.getSingleton().injectMouseMove(event.get_state().X.rel, event.get_state().Y.rel)
         return True
  
-    def mousePressed(self, evt, id):
+    def mousePressed(self, event, id):
         # Handle any CEGUI mouseButton events
-        CEGUI.System.getSingleton().injectMouseButtonDown(self.convertButton(id))
+        CEGUI.System.getSingleton().injectMouseButtonDown(self.convertOISButtonToCEGUI(id))
         return True
  
-    def mouseReleased(self, evt, id):
+    def mouseReleased(self, event, id):
         # Handle any CEGUI mouseButton events
-        CEGUI.System.getSingleton().injectMouseButtonUp(self.convertButton(id))
+        CEGUI.System.getSingleton().injectMouseButtonUp(self.convertOISButtonToCEGUI(id))
         return True
  
  
-    def convertButton(self,oisID):
+    def convertOISButtonToCEGUI(self, oisID):
+        """ Converts an OIS mouse button ID to a CEGUI mouse button ID """
         if oisID == OIS.MB_Left:
             return CEGUI.LeftButton
         elif oisID == OIS.MB_Right:
@@ -126,13 +127,13 @@ class EventListener(ogre.FrameListener, ogre.WindowEventListener, OIS.MouseListe
  
 ### Key Listener callbacks ###
  
-    def keyPressed(self, evt):
+    def keyPressed(self, event):
         # Quit the application if we hit the escape button
-        if evt.key == OIS.KC_ESCAPE:
+        if event.key == OIS.KC_ESCAPE:
             self.quit = True
         return True
  
-    def keyReleased(self, evt):
+    def keyReleased(self, event):
         return True
  
 class Application(object):
@@ -205,7 +206,7 @@ class Application(object):
 
         # setup camera node
         cameraNode = self.sceneManager.getRootSceneNode().createChildSceneNode('cameraNode1')
-        cameraNode.position = (0, 1, 1)
+        cameraNode.position = (0, 1, 0)
         cameraNode.pitch(ogre.Degree(-90))
         cameraNode.attachObject(self.primaryCamera)
         
