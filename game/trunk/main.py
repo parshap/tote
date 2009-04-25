@@ -4,14 +4,14 @@ import ogre.gui.CEGUI as CEGUI
 import sys
 import SceneLoader
 
-class EventListener(ogre.FrameListener, ogre.WindowEventListener, OIS.MouseListener, OIS.KeyListener):
+class PlayScene(ogre.FrameListener, ogre.WindowEventListener, OIS.MouseListener, OIS.KeyListener):
     """
     This class handles all our ogre and OIS events, mouse/keyboard/
     depending on how you initialize this class. All events are handled
     using callbacks (buffered).
     """
 
-    def __init__(self):
+    def __init__(self, sceneManager):
 
         # Initialize the various listener classes we are a subclass from
         ogre.FrameListener.__init__(self)
@@ -19,7 +19,11 @@ class EventListener(ogre.FrameListener, ogre.WindowEventListener, OIS.MouseListe
         OIS.MouseListener.__init__(self)
         OIS.KeyListener.__init__(self)
 
+        
         self.renderWindow = ogre.Root.getSingleton().getAutoCreatedWindow()
+        self.sceneManager = sceneManager
+        self.camera = self.sceneManager.getCamera("PrimaryCamera")
+        self.cameraNode = self.sceneManager.getSceneNode("PrimaryCamera")
 
         # Create the inputManager using the supplied renderWindow
         windowHnd = self.renderWindow.getCustomAttributeInt("WINDOW")
@@ -44,6 +48,9 @@ class EventListener(ogre.FrameListener, ogre.WindowEventListener, OIS.MouseListe
 
         # Set up initial window size.
         self.windowResized(self.renderWindow)
+        
+        # Set up the scene.
+        self.setupScene()
 
         # Set this to True when we get an event to exit the application
         self.quit = False
@@ -60,6 +67,27 @@ class EventListener(ogre.FrameListener, ogre.WindowEventListener, OIS.MouseListe
 
         ogre.WindowEventUtilities.removeWindowEventListener(self.renderWindow, self)
         self.windowClosed(self.renderWindow)
+        
+    def setupScene(self):
+        # LOAD SCENE HERE
+        sceneLoader = SceneLoader.DotSceneLoader("media/testtilescene.scene", self.sceneManager)
+        sceneLoader.parseDotScene()
+
+        # Setup camera
+        self.camera.nearClipDistance = 1
+        self.camera.farClipDistance = 500
+        self.camera.setProjectionType(ogre.PT_ORTHOGRAPHIC)
+
+        # THIS SPECIFIES THE HEIGHT OF THE ORTHOGRAPHIC WINDOW
+        # the width will be recalculated based on the aspect ratio
+        # in ortho projection mode, decreasing the size of the window
+        # is equivalent to zooming in, increasing is the equivalent of
+        # zooming out.
+        self.camera.setOrthoWindowHeight(200)
+
+        # Setup camera node
+        self.cameraNode.position = (0, 1, 0)
+        self.cameraNode.pitch(ogre.Degree(-90))
 
     def frameStarted(self, event):
         """ 
@@ -185,40 +213,20 @@ class Application(object):
 
     def setupScene(self):
         self.sceneManager = self.root.createSceneManager(ogre.ST_GENERIC, "PrimarySceneManager")
-        self.primaryCamera = self.sceneManager.createCamera("PrimaryCamera")
-
-        # LOAD SCENE HERE
-        sceneLoader = SceneLoader.DotSceneLoader("media/testtilescene.scene", self.sceneManager)
-        sceneLoader.parseDotScene()
-
-        # Setup camera
-        self.primaryCamera.nearClipDistance = 1
-        self.primaryCamera.farClipDistance = 500
-        self.primaryCamera.setProjectionType(ogre.PT_ORTHOGRAPHIC)
-
-        # THIS SPECIFIES THE HEIGHT OF THE ORTHOGRAPHIC WINDOW
-        # the width will be recalculated based on the aspect ratio
-        # in ortho projection mode, decreasing the size of the window
-        # is equivalent to zooming in, increasing is the equivalent of
-        # zooming out.
-        self.primaryCamera.setOrthoWindowHeight(200)
-
-        # setup camera node
-        cameraNode = self.sceneManager.getRootSceneNode().createChildSceneNode('cameraNode1')
-        cameraNode.position = (0, 1, 0)
-        cameraNode.pitch(ogre.Degree(-90))
-        cameraNode.attachObject(self.primaryCamera)
+        
+        # Create the camera and attach it to a scene node.
+        camera = self.sceneManager.createCamera("PrimaryCamera")
+        cameraNode = self.sceneManager.getRootSceneNode().createChildSceneNode('PrimaryCamera')
+        cameraNode.attachObject(camera)
 
         # setup viewport
-        vp = self.renderWindow.addViewport(self.primaryCamera)
+        vp = self.renderWindow.addViewport(camera)
         vp.backGroundColor = (0, 0, 1)
-        self.primaryCamera.aspectRatio = float (vp.actualWidth) / float (vp.actualHeight)
-
-
+        camera.aspectRatio = float (vp.actualWidth) / float (vp.actualHeight)
 
     def createFrameListener(self):
-        self.eventListener = EventListener()
-        self.root.addFrameListener(self.eventListener)
+        self.playScene = PlayScene(self.sceneManager)
+        self.root.addFrameListener(self.playScene)
 
     def setupCEGUI(self):
         sceneManager = self.sceneManager
