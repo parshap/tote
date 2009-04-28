@@ -44,16 +44,16 @@ class MobileObject(GameObject):
         self.runDirection = 0
         self.position_changed = Event()
     
-    
     @property
     def isRunning(self):
         """ Gets or sets the object's current running state """
         return self._isRunning
     @isRunning.setter
     def isRunning(self, value):
-        # Update the value and fire the changed event.
-        self._isRunning = value
-        self.isRunning_changed(self, value)
+        # Update the value and fire the changed event if the value has changed.
+        if value != self._isRunning:
+            self._isRunning = value
+            self.isRunning_changed(self, value)
         
     @property
     def position(self):
