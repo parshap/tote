@@ -131,6 +131,10 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
         
         # Update the game state world.
         self.world.update(dt)
+        
+        # Add time to animations.
+        for node in self.nodes:
+            node.animations_addtime(dt)
 
         # Neatly close our FrameListener if our renderWindow has been shut down
         # or we are quitting.

@@ -31,11 +31,37 @@ class Node(object):
         self.sceneNode.attachObject(self.entity)
         self.sceneNode.setScale(.1, .1, .1)
         
+        # Get a dict of our available animations.
+        self.animations = { }
+        self.animations["idle"] = self.entity.getAnimationState("Idle2")
+        self.animations["walk"] = self.entity.getAnimationState("Walk")
+        
+        # Create a set of current active animations.
+        self.animations_active = set()
+        
+        # Start the idle animation
+        self.animation_start("idle")
+        
         self.rotation = 0
         
         # Listen to the events we care about.
         gameObject.rotation_changed += self.on_rotation_changed
         
+    def animation_start(self, name):
+        anim = self.animations[name]
+        anim.setLoop(True)
+        anim.setEnabled(True)
+        self.animations_active.add(anim)
+        
+    def animation_stop(self, name):
+        anim = self.animations[name]
+        anim.setEnabled(False)
+        self.animations_active.remove(anim)
+        
+    def animations_addtime(self, time):
+        for anim in self.animations_active:
+            anim.addTime(time)
+          
     def on_rotation_changed(self, gameObject, rotation):
         self.sceneNode.rotate((0, 1, 0), rotation - self.rotation)
         self.rotation = rotation
