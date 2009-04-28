@@ -1,3 +1,5 @@
+from __future__ import division
+
 # Import OGRE-specific (and other UI-Client) external packages and modules.
 import ogre.renderer.OGRE as ogre
 import ogre.io.OIS as OIS
@@ -7,8 +9,10 @@ import ogre.gui.CEGUI as CEGUI
 import sys
 
 # Import internal packages and modules modules.
+import gamestate
 import SceneLoader
 from inputhandler import InputHandler
+import nodes
 
 
 class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
@@ -28,6 +32,9 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
         self.sceneManager = sceneManager
         self.camera = self.sceneManager.getCamera("PrimaryCamera")
         self.cameraNode = self.sceneManager.getSceneNode("PrimaryCamera")
+        
+        # Create an empty list of nodes
+        self.nodes = []
         
         # Set up the scene.
         self.setupScene()
@@ -51,7 +58,7 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
 
         # Use an InputHandler object to handle the callback functions.
         self.inputHandler = InputHandler(mouse=self.mouse, keyboard=self.keyboard,
-                                         scene=self)
+                                         scene=self, player=self.player)
         self.mouse.setEventCallback(self.inputHandler)
         self.keyboard.setEventCallback(self.inputHandler)
 
@@ -75,9 +82,26 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
         self.windowClosed(self.renderWindow)
         
     def setupScene(self):
-        # LOAD SCENE HERE
+        ## Load the level.
+        # @todo: Remove .scene dependancy and move to external file (format?).
+        
+        # Load some data from the .scene file
         sceneLoader = SceneLoader.DotSceneLoader("media/testtilescene.scene", self.sceneManager)
         sceneLoader.parseDotScene()
+        
+        # Create the world.
+        self.world = gamestate.world.World()
+        
+        # Attach a handler to world.object_added
+        self.world.object_added += self.on_world_object_added
+        
+        # Add a player to the world and set it as our active player.
+        self.player = gamestate.objects.Player()
+        self.world.add_object(self.player)
+        
+        # Listen to the player's position change event so we can mvoe the
+        # camera with the player.
+        self.player.position_changed += self.on_player_position_changed
 
         # Setup camera
         self.camera.nearClipDistance = 1
@@ -92,8 +116,8 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
         self.camera.setOrthoWindowHeight(200)
 
         # Setup camera node
-        self.cameraNode.position = (0, 1, 0)
-        self.cameraNode.pitch(ogre.Degree(-90))
+        self.cameraNode.position = (0, 100, 100)
+        self.cameraNode.pitch(ogre.Degree(-45))
 
     def frameStarted(self, event):
         """ 
@@ -103,9 +127,14 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
 
         Returning False here exits the application (render loop stops)
         """
+        
+        dt = event.timeSinceLastFrame
 
         # Capture any buffered events (and fire any callbacks).
         self.inputHandler.capture()
+        
+        # Update the game state world.
+        self.world.update(dt)
 
         # Neatly close our FrameListener if our renderWindow has been shut down
         # or we are quitting.
@@ -113,14 +142,22 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
             return False
 
         return True
+        
+    ## Game event callbacks
+    
+    def on_world_object_added(self, gameObject):
+        self.nodes.append(nodes.PlayerNode(self.sceneManager, gameObject))
+        
+    def on_player_position_changed(self, mobileObject, position):
+        self.cameraNode.position = (position[0], 100, position[1] + 100)
 
-### Window Event Listener callbacks ###
+    ## Window event listener callbacks
 
     def windowResized(self, renderWindow):
         self.mouse.getMouseState().width = renderWindow.width
         self.mouse.getMouseState().height = renderWindow.height
         vp = self.camera.getViewport()
-        self.camera.aspectRatio = float (vp.actualWidth) / float (vp.actualHeight)
+        self.camera.aspectRatio = vp.actualWidth / vp.actualHeight
         # @todo: Scale the image so viewable area remains the same.
 
     def windowClosed(self, renderWindow):
@@ -188,7 +225,6 @@ class Application(object):
         # setup viewport
         vp = self.renderWindow.addViewport(camera)
         vp.backGroundColor = (0, 0, 0)
-        camera.aspectRatio = float (vp.actualWidth) / float (vp.actualHeight)
 
     def createFrameListener(self):
         self.playScene = PlayScene(self.sceneManager)
