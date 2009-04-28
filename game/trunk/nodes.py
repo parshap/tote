@@ -31,10 +31,12 @@ class Node(object):
         self.sceneNode.attachObject(self.entity)
         self.sceneNode.setScale(.1, .1, .1)
         
-        # Get a dict of our available animations.
+        # Create a dict of our available animations. The animations are stored
+        # as a tuple of the animation state and the speed at which the
+        # animation should be played.
         self.animations = { }
-        self.animations["idle"] = self.entity.getAnimationState("Idle2")
-        self.animations["walk"] = self.entity.getAnimationState("Walk")
+        self.animations["idle"] = (self.entity.getAnimationState("Idle2"), 1)
+        self.animations["run"] = (self.entity.getAnimationState("Walk"), 3)
         
         # Create a set of current active animations.
         self.animations_active = set()
@@ -48,20 +50,27 @@ class Node(object):
         gameObject.rotation_changed += self.on_rotation_changed
         
     def animation_start(self, name):
-        anim = self.animations[name]
+        anim, speed = self.animations[name]
         anim.setLoop(True)
         anim.setEnabled(True)
-        self.animations_active.add(anim)
+        self.animations_active.add((anim, speed))
         
     def animation_stop(self, name):
-        anim = self.animations[name]
+        anim, speed = self.animations[name]
         anim.setEnabled(False)
-        self.animations_active.remove(anim)
+        self.animations_active.remove((anim, speed))
+        
+    def animations_stopall(self):
+        for anim, speed in self.animations_active:
+            anim.setEnabled(False)
+        self.animations_active.clear()
         
     def animations_addtime(self, time):
-        for anim in self.animations_active:
-            anim.addTime(time)
-          
+        for (anim, speed) in self.animations_active:
+            anim.addTime(time*speed)
+    
+    ## Game state event listeners
+    
     def on_rotation_changed(self, gameObject, rotation):
         self.sceneNode.rotate((0, 1, 0), rotation - self.rotation)
         self.rotation = rotation
@@ -73,9 +82,20 @@ class MobileNode(Node):
         
         # Listen to the events we care about.
         mobileObject.position_changed += self.on_position_changed
+        mobileObject.isRunning_changed += self.on_isRunning_changed
         
+    ## Game state event listeners
+    
     def on_position_changed(self, mobileObject, position):
         self.sceneNode.position = (position[0], 0, position[1])
+        
+    def on_isRunning_changed(self, gameObject, isRunning):
+        if isRunning:
+            self.animation_stop("idle")
+            self.animation_start("run")
+        else:
+            self.animation_stop("run")
+            self.animation_start("idle")
 
 
 class PlayerNode(MobileNode):

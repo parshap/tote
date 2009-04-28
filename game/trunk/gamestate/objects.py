@@ -38,11 +38,23 @@ class GameObject(object):
 class MobileObject(GameObject):
     def __init__(self):
         GameObject.__init__(self)
-        self.isRunning = False
+        self._isRunning = False
+        self.isRunning_changed = Event()
         self.runSpeed = 100
         self.runDirection = 0
         self.position_changed = Event()
     
+    
+    @property
+    def isRunning(self):
+        """ Gets or sets the object's current running state """
+        return self._isRunning
+    @isRunning.setter
+    def isRunning(self, value):
+        # Update the value and fire the changed event.
+        self._isRunning = value
+        self.isRunning_changed(self, value)
+        
     @property
     def position(self):
         """ Gets or sets the object's current (x, z) position as a tuple """
