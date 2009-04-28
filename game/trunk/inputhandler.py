@@ -2,6 +2,13 @@ import ogre.io.OIS as OIS
 import ogre.gui.CEGUI as CEGUI
 
 class InputHandler(OIS.MouseListener, OIS.KeyListener):
+    """
+    This class handles all user device input event handlers with the defined
+    callback functions. This class modifies the game state directly with a
+    reference to a player object that represents the current playing player.
+    This class also has a reference to the scene object to get information from
+    and make changes to the camera, window, and viewport.
+    """
     def __init__(self, mouse, keyboard, scene):
         OIS.MouseListener.__init__(self)
         OIS.KeyListener.__init__(self)

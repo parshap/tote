@@ -13,9 +13,9 @@ from inputhandler import InputHandler
 
 class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
     """
-    This class handles all our ogre and OIS events, mouse/keyboard/
-    depending on how you initialize this class. All events are handled
-    using callbacks (buffered).
+    This class represents the game's main scene - the play scene. This class
+    sets up the initial scene and acts as the main game loop (via
+    frameStarted()).
     """
 
     def __init__(self, sceneManager):
