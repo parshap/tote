@@ -4,7 +4,7 @@ import math
 from event import Event
 
 class GameObject(object):
-    def __init__(self, node=None):
+    def __init__(self):
         self._rotation = 0
         self.rotation_changed = Event()
         self._position = (0, 0)
