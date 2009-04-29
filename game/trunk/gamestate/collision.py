@@ -1,3 +1,4 @@
+from __future__ import division
 import math
 import ogre.renderer.OGRE as ogre # access to ogre.Vector3
 
