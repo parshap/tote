@@ -26,16 +26,16 @@ class CollisionDetector:
             shapeType = object.shapeType
             
             # determine the shapetype and run the appropriate ray query function
-            if(shapeType == "circle"):
+            if shapeType == "circle":
                 return _ray_circle_collision(originPoint, orientation, queryDistance, object.boundingShape, object.position)
-            elif(shapeType == "linesegment"):
+            elif shapeType == "linesegment":
                 return _ray_segment_collision(originPoint, orientation, queryDistance, object.boundingShape, object.position)
             else:
                 pass
             
     def checkCollision(colliderShape, colliderShapePosition, collideeShape, collideeShapePosition):
         # determine type of shape and call appropriate helper function
-        if(colliderShape.shapeType == "circle" and collideeShape == "linesegment"):
+        if colliderShape.shapeType == "circle" and collideeShape == "linesegment":
             return _check_circle_segment_collision(colliderShape, colliderShapePosition, collideeShape, collideeShapePosition)
         pass
             
@@ -44,7 +44,7 @@ class CollisionDetector:
         distance = _get_xz_distance(originPoint, position)
         
         # optimization... if the points are two far away to possibly collide, don't process this
-        if(queryDistance < distance - radius):
+        if queryDistance < distance - radius:
             return False
         
         # get the absolute position of the ray's endpoints
@@ -70,15 +70,15 @@ class CollisionDetector:
         discrim = b * b - 4 * a * c
         
         
-        if(discrim < 0): # no collision
+        if discrim < 0: # no collision
             return False
         else:
             solution1 = (-b + math.sqrt(discrim))/(2*a)
             solution2 = (-b - math.sqrt(discrim))/(2*a)
             
-            if(solution1 >= 0 and solution1 <= 1):
+            if solution1 >= 0 and solution1 <= 1:
                 return True
-            if(solution2 >= 0 and solution2 <= 1):
+            if solution2 >= 0 and solution2 <= 1:
                 return True
             return False
           
@@ -101,7 +101,7 @@ class CollisionDetector:
         # calculate denominator
         denom = ((b2.z - b1.z) * (a2.x - a1.x)) - ((b2.x - b1.x) * (a2.z - a1.z))
         
-        if(denom == 0): # the segments are parallel
+        if denom == 0: # the segments are parallel
             return False # no collision
         else:
             # otherwise we have to solve for the intersection points
@@ -110,7 +110,7 @@ class CollisionDetector:
             
             # ua and ub represent the % along the corresponding segment the intersection happens
             # if ua or ub is less than 0 (0%) or greater than 1 (100%) then segments did not collide, return False
-            if((ua < 0) or (ua > 1) or (ub < 0) or (ub > 1)):
+            if (ua < 0) or (ua > 1) or (ub < 0) or (ub > 1):
                 return False
             else:
                 return True
@@ -136,23 +136,23 @@ class CollisionDetector:
         discrim = b * b - 4 * a * c
         
         
-        if(discrim < 0): # no collision
+        if discrim < 0: # no collision
             return None
-        elif (discrim == 0): # perfect collision
+        elif discrim == 0: # perfect collision
             # u is the % of the distance from p1 to p2 the intersection point falls at
             u = -b / (2 * a)
             collisionPoint = (point1.x + u * p2Minusp1.x, 0, point1.z + u * p2Minusp1.z)
-            if(u < 0 or u > 1):
+            if u < 0 or u > 1:
                 return None
             else:
                 return collisionPoint
-        elif (discrim > 0): # collision with 2 intersection points
+        elif discrim > 0: # collision with 2 intersection points
             u1 = (-b + math.sqrt(discrim)) / (2 * a)
             u2 = (-b - math.sqrt(discrim)) / (2 * a)
             
             # check to make sure the collision point falls between point1 and point2 on the line
             avg = (u1 + u2)/2
-            if(avg < 0 or avg > 1):
+            if avg < 0 or avg > 1:
                 return None
             
             # now we calculate the two collision points (where the circle intersects the segment
