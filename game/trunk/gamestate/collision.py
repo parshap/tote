@@ -23,19 +23,17 @@ class BoundingLineSegment(BoundingShape):
 
 
 class CollisionDetector:
-    def castRay(originPoint, orientation, queryDistance, possibleObjects):
-        # for each object
-        for object in possibleObjects:
-            # get the object's bounding shape
-            shapeType = object.shapeType
-
-            # determine the shapetype and run the appropriate ray query function
-            if shapeType == "circle":
-                return _ray_circle_collision(originPoint, orientation, queryDistance, object.boundingShape, object.position)
-            elif shapeType == "linesegment":
-                return _ray_segment_collision(originPoint, orientation, queryDistance, object.boundingShape, object.position)
-            else:
-                pass
+    def castRay(originPoint, orientation, queryDistance, collideeShape, collideeShapePosition):
+        # get the collidee's bounding shape type
+        shapeType = collideeShape.shapeType
+        
+        # determine the shapetype and run the appropriate ray query function
+        if shapeType == "circle":
+            return _ray_circle_collision(originPoint, orientation, queryDistance, object.boundingShape, object.position)
+        elif shapeType == "linesegment":
+            return _ray_segment_collision(originPoint, orientation, queryDistance, object.boundingShape, object.position)
+        else:
+            pass
 
     def checkCollision(colliderShape, colliderShapePosition, collideeShape, collideeShapePosition):
         # determine type of shape and call appropriate helper function
