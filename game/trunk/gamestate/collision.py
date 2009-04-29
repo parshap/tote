@@ -29,9 +29,9 @@ class CollisionDetector:
         
         # determine the shapetype and run the appropriate ray query function
         if shapeType == "circle":
-            return _ray_circle_collision(originPoint, orientation, queryDistance, object.boundingShape, object.position)
+            return _ray_circle_collision(originPoint, orientation, queryDistance, collideeShape, collideeShapePosition)
         elif shapeType == "linesegment":
-            return _ray_segment_collision(originPoint, orientation, queryDistance, object.boundingShape, object.position)
+            return _ray_segment_collision(originPoint, orientation, queryDistance, collideeShape, collideeShapePosition)
         else:
             pass
 
