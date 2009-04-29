@@ -8,28 +8,26 @@ class GameObject(object):
         self._rotation = 0
         self.rotation_changed = Event()
         self._position = (0, 0)
-        
-    @property
-    def rotation(self):
+
+    def _get_rotation(self):
         """ Gets or sets the object's current orientation angle in radians. """
         return self._rotation
-    @rotation.setter
-    def rotation(self, value):
+    def _set_rotation(self, value):
         # Update the value and fire the changed event.
         self._rotation = value
         self.rotation_changed(self, value)
+    rotation = property(_get_rotation, _set_rotation)
 
     def rotate(self, angle):
         self.rotation += angle
-        
-        
-    @property
-    def position(self):
+
+
+    def _get_position(self):
         """ Gets or sets the object's current (x, z) position as a tuple """
         return self._position
-    @position.setter
-    def position(self, value):
+    def _set_position(self, value):
         self._position = value
+    position = property(_get_position, _set_position)
 
     def update(self, dt):
         pass
@@ -43,31 +41,29 @@ class MobileObject(GameObject):
         self.runSpeed = 100
         self.runDirection = 0
         self.position_changed = Event()
-    
-    @property
-    def isRunning(self):
+
+    def _get_isRunning(self):
         """ Gets or sets the object's current running state """
         return self._isRunning
-    @isRunning.setter
-    def isRunning(self, value):
+    def _set_isRunning(self, value):
         # Update the value and fire the changed event if the value has changed.
         if value != self._isRunning:
             self._isRunning = value
             self.isRunning_changed(self, value)
-        
-    @property
-    def position(self):
+    isRunning = property(_get_isRunning, _set_isRunning)
+
+    def _get_position(self):
         """ Gets or sets the object's current (x, z) position as a tuple """
         return self._position
-    @position.setter
-    def position(self, value):
+    def _set_position(self, value):
         # Update the value and fire the changed event.
         self._position = value
         self.position_changed(self, value)
+    position = property(_get_position, _set_position)
 
     def update(self, dt):
         GameObject.update(self, dt)
-        
+
         if self.isRunning:
             runSpd = self.runSpeed * dt
             runDir = self.rotation + self.runDirection
