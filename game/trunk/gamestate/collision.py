@@ -3,7 +3,7 @@ import math
 import ogre.renderer.OGRE as ogre # access to ogre.Vector3
 
 
-class BoundingShape:
+class BoundingShape(object):
     def __init__(self):
         pass
 
@@ -24,7 +24,7 @@ class BoundingLineSegment(BoundingShape):
         self.shapeType = "linesegment"
 
 
-class CollisionDetector:
+class CollisionDetector(object):
     def castRay(originPoint, orientation, queryDistance, collideeShape, collideeShapePosition):
         # get the collidee's bounding shape type
         shapeType = collideeShape.shapeType
