@@ -10,12 +10,14 @@ class BoundingShape:
 
 class BoundingCircle(BoundingShape):
     def __init__(self, radius):
+        BoundingShape.__init__(self)
         self.radius = radius
         self.shapeType = "circle"
 
 
 class BoundingLineSegment(BoundingShape):
     def __init__(self, point1, point2, normal):
+        BoundingShape.__init__(self)
         self.position = point1
         self.vector = ogre.Vector3(point2.x - point1.x, point2.y - point1.y, point2.z - point1.z)
         self.normal = normal
