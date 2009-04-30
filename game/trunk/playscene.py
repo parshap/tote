@@ -92,7 +92,7 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
         self.world.object_added += self.on_world_object_added
         
         # Add a player to the world and set it as our active player.
-        self.player = gamestate.objects.Player()
+        self.player = gamestate.objects.Player(self.world)
         self.world.add_object(self.player)
         
         # Listen to the player's position change event so we can mvoe the

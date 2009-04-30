@@ -4,7 +4,8 @@ import math
 from event import Event
 
 class GameObject(object):
-    def __init__(self):
+    def __init__(self, world):
+        self.world = world
         self._rotation = 0
         self.rotation_changed = Event()
         self._position = (0, 0)
@@ -34,8 +35,8 @@ class GameObject(object):
 
 
 class MobileObject(GameObject):
-    def __init__(self):
-        GameObject.__init__(self)
+    def __init__(self, world):
+        GameObject.__init__(self, world)
         self._isRunning = False
         self.isRunning_changed = Event()
         self.runSpeed = 100
@@ -91,8 +92,8 @@ class Player(MobileObject):
     power, action state) and performing deterministic calculations (e.g., new
     position based on velocity) on every update() (once per frame).
     """
-    def __init__(self):
-        MobileObject.__init__(self)
+    def __init__(self, world):
+        MobileObject.__init__(self, world)
         self.power = 100
         self.health = 100
 
