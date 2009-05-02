@@ -142,7 +142,6 @@ class MobileObject(GameObject):
                 # If the object is not passable, then this is a critical error
                 # and we will completely deny the move by returning.
                 if not object.isPassable:
-                    print "****DENYING MOVEMENT BECAUSE OF RAY!!"
                     return
                     
                 # Otherwise append the object to our list of collided objects.
@@ -199,8 +198,6 @@ class MobileObject(GameObject):
         # perform collision resolution.
         for object in collided_objects:
             object.collide(self)
-            
-        print "<<<< DID MOVE!!"
             
         # Now that collision detection and resolution is complete, update our
         # position to the previously calculated new position.
