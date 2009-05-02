@@ -207,16 +207,15 @@ class MobileObject(GameObject):
                     self._move(distance, angle, collided_objects)
                     return
 
-        # Collision detection is over and we now have a set of objects that we
-        # have collided with. Call .collide() on each of those objects to
-        # perform collision resolution.
+        # Now that collision detection is complete, update our position to the
+        # previously calculated new position.
+        self.position = new_pos
+        
+        # We now have a set of objects that we have collided with. Call
+        # .collide() on each of those objects to perform collision resolution.
         print "Collided with %s objects." % len(collided_objects)
         for object in collided_objects:
             object.collide(self)
-            
-        # Now that collision detection and resolution is complete, update our
-        # position to the previously calculated new position.
-        self.position = new_pos
 
 
 class Player(MobileObject):
