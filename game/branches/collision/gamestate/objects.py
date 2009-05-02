@@ -38,7 +38,7 @@ class GameObject(object):
         pass
         
     def collide(self, otherObject):
-        print "%s collided with %s" % (self, otherObject)
+        pass
 
 
 class MobileObject(GameObject):
@@ -213,7 +213,6 @@ class MobileObject(GameObject):
         
         # We now have a set of objects that we have collided with. Call
         # .collide() on each of those objects to perform collision resolution.
-        print "Collided with %s objects." % len(collided_objects)
         for object in collided_objects:
             object.collide(self)
 
