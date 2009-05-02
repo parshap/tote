@@ -157,13 +157,8 @@ class MobileObject(GameObject):
                 # collision detection based on that new position. Call
                 # self._move() to do this and then return.
                 if not object.isPassable:
-                    print type(shapeResult)
-                    print "****DENYING MOVEMENT BECAUSE OF COLLIDE!! %s" % shapeResult
                     change = (shapeResult.x - self.position[0],
                               shapeResult.z - self.position[1])
-                    print "cur pos: (%.2f, %.2f)" % (self.position[0], self.position[1])
-                    print "new pos: (%.2f, %.2f)" % (new_pos[0], new_pos[1])
-                    print "change: (%.2f, %.2f)" % (change[0], change[1])
                     distance = math.sqrt(change[0]*change[0] + change[1]*change[1])
                     x = change[0]
                     y = change[1]
@@ -177,9 +172,8 @@ class MobileObject(GameObject):
                             angle = math.atan(-y / x) - math.pi/2
                         else:
                             angle = math.atan(-y / x) + math.pi/2
-                    print "Readjusting by %.2f at %.2f pi." % (distance, angle/math.pi)
+                    
                     self._move(distance, angle)
-                    # self._move(shapeResult) # @todo: fix parameter
                     return
                     
                 # Otherwise append the object to our list of collided objects.

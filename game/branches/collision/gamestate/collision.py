@@ -139,9 +139,6 @@ class CollisionDetector(object):
         point1 = segment.position
         point2 = segment.position + segment.vector
         
-        print "Segment: (%.2f,%.2f) to (%.2f,%.2f)." % (point1.x, point1.z, point2.x, point2.z)
-        print "Circle: (%.2f,%.2f)." % (circlePosition.x, circlePosition.z)
-        
         # print "Ray Orientation: %.2f" % (orientation/math.pi)
 
         # first transform the segment vertices to coordinates relative to the circle's center
@@ -157,8 +154,6 @@ class CollisionDetector(object):
         c = (localP1.x * localP1.x) + (localP1.z * localP1.z) - (circle.radius * circle.radius)
 
         discrim = b * b - 4 * a * c
-
-        print "discrim: %.2f" % discrim
 
         if discrim < 0: # no collision
             return None
