@@ -83,7 +83,7 @@ class MobileObject(GameObject):
         Arguments:
         delta -- The distance (as distance units) to move the object.
         direction -- The direction (as radians where 0 is north) to move in.
-        collided_objects -- A list of objects previously collided with in this
+        collided_objects -- A set of objects previously collided with in this
             gamestate update that need to persist through _move() calls.
         """
         
@@ -108,16 +108,16 @@ class MobileObject(GameObject):
         #   - Check un-passable objects first so we can restart _move sooner (if needed).
         #   - Check only against nearby objects (quadtree?)
         
-        # Initialize the list of objects we collide with in this object's
+        # Initialize the set of objects we collide with in this object's
         # update (for later use in collision resolution).
         if already_collided is None:
             # If already_collided (a function argument) was not pased then no
             # objects have already collided with this object during this
-            # object's update, so initialize it to an empty list.
-            collided_objects = []
+            # object's update, so initialize it to an empty set.
+            collided_objects = set()
         else:
             # Otherwise we already have some objects we have collided with (but
-            # not performed resolution on), so initialize our list to those
+            # not performed resolution on), so initialize our set to those
             # previously collided with objects.
             collided_objects = already_collided
         
@@ -159,15 +159,15 @@ class MobileObject(GameObject):
                 if not object.isPassable:
                     return
                     
-                # Otherwise append the object to our list of collided objects.
-                collided_objects.append(object)
+                # Otherwise add the object to our set of collided objects.
+                collided_objects.add(object)
                 
             if shapeResult is not None:
                 # Our new bounding shape will be overlapping with another
                 # object's bounding shape.
                 
-                # Add the object to our list of collided objects.
-                collided_objects.append(object)
+                # Add the object to our set of collided objects.
+                collided_objects.add(object)
                 
                 # If the object is not passable, then we need to move to the
                 # new position that is provided by the result and redo the
@@ -207,7 +207,7 @@ class MobileObject(GameObject):
                     self._move(distance, angle, collided_objects)
                     return
 
-        # Collision detection is over and we now have a list of objects that we
+        # Collision detection is over and we now have a set of objects that we
         # have collided with. Call .collide() on each of those objects to
         # perform collision resolution.
         print "Collided with %s objects." % len(collided_objects)
