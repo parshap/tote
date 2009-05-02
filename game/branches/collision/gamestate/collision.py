@@ -66,7 +66,7 @@ class CollisionDetector(object):
 
         # get the absolute position of the ray's endpoints
         endx = originPoint.x + math.cos(orientation)*queryDistance
-        endz = originPoint.z + math.sin(orientation)*queryDistance
+        endz = originPoint.z + -math.sin(orientation)*queryDistance
         endPoint = ogre.Vector3(endx, 0, endz)
 
         point1 = originPoint
@@ -110,7 +110,9 @@ class CollisionDetector(object):
 
         # a1 and a2 define the ray cast segment
         a1 = originPoint
-        a2 = ogre.Vector3(originPoint.x + math.cos(orientation)*distance, 0, originPoint.z + math.sin(orientation)*distance)
+        a2 = ogre.Vector3(originPoint.x + math.cos(orientation)*distance,
+                          0,
+                          originPoint.z + -math.sin(orientation)*distance)
 
         # b1 and b2 define the line segment we are checking against
         b1 = position
