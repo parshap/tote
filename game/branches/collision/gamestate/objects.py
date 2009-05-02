@@ -156,7 +156,22 @@ class MobileObject(GameObject):
                 # new position that is provided by the result and redo the
                 # collision detection based on that new position. Call
                 # self._move() to do this and then return.
+                
+                
                 if not object.isPassable:
+                
+                    # We will use the shapeResult value returned from
+                    # check_collision to move ourself flush against the object
+                    # we collided with.
+                    
+                    # Since shapeResult is the position we should move to in
+                    # absolute map coordinates but we need a movement direction
+                    # and distance to call _move() we will use shapeResult and
+                    # our current position to derive the direction and distance
+                    # to pass to _move().
+                    
+                    # @todo: don't do this conversion. :<
+                    
                     change = (shapeResult.x - self.position[0],
                               shapeResult.z - self.position[1])
                     distance = math.sqrt(change[0]*change[0] + change[1]*change[1])
