@@ -79,6 +79,10 @@ class MobileObject(GameObject):
         """
         Moves the object by delta amount in the given direction (radians) and
         performs collision detection and resolution.
+        
+        Arguments:
+        delta -- The distance (as distance units) to move the object.
+        direction -- The direction (as radians where 0 is north) to move in.
         """
         
         # If the distance we are moving is 0, then we don't have to do anything.
@@ -156,7 +160,6 @@ class MobileObject(GameObject):
                 # collision detection based on that new position. Call
                 # self._move() to do this and then return.
                 
-                
                 if not object.isPassable:
                 
                     # We will use the shapeResult value returned from
@@ -196,6 +199,7 @@ class MobileObject(GameObject):
         # Collision detection is over and we now have a list of objects that we
         # have collided with. Call .collide() on each of those objects to
         # perform collision resolution.
+        print "Collided with %s objects." % len(collided_objects)
         for object in collided_objects:
             object.collide(self)
             
