@@ -30,6 +30,7 @@ class CollisionDetector(object):
         # Convert the points from (x,z) tuples to ogre.Vector3
         # @todo: decide on one point data structure...
         originPoint = ogre.Vector3(originPoint[0], 0, originPoint[1])
+        endPoint = ogre.Vector3(endPoint[0], 0, endPoint[1])
         collideeShapePosition = ogre.Vector3(collideeShapePosition[0], 0, collideeShapePosition[1])
         
         # get the collidee's bounding shape type
@@ -57,27 +58,21 @@ class CollisionDetector(object):
             return CollisionDetector._resolve_circle_circle_collision(colliderShape, colliderShapePosition, collideeShape, collideeShapePosition)
 
     @staticmethod
-    def _ray_circle_collision(originPoint, endPoint, circle, circlePos):
-        # convert positions to ogre.Vector3
-        point1 = ogre.Vector3(originPoint[0], 0, originPoint[1])
-        point2 = ogre.Vector3(endPoint[0], 0, endPoint[1])
-        circlePosition = ogre.Vector3(circlePos[0], 0, circlePos[1])
-        
-        
+    def _ray_circle_collision(originPoint, endPoint, circle, circlePosition):
         # calculate distances
-        rayLength = CollisionDetector._get_xz_distance(point1, point2)
-        distanceToCircle = CollisionDetector._get_xz_distance(point1, circlePosition) - circle.radius
+        rayLength = CollisionDetector._get_xz_distance(originPoint, endPoint)
+        distanceToCircle = CollisionDetector._get_xz_distance(originPoint, circlePosition) - circle.radius
 
         # optimization... if the points are two far away to possibly collide, don't process this
         if rayLength < distanceToCircle:
             return False
        
         # first transform the ray's endpoints to coordinates relative to the circle's center
-        localP1 = ogre.Vector3(point1.x - circlePosition.x, 0, point1.z - circlePosition.z)
-        localP2 = ogre.Vector3(point2.x - circlePosition.x, 0, point2.z - circlePosition.z)
+        localP1 = ogre.Vector3(originPoint.x - circlePosition.x, 0, originPoint.z - circlePosition.z)
+        localP2 = ogre.Vector3(endPoint.x - circlePosition.x, 0, endPoint.z - circlePosition.z)
 
         # pre-calculate p1-p2 for easy reference
-        p2Minusp1 = ogre.Vector3(point2.x - point1.x, 0, point2.z - point1.z)
+        p2Minusp1 = ogre.Vector3(endPoint.x - originPoint.x, 0, endPoint.z - originPoint.z)
 
         # get quadratic coefficients
         a = (p2Minusp1.x * p2Minusp1.x) + (p2Minusp1.z * p2Minusp1.z)
@@ -106,14 +101,12 @@ class CollisionDetector(object):
 
     @staticmethod
     def _ray_segment_collision(originPoint, endPoint, segment, segmentPos):
-        # get the 4 relevant points
-        
         # a1 and a2 define the ray cast segment
-        a1 = ogre.Vector3(originPoint[0], 0, originPoint[1])
-        a2 = ogre.Vector3(endPoint[0], 0, endPoint[1])
+        a1 = originPoint
+        a2 = endPoint
 
         # b1 and b2 define the line segment we are checking against
-        b1 = ogre.Vector3(segmentPos[0], 0, segmentPos[1])
+        b1 = segmentPos
         b2 = b1 + segment.vector
 
         # calculate denominator
@@ -136,8 +129,8 @@ class CollisionDetector(object):
     @staticmethod
     def _resolve_circle_segment_collision(circle, circlePosition, segment, segmentPosition):
         # get the absolute position of the line segment vertices
-        point1 = ogre.Vector3(segmentPosition.x, 0, segmentPosition.z)
-        point2 = point1 + segment.vector
+        point1 = segmentPosition
+        point2 = segmentPosition + segment.vector
         
         # print "Ray Orientation: %.2f" % (orientation/math.pi)
 
@@ -198,11 +191,7 @@ class CollisionDetector(object):
             return resolutionVector
         
         @staticmethod
-        def _resolve_circle_circle_collision(circle1, circle1Pos, circle2, circle2Pos):
-            # convert tuples to ogre.Vector3
-            center1 = ogre.Vector3(circle1Pos[0], 0, circle1Pos[1])
-            center2 = ogre.Vector3(circle2Pos[0], 0, circle2Pos[1])
-            
+        def _resolve_circle_circle_collision(circle1, center1, circle2, center2):            
             # get distance between circle centers
             distance = CollisionDetector._get_xz_distance(center1, center2)
             
