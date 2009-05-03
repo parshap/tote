@@ -156,7 +156,7 @@ class CollisionDetector(object):
             if u < 0 or u > 1:
                 return None
             else:
-                return collisionPoint
+                return (collisionPoint.x, collisionPoint.z)
         elif discrim > 0: # collision with 2 intersection points
             u1 = (-b + math.sqrt(discrim)) / (2 * a)
             u2 = (-b - math.sqrt(discrim)) / (2 * a)
@@ -179,7 +179,6 @@ class CollisionDetector(object):
             # the distance to place the center of the circle from the point of collision
             distance = circle.radius + spacing
 
-
             # translate the circle's position along the segment's normal 'radius' units
             resolvedPosition = ogre.Vector3(collisionPoint.x + distance * segment.normal.x, collisionPoint.y + distance * segment.normal.y, collisionPoint.z + distance * segment.normal.z)
             
@@ -188,36 +187,36 @@ class CollisionDetector(object):
             resolutionVector = (resolvedPosition.x - circlePosition.x, resolvedPosition.z - circlePosition.z)
 
             return resolutionVector
+    
+    @staticmethod
+    def _resolve_circle_circle_collision(circle1, center1, circle2, center2):            
+        # get distance between circle centers
+        distance = CollisionDetector._get_xz_distance(center1, center2)
         
-        @staticmethod
-        def _resolve_circle_circle_collision(circle1, center1, circle2, center2):            
-            # get distance between circle centers
-            distance = CollisionDetector._get_xz_distance(center1, center2)
+        # check to see if collision happened
+        if distance > circle1.radius + circle2.radius:
+            # no collision
+            return None
+        
+        # otherwise we have a collision
+        else:
+            # calculate the resolution translation vector (rtv)
+            dx = center1.x - center2.x
+            dz = center1.z - center2.z
             
-            # check to see if collision happened
-            if distance > circle1.radius + circle2.radius:
-                # no collision
-                return None
+            theta = math.atan2(dz, dx)
             
-            # otherwise we have a collision
-            else:
-                # calculate the resolution translation vector (rtv)
-                dx = center1.x - center2.x
-                dz = center1.z - center2.z
-                
-                theta = math.atan2(dz, dx)
-                
-                # the distance to space the circle from the point of collision when we resolve the collision
-                spacing = 0.1
-                
-                # this is the collision point
-                resolutionPoint = ogre.Vector3((circle2.radius+spacing) * math.cos(theta), 0, (circle2.radius+spacing) * (-math.sin(theta)))
-                
-                # calculate the resolution translation vector relative to the current position of circle1
-                rtv = (resolutionPoint.x - center1.x, resolutionPoint.z - center1.z)
-                
-                # return the value
-                return rtv
+            # the distance to space the circle from the point of collision when we resolve the collision
+            spacing = 0.1
+            
+            # this is the collision point
+            resolutionPoint = ogre.Vector3((circle2.radius+spacing) * math.cos(theta), 0, (circle2.radius+spacing) * (-math.sin(theta)))
+            
+            # calculate the resolution translation vector relative to the current position of circle1
+            rtv = (resolutionPoint.x - center1.x, resolutionPoint.z - center1.z)
+            
+            # return the value
+            return rtv
                 
                 
             
