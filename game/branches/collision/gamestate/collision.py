@@ -53,7 +53,8 @@ class CollisionDetector(object):
         # determine type of shape and call appropriate helper function
         if colliderShape.shapeType == "circle" and collideeShape.shapeType == "linesegment":
             return CollisionDetector._check_circle_segment_collision(colliderShape, colliderShapePosition, collideeShape, collideeShapePosition)
-        pass
+        elif colliderShape.shapeType == "circle" and collideeShape.shapeType == "circle":
+            return CollisionDetector._check_circle_circle_collision(colliderShape, colliderShapePosition, collideeShape, collideeShapePosition)
 
     @staticmethod
     def _ray_circle_collision(originPoint, orientation, queryDistance, circle, circlePosition):
