@@ -19,7 +19,7 @@ class BoundingLineSegment(BoundingShape):
     def __init__(self, point1, point2, normal):
         BoundingShape.__init__(self)
         self.position = point1
-        self.vector = ogre.Vector3(point2.x - point1.x, point2.y - point1.y, point2.z - point1.z)
+        self.vector = ogre.Vector3(point2[0] - point1[0], 0, point2[1] - point1[1])
         self.normal = normal
         self.shapeType = "linesegment"
 
@@ -65,11 +65,11 @@ class CollisionDetector(object):
             return False
 
         # get the absolute position of the ray's endpoints
-        endx = originPoint.x + math.cos(orientation)*queryDistance
-        endz = originPoint.z + -math.sin(orientation)*queryDistance
+        endx = originPoint[0] + math.cos(orientation)*queryDistance
+        endz = originPoint[1] + -math.sin(orientation)*queryDistance
         endPoint = ogre.Vector3(endx, 0, endz)
 
-        point1 = originPoint
+        point1 = ogre.Vector3(originPoint[0], 0, originPoint[1])
         point2 = endPoint
 
         # first transform the segment vertices to coordinates relative to the circle's center
@@ -109,10 +109,10 @@ class CollisionDetector(object):
         # get the 4 relevant points
 
         # a1 and a2 define the ray cast segment
-        a1 = originPoint
-        a2 = ogre.Vector3(originPoint.x + math.cos(orientation)*distance,
+        a1 = ogre.Vector3(originPoint[0], 0, originPoint[1])
+        a2 = ogre.Vector3(originPoint[0] + math.cos(orientation)*distance,
                           0,
-                          originPoint.z + -math.sin(orientation)*distance)
+                          originPoint[1] + -math.sin(orientation)*distance)
 
         # b1 and b2 define the line segment we are checking against
         b1 = position
@@ -138,8 +138,8 @@ class CollisionDetector(object):
     @staticmethod
     def _check_circle_segment_collision(circle, circlePosition, segment, segmentPosition):
         # get the absolute position of the line segment vertices
-        point1 = segment.position
-        point2 = segment.position + segment.vector
+        point1 = ogre.Vector3(segmentPosition.x, 0, segmentPosition.z)
+        point2 = point1 + segment.vector
         
         # print "Ray Orientation: %.2f" % (orientation/math.pi)
 
@@ -184,7 +184,7 @@ class CollisionDetector(object):
             collisionPoint = intersectionPoint1.midPoint(intersectionPoint2)
 
             # the distance to space the circle and the segment when collision is resolved
-            spacing = 0.0001
+            spacing = 0.1
 
             # the distance to place the center of the circle from the point of collision
             distance = circle.radius + spacing
@@ -192,5 +192,46 @@ class CollisionDetector(object):
 
             # translate the circle's position along the segment's normal 'radius' units
             resolvedPosition = ogre.Vector3(collisionPoint.x + distance * segment.normal.x, collisionPoint.y + distance * segment.normal.y, collisionPoint.z + distance * segment.normal.z)
+            
+            # get the relative translation vector to resolve the object's position
+            # this vector is what the collider object must be translated by for the collision to be resolved correctly
+            resolutionVector = (resolvedPosition.x - circlePos.x, resolvedPosition.z - circlePos.z)
 
-            return resolvedPosition
+            return resolutionVector
+        
+        @staticmethod
+        def _check_circle_circle_collision(circle1, circle1Pos, circle2, circle2Pos):
+            # convert tuples to ogre.Vector3
+            center1 = ogre.Vector3(circle1Pos[0], 0, circle1Pos[1])
+            center2 = ogre.Vector3(circle2Pos[0], 0, circle2Pos[1])
+            
+            # get distance between circle centers
+            distance = CollisionDetector._get_xz_distance(center1, center2)
+            
+            # check to see if collision happened
+            if distance > circle1.radius + circle2.radius:
+                # no collision
+                return None
+            
+            # otherwise we have a collision
+            else:
+                # calculate the resolution translation vector (rtv)
+                dx = center1.x - center2.x
+                dz = center1.z - center2.z
+                
+                theta = math.atan2(dz, dx)
+                
+                # the distance to space the circle from the point of collision when we resolve the collision
+                spacing = 0.1
+                
+                # this is the collision point
+                resolutionPoint = ogre.Vector3((circle2.radius+spacing) * math.cos(theta), 0, (circle2.radius+spacing) * (-math.sin(theta)))
+                
+                # calculate the resolution translation vector relative to the current position of circle1
+                rtv = (resolutionPoint.x - center1.x, resolutionPoint.z - center1.z)
+                
+                # return the value
+                return rtv
+                
+                
+            
