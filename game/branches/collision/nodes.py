@@ -31,6 +31,9 @@ class Node(object):
         self.sceneNode.attachObject(self.entity)
         self.sceneNode.setScale(.1, .1, .1)
         
+        # Set the scenenode's position to the GameObject's current position.
+        self.sceneNode.position = (gameObject.position[0], 0, gameObject.position[1])
+        
         # Create a dict of our available animations. The animations are stored
         # as a tuple of the animation state and the speed at which the
         # animation should be played.
