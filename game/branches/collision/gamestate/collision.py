@@ -19,7 +19,7 @@ class BoundingLineSegment(BoundingShape):
     def __init__(self, point1, point2, normal):
         BoundingShape.__init__(self)
         self.vector = ogre.Vector3(point2[0] - point1[0], 0, point2[1] - point1[1])
-        self.normal = normal
+        self.normal = ogre.Vector3(normal[0], 0, normal[1])
         self.shapeType = "linesegment"
 
 
@@ -185,7 +185,7 @@ class CollisionDetector(object):
             
             # get the relative translation vector to resolve the object's position
             # this vector is what the collider object must be translated by for the collision to be resolved correctly
-            resolutionVector = (resolvedPosition.x - circlePos.x, resolvedPosition.z - circlePos.z)
+            resolutionVector = (resolvedPosition.x - circlePosition.x, resolvedPosition.z - circlePosition.z)
 
             return resolutionVector
         
