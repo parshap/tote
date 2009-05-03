@@ -200,17 +200,17 @@ class CollisionDetector(object):
         
         # otherwise we have a collision
         else:
-            # calculate the resolution translation vector (rtv)
+            # calculate the angle of the rtv
             dx = center1.x - center2.x
             dz = center1.z - center2.z
             
-            theta = math.atan2(dz, dx)
+            theta = math.tan(dz/dx)
             
             # the distance to space the circle from the point of collision when we resolve the collision
             spacing = 0.1
             
             # this is the collision point
-            resolutionPoint = ogre.Vector3((circle2.radius+spacing) * math.cos(theta), 0, (circle2.radius+spacing) * (-math.sin(theta)))
+            resolutionPoint = ogre.Vector3(center2.x + (circle2.radius+spacing) * math.cos(theta), 0, center2.z + (circle2.radius+spacing) * (-math.sin(theta)))
             
             # calculate the resolution translation vector relative to the current position of circle1
             rtv = (resolutionPoint.x - center1.x, resolutionPoint.z - center1.z)
