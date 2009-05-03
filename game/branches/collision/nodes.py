@@ -25,8 +25,8 @@ class Node(object):
     _countEntity = 0
     
     def __init__(self, sceneManager, gameObject):
-        self._countEntity += 1
-        self.entity = sceneManager.createEntity("Entity" + str(self._countEntity), "ninja.mesh")
+        Node._countEntity += 1
+        self.entity = sceneManager.createEntity("Entity" + str(Node._countEntity), "ninja.mesh")
         self.sceneNode = sceneManager.getRootSceneNode().createChildSceneNode()
         self.sceneNode.attachObject(self.entity)
         self.sceneNode.setScale(.1, .1, .1)
