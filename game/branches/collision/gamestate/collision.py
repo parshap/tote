@@ -26,7 +26,7 @@ class BoundingLineSegment(BoundingShape):
 
 class CollisionDetector(object):
     @staticmethod
-    def cast_ray(originPoint, orientation, queryDistance, collideeShape, collideeShapePosition):
+    def cast_ray(originPoint, endPoint, collideeShape, collideeShapePosition):
         # Convert the points from (x,z) tuples to ogre.Vector3
         # @todo: decide on one point data structure...
         originPoint = ogre.Vector3(originPoint[0], 0, originPoint[1])
@@ -37,9 +37,9 @@ class CollisionDetector(object):
         
         # determine the shapetype and run the appropriate ray query function
         if shapeType == "circle":
-            return CollisionDetector._ray_circle_collision(originPoint, orientation, queryDistance, collideeShape, collideeShapePosition)
+            return CollisionDetector._ray_circle_collision(originPoint, endPoint, collideeShape, collideeShapePosition)
         elif shapeType == "linesegment":
-            return CollisionDetector._ray_segment_collision(originPoint, orientation, queryDistance, collideeShape, collideeShapePosition)
+            return CollisionDetector._ray_segment_collision(originPoint, endPoint, collideeShape, collideeShapePosition)
         else:
             pass
 
@@ -57,28 +57,27 @@ class CollisionDetector(object):
             return CollisionDetector._resolve_circle_circle_collision(colliderShape, colliderShapePosition, collideeShape, collideeShapePosition)
 
     @staticmethod
-    def _ray_circle_collision(originPoint, orientation, queryDistance, circle, circlePosition):
-        # calculate distance between points
-        distance = CollisionDetector._get_xz_distance(originPoint, position)
+    def _ray_circle_collision(originPoint, endPoint, circle, circlePos):
+        # convert positions to ogre.Vector3
+        point1 = ogre.Vector3(originPoint[0], 0, originPoint[1])
+        point2 = ogre.Vector3(endPoint[0], 0, endPoint[1])
+        circlePosition = ogre.Vector3(circlePos[0], 0, circlePos[1])
+        
+        
+        # calculate distances
+        rayLength = CollisionDetector._get_xz_distance(point1, point2)
+        distanceToCircle = CollisionDetector._get_xz_distance(point1, circlePosition) - circle.radius
 
         # optimization... if the points are two far away to possibly collide, don't process this
-        if queryDistance < distance - radius:
+        if rayLength < distanceToCircle:
             return False
-
-        # get the absolute position of the ray's endpoints
-        endx = originPoint[0] + math.cos(orientation)*queryDistance
-        endz = originPoint[1] + -math.sin(orientation)*queryDistance
-        endPoint = ogre.Vector3(endx, 0, endz)
-
-        point1 = ogre.Vector3(originPoint[0], 0, originPoint[1])
-        point2 = endPoint
-
-        # first transform the segment vertices to coordinates relative to the circle's center
-        localP1 = ogre.Vector3(originPoint.x - circlePosition.x, 0, originPoint.z - circlePosition.z)
-        localP2 = ogre.Vector3(endPoint.x - circlePosition.x, 0, endPoint.z - circlePosition.z)
+       
+        # first transform the ray's endpoints to coordinates relative to the circle's center
+        localP1 = ogre.Vector3(point1.x - circlePosition.x, 0, point1.z - circlePosition.z)
+        localP2 = ogre.Vector3(point2.x - circlePosition.x, 0, point2.z - circlePosition.z)
 
         # pre-calculate p1-p2 for easy reference
-        p2Minusp1 = ogre.Vector3(endPoint.x - originPoint.x, 0, endPoint.z - originPoint.z)
+        p2Minusp1 = ogre.Vector3(point2.x - point1.x, 0, point2.z - point1.z)
 
         # get quadratic coefficients
         a = (p2Minusp1.x * p2Minusp1.x) + (p2Minusp1.z * p2Minusp1.z)
@@ -106,18 +105,16 @@ class CollisionDetector(object):
         return math.sqrt(dx*dx + dz*dz)
 
     @staticmethod
-    def _ray_segment_collision(originPoint, orientation, distance, segment, position):
+    def _ray_segment_collision(originPoint, endPoint, segment, segmentPos):
         # get the 4 relevant points
-
+        
         # a1 and a2 define the ray cast segment
         a1 = ogre.Vector3(originPoint[0], 0, originPoint[1])
-        a2 = ogre.Vector3(originPoint[0] + math.cos(orientation)*distance,
-                          0,
-                          originPoint[1] + -math.sin(orientation)*distance)
+        a2 = ogre.Vector3(endPoint[0], 0, endPoint[1])
 
         # b1 and b2 define the line segment we are checking against
-        b1 = position
-        b2 = position + segment.vector
+        b1 = ogre.Vector3(segmentPos[0], 0, segmentPos[1])
+        b2 = b1 + segment.vector
 
         # calculate denominator
         denom = ((b2.z - b1.z) * (a2.x - a1.x)) - ((b2.x - b1.x) * (a2.z - a1.z))
