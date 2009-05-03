@@ -95,6 +95,12 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
         self.player = gamestate.objects.Player(self.world)
         self.world.add_object(self.player)
         
+        # Add stationary NPC ninja...
+        npc = gamestate.objects.Player(self.world)
+        self.world.add_object(npc)
+        npc.position = (45, 45)
+        npc.isPassable = False
+        
         # Add boundary lines for map walls.
         # @todo: move this out of here!
         
