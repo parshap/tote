@@ -18,7 +18,6 @@ class BoundingCircle(BoundingShape):
 class BoundingLineSegment(BoundingShape):
     def __init__(self, point1, point2, normal):
         BoundingShape.__init__(self)
-        self.position = point1
         self.vector = ogre.Vector3(point2[0] - point1[0], 0, point2[1] - point1[1])
         self.normal = normal
         self.shapeType = "linesegment"
