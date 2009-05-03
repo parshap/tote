@@ -73,28 +73,51 @@ class MobileObject(GameObject):
         if self.isRunning:
             runSpd = self.runSpeed * dt
             runDir = self.rotation + self.runDirection
-            self._move(runSpd, runDir)
+            self._move_towards(runSpd, runDir)
 
-    def _move(self, delta, direction, already_collided=None):
+    def _move_towards(self, distance, direction, already_collided=None):
         """
-        Moves the object by delta amount in the given direction (radians) and
-        performs collision detection and resolution.
+        Moves the object by distance amount in the given direction (radians)
+        and performs collision detection and resolution.
         
         Arguments:
-        delta -- The distance (as distance units) to move the object.
+        distance -- The distance (as distance units) to move the object.
         direction -- The direction (as radians where 0 is north) to move in.
-        collided_objects -- A set of objects previously collided with in this
+        already_collided -- A set of objects previously collided with in this
+            gamestate update that need to persist through _move() calls.
+        """
+
+        # If the distance we are moving is 0, we don't have to do anything.
+        if distance == 0:
+            return
+
+        # Calculate the movement vector for this move.
+        move_vector = (distance * -math.sin(direction),
+                       distance * -math.cos(direction))
+
+        # And call _move to perform the move with the calculated vector.
+        self._move(move_vector, already_collided)
+    
+    def _move(self, move_vector, already_collided=None):
+        """
+        Moves the object by the given movement vector (relative to the current
+        position and performs collision detection and resolution.
+        
+        Arguments:
+        move_vector -- The vector containing the x and z components to move the
+            object in (relative to the current position).
+        already_collided -- A set of objects previously collided with in this
             gamestate update that need to persist through _move() calls.
         """
         
-        # If the distance we are moving is 0, then we don't have to do anything.
-        if delta == 0:
+        # If the movement vector is 0, we don't have to do anything.
+        if move_vector == (0, 0):
             return
- 
+
         # Calculate the new position we want to move to.
-        new_pos = (self._position[0] + delta * -math.sin(direction),
-                   self._position[1] + delta * -math.cos(direction))
-                   
+        new_pos = (self._position[0] + move_vector[0],
+                   self._position[1] + move_vector[1])
+        
         # If the object doesn't have a bounding shape then we don't need to
         # worry about collision detection & resolution and can simply update
         # the position and return.
@@ -121,11 +144,6 @@ class MobileObject(GameObject):
             # previously collided with objects.
             collided_objects = already_collided
         
-        # Change the direction to be what CollisionDetector expects (0 should 
-        # be east instead of north).
-        # @todo: Change all angles to use the same system.
-        direction += math.pi/2
-        
         # Loop over all objects in the world to test against.
         for object in self.world.objects:
             if self == object:
@@ -135,13 +153,13 @@ class MobileObject(GameObject):
             if object.bounding_shape is None:
                 # Can't collide with an object that has no bounding shape.
                 continue
-        
-            # Cast a ray from where we were in the direction we are moving to
-            # with the distance of our move. This is to look for any objects
-            # that may be between our old position and our new position. This
-            # result will be True if the ray collides with the object and False
-            # if not.
-            rayResult = CollisionDetector.cast_ray(self.position, direction, delta, object.bounding_shape, object.position)
+
+            # Cast a ray from where we are to where we are moving to and check
+            # if this ray collides with the object. This is to look for any
+            # objects that may be between our old position and our new
+            # position. This result will be True if the ray collides with the
+            # object and False if not.
+            rayResult = CollisionDetector.cast_ray(self.position, new_pos, object.bounding_shape, object.position)
             
             # Check if our bounding shape at our new position would overlap
             # with the object's bounding shape. The result will be None if
@@ -175,36 +193,11 @@ class MobileObject(GameObject):
                 # self._move() to do this and then return.
                 
                 if not object.isPassable:
-                
-                    # We will use the shapeResult value returned from
-                    # check_collision to move ourself flush against the object
-                    # we collided with.
-                    
-                    # Since shapeResult is the position we should move to in
-                    # absolute map coordinates but we need a movement direction
-                    # and distance to call _move() we will use shapeResult and
-                    # our current position to derive the direction and distance
-                    # to pass to _move().
-                    
-                    # @todo: don't do this conversion. :<
-                    
-                    change = (shapeResult.x - self.position[0],
-                              shapeResult.z - self.position[1])
-                    distance = math.sqrt(change[0]*change[0] + change[1]*change[1])
-                    x = change[0]
-                    y = change[1]
-                    if x == 0:
-                        if y <= 0:
-                            angle = 0
-                        else:
-                            angle = math.pi
-                    else:
-                        if x >= 0:
-                            angle = math.atan(-y / x) - math.pi/2
-                        else:
-                            angle = math.atan(-y / x) + math.pi/2
-                    
-                    self._move(distance, angle, collided_objects)
+                    # We will use the shapeResult value (a corrected movement
+                    # vector) returned from check_collision to move ourself
+                    # flush against the object we collided with.
+
+                    self._move(shapeResult, set([object]))
                     return
 
         # Now that collision detection is complete, update our position to the
