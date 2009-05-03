@@ -196,8 +196,9 @@ class MobileObject(GameObject):
                     # We will use the shapeResult value (a corrected movement
                     # vector) returned from check_collision to move ourself
                     # flush against the object we collided with.
-
-                    self._move(shapeResult, set([object]))
+                    self._move((move_vector[0] + shapeResult[0],
+                                move_vector[1] + shapeResult[1]),
+                               set([object]))
                     return
 
         # Now that collision detection is complete, update our position to the
