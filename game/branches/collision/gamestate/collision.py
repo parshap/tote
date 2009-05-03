@@ -52,9 +52,9 @@ class CollisionDetector(object):
         
         # determine type of shape and call appropriate helper function
         if colliderShape.shapeType == "circle" and collideeShape.shapeType == "linesegment":
-            return CollisionDetector._check_circle_segment_collision(colliderShape, colliderShapePosition, collideeShape, collideeShapePosition)
+            return CollisionDetector._resolve_circle_segment_collision(colliderShape, colliderShapePosition, collideeShape, collideeShapePosition)
         elif colliderShape.shapeType == "circle" and collideeShape.shapeType == "circle":
-            return CollisionDetector._check_circle_circle_collision(colliderShape, colliderShapePosition, collideeShape, collideeShapePosition)
+            return CollisionDetector._resolve_circle_circle_collision(colliderShape, colliderShapePosition, collideeShape, collideeShapePosition)
 
     @staticmethod
     def _ray_circle_collision(originPoint, orientation, queryDistance, circle, circlePosition):
@@ -137,7 +137,7 @@ class CollisionDetector(object):
                 return True
 
     @staticmethod
-    def _check_circle_segment_collision(circle, circlePosition, segment, segmentPosition):
+    def _resolve_circle_segment_collision(circle, circlePosition, segment, segmentPosition):
         # get the absolute position of the line segment vertices
         point1 = ogre.Vector3(segmentPosition.x, 0, segmentPosition.z)
         point2 = point1 + segment.vector
@@ -201,7 +201,7 @@ class CollisionDetector(object):
             return resolutionVector
         
         @staticmethod
-        def _check_circle_circle_collision(circle1, circle1Pos, circle2, circle2Pos):
+        def _resolve_circle_circle_collision(circle1, circle1Pos, circle2, circle2Pos):
             # convert tuples to ogre.Vector3
             center1 = ogre.Vector3(circle1Pos[0], 0, circle1Pos[1])
             center2 = ogre.Vector3(circle2Pos[0], 0, circle2Pos[1])
