@@ -189,36 +189,52 @@ class CollisionDetector(object):
             return resolutionVector
     
     @staticmethod
-    def _resolve_circle_circle_collision(circle1, center1, circle2, center2):            
-        # get distance between circle centers
+    def _resolve_circle_circle_collision(circle1, center1, circle2, center2):   
+        """
+        Checks if circle1 centereed about center1 is overlapping with circle2
+        centered about center2. If there is no overlap, None is returned. If
+        there is an overlap a (x, z) tuple is returned representing a movement
+        vector that circle1 should be moved from center1 to no longer overlap.
+        """
+        
+        # Calculate the distance between the center points of the two circles.
         distance = CollisionDetector._get_xz_distance(center1, center2)
         
-        # check to see if collision happened
         if distance > circle1.radius + circle2.radius:
-            # no collision
+            # If the distance is greater than the sum of the two circles' radii
+            # then the circles are not overlapping and there is no collision.
             return None
         
-        # otherwise we have a collision
-        else:
-            # calculate the resolution translation vector (rtv)
-            dx = center1.x - center2.x
-            dz = center1.z - center2.z
-            
-            theta = math.atan2(-dz, dx)
-            
-            # the distance to space the circle from the point of collision when we resolve the collision
-            spacing = 0.1
-            
-            # this is the collision point
-            resolutionPoint = ogre.Vector3(center2.x + (circle2.radius + circle1.radius + spacing) * math.cos(theta),
-                                           0,
-                                           center2.z + (circle2.radius + circle1.radius + spacing) * (-math.sin(theta)))
-            
-            # calculate the resolution translation vector relative to the current position of circle1
-            rtv = (resolutionPoint.x - center1.x, resolutionPoint.z - center1.z)
-            
-            # return the value
-            return rtv
+        # Otherwise the circles are overlapping and we have collision and we
+        # must calculate the resolution vector (how much to backtrack to not be
+        # in collision).
+      
+        # Calculate the x and z differences between circle1 and circle2.
+        dx = center1.x - center2.x
+        dz = center1.z - center2.z
+        
+        # Calculate circle2's angle relative to circle1.
+        theta = math.atan2(-dz, dx)
+        
+        # Have extra spacing to make sure we are no longer overlapping.
+        spacing = 0.1
+        
+        # Calculate how far away we need to move the center of circle1 from the
+        # center of circle2 overlapping with anymore.
+        move_distance = circle1.radius + circle2.radius + spacing
+        
+        # Calculate the point (absolute map coordinates) where we need to be
+        # to not be overlapping.
+        resolutionPoint = ogre.Vector3(center2.x + move_distance * math.cos(theta),
+                                       0,
+                                       center2.z + move_distance * -math.sin(theta))
+        
+        # Calculate the backtrack vector required used to move from our current
+        # position to get to our resolution point (where we are no longer
+        # overlapping).
+        rtv = (resolutionPoint.x - center1.x, resolutionPoint.z - center1.z)
+        
+        return rtv
                 
                 
             
