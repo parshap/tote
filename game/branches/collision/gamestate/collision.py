@@ -24,6 +24,9 @@ class BoundingLineSegment(BoundingShape):
 
 
 class CollisionDetector(object):
+    # Spacing to leave between two shapes when preventing overlap.
+    SPACING = 0.1
+    
     @staticmethod
     def cast_ray(originPoint, endPoint, collideeShape, collideeShapePosition):
         # Convert the points from (x,z) tuples to ogre.Vector3
@@ -173,11 +176,8 @@ class CollisionDetector(object):
             # find the point on the segment where the circle collided initially
             collisionPoint = intersectionPoint1.midPoint(intersectionPoint2)
 
-            # the distance to space the circle and the segment when collision is resolved
-            spacing = 0.1
-
             # the distance to place the center of the circle from the point of collision
-            distance = circle.radius + spacing
+            distance = circle.radius + CollisionDetector.SPACING
 
             # translate the circle's position along the segment's normal 'radius' units
             resolvedPosition = ogre.Vector3(collisionPoint.x + distance * segment.normal.x, collisionPoint.y + distance * segment.normal.y, collisionPoint.z + distance * segment.normal.z)
@@ -216,12 +216,9 @@ class CollisionDetector(object):
         # Calculate circle2's angle relative to circle1.
         theta = math.atan2(-dz, dx)
         
-        # Have extra spacing to make sure we are no longer overlapping.
-        spacing = 0.1
-        
         # Calculate how far away we need to move the center of circle1 from the
         # center of circle2 overlapping with anymore.
-        move_distance = circle1.radius + circle2.radius + spacing
+        move_distance = circle1.radius + circle2.radius + CollisionDetector.SPACING
         
         # Calculate the point (absolute map coordinates) where we need to be
         # to not be overlapping.
