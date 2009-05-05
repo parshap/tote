@@ -21,6 +21,13 @@ class BoundingLineSegment(BoundingShape):
         self.vector = ogre.Vector3(point2[0] - point1[0], 0, point2[1] - point1[1])
         self.normal = ogre.Vector3(normal[0], 0, normal[1])
         self.shapeType = "linesegment"
+        
+class BoundingCone(BoundingShape):
+    def __init__(self, direction, width, radius):
+        BoundingShape.__init__(self)
+        self.direction = direction
+        self.width = width
+        self.radius = radius
 
 
 class CollisionDetector(object):
@@ -58,6 +65,8 @@ class CollisionDetector(object):
             return CollisionDetector._resolve_circle_segment_collision(colliderShape, colliderShapePosition, collideeShape, collideeShapePosition)
         elif colliderShape.shapeType == "circle" and collideeShape.shapeType == "circle":
             return CollisionDetector._resolve_circle_circle_collision(colliderShape, colliderShapePosition, collideeShape, collideeShapePosition)
+        elif collider.shapeType == "cone":
+            return CollisionDetector._cone_point_collision(colliderShape, colliderShapePosition, collideeShapePosition)
 
     @staticmethod
     def _ray_circle_collision(originPoint, endPoint, circle, circlePosition):
@@ -232,6 +241,26 @@ class CollisionDetector(object):
         rtv = (resolutionPoint.x - center1.x, resolutionPoint.z - center1.z)
         
         return rtv
-                
-                
-            
+    
+    def _cone_point_collision(cone, conePos, pointToCheck):
+        # first check to see if there is a circle collision
+        distance = CollisionDetector._get_xz_distance(conePos, pointToCheck)
+        
+        # if it's too far away to collide than we can return before doing any other calculations
+        if distance > cone.radius:
+            return False
+        
+        # now we need to check angles... first get the angle from conePos to pointToCheck
+        theta = math.atan2(pointToCheck.z - conePos.z, pointToCheck.x - conePos.x)
+        
+        # get the max and min values of theta in order for a collision to occur
+        min = cone.direction - cone.width/2
+        max = cone.direction + cone.width/2
+        
+        # check to see if theta is in that range
+        if min < theta and theta < max:
+            # if so, collision
+            return True
+        else:
+            # otherwise, no collision
+            return False
