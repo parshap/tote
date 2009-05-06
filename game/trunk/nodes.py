@@ -40,9 +40,7 @@ class Node(object):
         self.animations = { }
         self.animations["idle"] = (self.entity.getAnimationState("Idle2"), 1)
         self.animations["run"] = (self.entity.getAnimationState("Walk"), 3)
-        
-        # Create a set of current active animations.
-        self.animations_active = set()
+        self.animations["ability_1"] = (self.entity.getAnimationState("Attack3"), 1)
         
         # Start the idle animation
         self.animation_start("idle")
@@ -56,21 +54,30 @@ class Node(object):
         anim, speed = self.animations[name]
         anim.setLoop(True)
         anim.setEnabled(True)
-        self.animations_active.add((anim, speed))
+        
+    def animation_playonce(self, name, weight=1):
+        anim, speed = self.animations[name]
+        anim.setLoop(False)
+        anim.setEnabled(True)
+        anim.setWeight(weight)
+        anim.setTimePosition(0)
         
     def animation_stop(self, name):
         anim, speed = self.animations[name]
         anim.setEnabled(False)
-        self.animations_active.remove((anim, speed))
         
     def animations_stopall(self):
-        for anim, speed in self.animations_active:
+        for name in self.animations:
+            anim, speed = self.animations[name]
             anim.setEnabled(False)
-        self.animations_active.clear()
         
     def animations_addtime(self, time):
-        for (anim, speed) in self.animations_active:
-            anim.addTime(time*speed)
+        for name in self.animations:
+            anim, speed = self.animations[name]
+            if anim.getEnabled():
+                anim.addTime(time*speed)
+                if anim.hasEnded():
+                    anim.setEnabled(False)
     
     ## Game state event listeners
     
