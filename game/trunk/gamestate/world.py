@@ -11,6 +11,7 @@ class World(object):
         self.objects = []
         self.object_added = Event()
         self.debug_file = open("world.log", "w")
+        self.time = 0
 
     def add_object(self, gameObject):
         # Add the object and fire the object_added event.
@@ -18,6 +19,7 @@ class World(object):
         self.object_added(gameObject)
         
     def update(self, dt):
+        self.time += dt
         for gameObject in self.objects:
             gameObject.update(dt)
             
