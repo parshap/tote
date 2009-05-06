@@ -219,6 +219,7 @@ class Player(MobileObject):
     power, action state) and performing deterministic calculations (e.g., new
     position based on velocity) on every update() (once per frame).
     """
+    
     def __init__(self, world):
         MobileObject.__init__(self, world)
         self.power = 100
@@ -234,11 +235,15 @@ class Player(MobileObject):
         # @todo: Last use time wasn't *really* at world.time=0, it was never.
         #        Perhaps initialize to some other value (False or None or -1).
         self.lastAbilityUseTime = 0
+        self.gcd = 1
         
         self.ability_used = Event()
 
     def update(self, dt):
         MobileObject.update(self, dt)
+        
+    def ongcd(self):
+        return self.world.time <= (self.lastAbilityUseTime + self.gcd)
         
     def useAbility(self, index):
         # Try to use the ability.
