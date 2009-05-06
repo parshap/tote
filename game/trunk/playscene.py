@@ -1,9 +1,9 @@
 from __future__ import division
+import gc
 
 # Import OGRE-specific (and other UI-Client) external packages and modules.
 import ogre.renderer.OGRE as ogre
 import ogre.io.OIS as OIS
-
 
 # Import internal packages and modules modules.
 import gamestate
@@ -95,6 +95,48 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
         self.player = gamestate.objects.Player(self.world)
         self.world.add_object(self.player)
         
+        # Add stationary NPC ninja...
+        npc = gamestate.objects.Player(self.world)
+        self.world.add_object(npc)
+        npc.position = (45, 45)
+        npc.isPassable = False
+        
+        # Add boundary lines for map walls.
+        # @todo: move this out of here!
+        
+        # north wall
+        boundary1 = gamestate.objects.GameObject(self.world)
+        boundary1.position = (-90, -90)
+        boundary1.isPassable = False
+        boundary1.bounding_shape = gamestate.collision.BoundingLineSegment((-90, -90),
+                                                                           (90, -90),
+                                                                           (0, 1))
+        # south wall
+        boundary2 = gamestate.objects.GameObject(self.world)
+        boundary2.position = (-90, 90)
+        boundary2.isPassable = False
+        boundary2.bounding_shape = gamestate.collision.BoundingLineSegment((-90, 90),
+                                                                           (90, 90),
+                                                                           (0, -1))
+        # east wall
+        boundary3 = gamestate.objects.GameObject(self.world)
+        boundary3.position = (90, -90)
+        boundary3.isPassable = False
+        boundary3.bounding_shape = gamestate.collision.BoundingLineSegment((90, -90),
+                                                                           (90, 90),
+                                                                           (-1, 0))
+        # west wall
+        boundary4 = gamestate.objects.GameObject(self.world)
+        boundary4.position = (-90, -90)
+        boundary4.isPassable = False
+        boundary4.bounding_shape = gamestate.collision.BoundingLineSegment((-90, -90),
+                                                                           (-90, 90),
+                                                                           (1, 0))
+        self.world.add_object(boundary1)
+        self.world.add_object(boundary2)
+        self.world.add_object(boundary3)
+        self.world.add_object(boundary4)
+        
         # Listen to the player's position change event so we can mvoe the
         # camera with the player.
         self.player.position_changed += self.on_player_position_changed
@@ -140,13 +182,14 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
         # or we are quitting.
         if self.renderWindow.isClosed() or self.quit:
             return False
-
+        
         return True
         
     ## Game event callbacks
     
     def on_world_object_added(self, gameObject):
-        self.nodes.append(nodes.PlayerNode(self.sceneManager, gameObject))
+        if gameObject.type == "player":
+            self.nodes.append(nodes.PlayerNode(self.sceneManager, gameObject))
         
     def on_player_position_changed(self, mobileObject, position):
         self.cameraNode.position = (position[0], 100, position[1] + 100)

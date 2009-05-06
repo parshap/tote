@@ -18,48 +18,58 @@ class BoundingCircle(BoundingShape):
 class BoundingLineSegment(BoundingShape):
     def __init__(self, point1, point2, normal):
         BoundingShape.__init__(self)
-        self.position = point1
-        self.vector = ogre.Vector3(point2.x - point1.x, point2.y - point1.y, point2.z - point1.z)
-        self.normal = normal
+        self.vector = ogre.Vector3(point2[0] - point1[0], 0, point2[1] - point1[1])
+        self.normal = ogre.Vector3(normal[0], 0, normal[1])
         self.shapeType = "linesegment"
 
 
 class CollisionDetector(object):
-    def castRay(originPoint, orientation, queryDistance, collideeShape, collideeShapePosition):
+    # Spacing to leave between two shapes when preventing overlap.
+    SPACING = 0.1
+    
+    @staticmethod
+    def cast_ray(originPoint, endPoint, collideeShape, collideeShapePosition):
+        # Convert the points from (x,z) tuples to ogre.Vector3
+        # @todo: decide on one point data structure...
+        originPoint = ogre.Vector3(originPoint[0], 0, originPoint[1])
+        endPoint = ogre.Vector3(endPoint[0], 0, endPoint[1])
+        collideeShapePosition = ogre.Vector3(collideeShapePosition[0], 0, collideeShapePosition[1])
+        
         # get the collidee's bounding shape type
         shapeType = collideeShape.shapeType
         
         # determine the shapetype and run the appropriate ray query function
         if shapeType == "circle":
-            return _ray_circle_collision(originPoint, orientation, queryDistance, collideeShape, collideeShapePosition)
+            return CollisionDetector._ray_circle_collision(originPoint, endPoint, collideeShape, collideeShapePosition)
         elif shapeType == "linesegment":
-            return _ray_segment_collision(originPoint, orientation, queryDistance, collideeShape, collideeShapePosition)
+            return CollisionDetector._ray_segment_collision(originPoint, endPoint, collideeShape, collideeShapePosition)
         else:
             pass
 
-    def checkCollision(colliderShape, colliderShapePosition, collideeShape, collideeShapePosition):
+    @staticmethod
+    def check_collision(colliderShape, colliderShapePosition, collideeShape, collideeShapePosition):
+        # Convert the points from (x,z) tuples to ogre.Vector3
+        # @todo: decide on one point data structure...
+        colliderShapePosition = ogre.Vector3(colliderShapePosition[0], 0, colliderShapePosition[1])
+        collideeShapePosition = ogre.Vector3(collideeShapePosition[0], 0, collideeShapePosition[1])
+        
         # determine type of shape and call appropriate helper function
-        if colliderShape.shapeType == "circle" and collideeShape == "linesegment":
-            return _check_circle_segment_collision(colliderShape, colliderShapePosition, collideeShape, collideeShapePosition)
-        pass
+        if colliderShape.shapeType == "circle" and collideeShape.shapeType == "linesegment":
+            return CollisionDetector._resolve_circle_segment_collision(colliderShape, colliderShapePosition, collideeShape, collideeShapePosition)
+        elif colliderShape.shapeType == "circle" and collideeShape.shapeType == "circle":
+            return CollisionDetector._resolve_circle_circle_collision(colliderShape, colliderShapePosition, collideeShape, collideeShapePosition)
 
-    def _ray_circle_collision(originPoint, orientation, queryDistance, circle, circlePosition):
-        # calculate distance between points
-        distance = _get_xz_distance(originPoint, position)
+    @staticmethod
+    def _ray_circle_collision(originPoint, endPoint, circle, circlePosition):
+        # calculate distances
+        rayLength = CollisionDetector._get_xz_distance(originPoint, endPoint)
+        distanceToCircle = CollisionDetector._get_xz_distance(originPoint, circlePosition) - circle.radius
 
         # optimization... if the points are two far away to possibly collide, don't process this
-        if queryDistance < distance - radius:
+        if rayLength < distanceToCircle:
             return False
-
-        # get the absolute position of the ray's endpoints
-        endx = originPoint.x + math.cos(orientation)*queryDistance
-        endz = originPoint.z + math.sin(orientation)*queryDistance
-        endPoint = ogre.Vector3(endx, 0, endz)
-
-        point1 = originPoint
-        point2 = endPoint
-
-        # first transform the segment vertices to coordinates relative to the circle's center
+       
+        # first transform the ray's endpoints to coordinates relative to the circle's center
         localP1 = ogre.Vector3(originPoint.x - circlePosition.x, 0, originPoint.z - circlePosition.z)
         localP2 = ogre.Vector3(endPoint.x - circlePosition.x, 0, endPoint.z - circlePosition.z)
 
@@ -85,21 +95,21 @@ class CollisionDetector(object):
                 return True
             return False
 
+    @staticmethod
     def _get_xz_distance(point1, point2):
         dx = point1.x - point2.x
         dz = point1.z - point2.z
         return math.sqrt(dx*dx + dz*dz)
 
-    def _ray_segment_collision(originPoint, orientation, distance, segment, position):
-        # get the 4 relevant points
-
+    @staticmethod
+    def _ray_segment_collision(originPoint, endPoint, segment, segmentPos):
         # a1 and a2 define the ray cast segment
         a1 = originPoint
-        a2 = ogre.Vector3(originPoint.x + math.cos(orientation)*distance, 0, originPoint.z + math.sin(orientation)*distance)
+        a2 = endPoint
 
         # b1 and b2 define the line segment we are checking against
-        b1 = position
-        b2 = position + segment.vector
+        b1 = segmentPos
+        b2 = b1 + segment.vector
 
         # calculate denominator
         denom = ((b2.z - b1.z) * (a2.x - a1.x)) - ((b2.x - b1.x) * (a2.z - a1.z))
@@ -118,10 +128,13 @@ class CollisionDetector(object):
             else:
                 return True
 
-    def _check_circle_segment_collision(circle, circlePosition, segment, segmentPosition):
+    @staticmethod
+    def _resolve_circle_segment_collision(circle, circlePosition, segment, segmentPosition):
         # get the absolute position of the line segment vertices
-        point1 = segment.position
-        point2 = segment.position + segment.vector
+        point1 = segmentPosition
+        point2 = segmentPosition + segment.vector
+        
+        # print "Ray Orientation: %.2f" % (orientation/math.pi)
 
         # first transform the segment vertices to coordinates relative to the circle's center
         localP1 = ogre.Vector3(point1.x - circlePosition.x, 0, point1.z - circlePosition.z)
@@ -137,17 +150,16 @@ class CollisionDetector(object):
 
         discrim = b * b - 4 * a * c
 
-
         if discrim < 0: # no collision
             return None
         elif discrim == 0: # perfect collision
             # u is the % of the distance from p1 to p2 the intersection point falls at
             u = -b / (2 * a)
-            collisionPoint = (point1.x + u * p2Minusp1.x, 0, point1.z + u * p2Minusp1.z)
+            collisionPoint = ogre.Vector3(point1.x + u * p2Minusp1.x, 0, point1.z + u * p2Minusp1.z)
             if u < 0 or u > 1:
                 return None
             else:
-                return collisionPoint
+                return (collisionPoint.x, collisionPoint.z)
         elif discrim > 0: # collision with 2 intersection points
             u1 = (-b + math.sqrt(discrim)) / (2 * a)
             u2 = (-b - math.sqrt(discrim)) / (2 * a)
@@ -164,14 +176,62 @@ class CollisionDetector(object):
             # find the point on the segment where the circle collided initially
             collisionPoint = intersectionPoint1.midPoint(intersectionPoint2)
 
-            # the distance to space the circle and the segment when collision is resolved
-            spacing = 0.00001
-
             # the distance to place the center of the circle from the point of collision
-            distance = circle.radius + spacing
-
+            distance = circle.radius + CollisionDetector.SPACING
 
             # translate the circle's position along the segment's normal 'radius' units
             resolvedPosition = ogre.Vector3(collisionPoint.x + distance * segment.normal.x, collisionPoint.y + distance * segment.normal.y, collisionPoint.z + distance * segment.normal.z)
+            
+            # get the relative translation vector to resolve the object's position
+            # this vector is what the collider object must be translated by for the collision to be resolved correctly
+            resolutionVector = (resolvedPosition.x - circlePosition.x, resolvedPosition.z - circlePosition.z)
 
-            return resolvedPosition
+            return resolutionVector
+    
+    @staticmethod
+    def _resolve_circle_circle_collision(circle1, center1, circle2, center2):   
+        """
+        Checks if circle1 centereed about center1 is overlapping with circle2
+        centered about center2. If there is no overlap, None is returned. If
+        there is an overlap a (x, z) tuple is returned representing a movement
+        vector that circle1 should be moved from center1 to no longer overlap.
+        """
+        
+        # Calculate the distance between the center points of the two circles.
+        distance = CollisionDetector._get_xz_distance(center1, center2)
+        
+        if distance > circle1.radius + circle2.radius:
+            # If the distance is greater than the sum of the two circles' radii
+            # then the circles are not overlapping and there is no collision.
+            return None
+        
+        # Otherwise the circles are overlapping and we have collision and we
+        # must calculate the resolution vector (how much to backtrack to not be
+        # in collision).
+      
+        # Calculate the x and z differences between circle1 and circle2.
+        dx = center1.x - center2.x
+        dz = center1.z - center2.z
+        
+        # Calculate circle2's angle relative to circle1.
+        theta = math.atan2(-dz, dx)
+        
+        # Calculate how far away we need to move the center of circle1 from the
+        # center of circle2 overlapping with anymore.
+        move_distance = circle1.radius + circle2.radius + CollisionDetector.SPACING
+        
+        # Calculate the point (absolute map coordinates) where we need to be
+        # to not be overlapping.
+        resolutionPoint = ogre.Vector3(center2.x + move_distance * math.cos(theta),
+                                       0,
+                                       center2.z + move_distance * -math.sin(theta))
+        
+        # Calculate the backtrack vector required used to move from our current
+        # position to get to our resolution point (where we are no longer
+        # overlapping).
+        rtv = (resolutionPoint.x - center1.x, resolutionPoint.z - center1.z)
+        
+        return rtv
+                
+                
+            
