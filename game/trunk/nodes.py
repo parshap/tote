@@ -113,3 +113,11 @@ class PlayerNode(MobileNode):
         MobileNode.__init__(self, sceneManager, player)
         
         # Listen to the events we care about.
+        player.ability_used += self.on_ability_used
+        
+    def on_ability_used(self, player, index):
+        if index == 1:
+            # Play the animation with weight 100 so that it basically ovverides
+            # any other animations currently playing.
+            # @todo: use an actual solution instead of weight hack.
+            self.animation_playonce("ability_1", 100)

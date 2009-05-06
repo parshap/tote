@@ -16,6 +16,7 @@ MOUSE_CONTROLS = {
     
     # The player will move forward while this button is pressed.
     "MOUSEMOVE": OIS.MB_Right,
+    "ABILITY_1": OIS.MB_Left,
 }
 
 class InputHandler(OIS.MouseListener, OIS.KeyListener):
@@ -66,6 +67,8 @@ class InputHandler(OIS.MouseListener, OIS.KeyListener):
     def mousePressed(self, event, id):
         if id == MOUSE_CONTROLS["MOUSEMOVE"]:
             self.player.isRunning = True
+        elif id == MOUSE_CONTROLS["ABILITY_1"]:
+            self.player.useAbility(1)
         
         # Handle any CEGUI mouseButton events
         CEGUI.System.getSingleton().injectMouseButtonDown(self._convertOISToCEGUI(id))

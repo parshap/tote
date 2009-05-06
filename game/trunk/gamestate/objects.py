@@ -3,6 +3,7 @@ import math
 
 import collision
 from collision import CollisionDetector
+import elements
 from event import Event
 
 class GameObject(object):
@@ -224,6 +225,27 @@ class Player(MobileObject):
         self.health = 100
         self.bounding_shape = collision.BoundingCircle(6)
         self.type = "player"
+        
+        # Create an EarthElement and pass it a reference to this player and
+        # and make it our current active element.
+        # @todo: don't hardcode this
+        self.element = elements.EarthElement(self)
+        
+        # @todo: Last use time wasn't *really* at world.time=0, it was never.
+        #        Perhaps initialize to some other value (False or None or -1).
+        self.lastAbilityUseTime = 0
+        
+        self.ability_used = Event()
 
     def update(self, dt):
         MobileObject.update(self, dt)
+        
+    def useAbility(self, index):
+        # Try to use the ability.
+        if self.element.useAbility(index):
+            # Ability use was successful. Update the last ability use time.
+            self.lastAbilityUseTime = self.world.time
+            self.ability_used(self, index)
+        else:
+            # @todo: Notify player of error?
+            pass
