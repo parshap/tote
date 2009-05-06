@@ -31,7 +31,9 @@ class EarthElement(Element):
             pass
         
     def useAbilityPrimary(self):
-        # @todo: check gcd and ability cooldown.
+        # @todo: check ability cooldown.
+        if self.player.ongcd():
+            return False
         ability = abilities.EarthPrimaryInstance(self.player)
         ability.run()
         return True
