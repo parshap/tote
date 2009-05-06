@@ -102,7 +102,7 @@ class MobileNode(Node):
 
 
 class PlayerNode(MobileNode):
-    def __init__(self, sceneManager, playerObject):
-        MobileNode.__init__(self, sceneManager, playerObject)
+    def __init__(self, sceneManager, player):
+        MobileNode.__init__(self, sceneManager, player)
         
         # Listen to the events we care about.
