@@ -641,33 +641,71 @@ class CollisionDetector(object):
         segments = []       
         for side in rect.sides:
             axis_pos = CollisionDetector._get_position_on_axis(circle_position_old, side.normal, side.point1 + rect_position)
-            #print "axis: " + str(axis_pos)
             if axis_pos > 0:
                 segments.append(side)
+        if len(segments) == 0:
+            raise Exception("Circle moved from inside the rectangle.")
         # if in voroni region...
-        if len(segments) == 1:
+        elif len(segments) == 1:
+            print "VORONI REGION"
             # calculate the rtv for this voroni region
             distance_to_edge = CollisionDetector._get_position_on_axis(circle_position_new, segments[0].normal, segments[0].point1 + rect_position)
-            print "*"
             print str(distance_to_edge - 6.1)
             print "point1: (%.2f, %.2f)" % (segments[0].point1.x + rect_position.x, segments[0].point1.z + rect_position.z)
             if distance_to_edge < circle.radius:
                 # return the rtv
                 rtv_magnitude = circle.radius - distance_to_edge
                 rtv = segments[0].normal * (math.fabs(rtv_magnitude) + CollisionDetector.SPACING)
-                print "rtv: (%.2f, %.2f)" %(rtv.x, rtv.z)
-                print "oldpos: (%.2f, %.2f)" % (circle_position_old.x,circle_position_old.z)
-                print "newpos: (%.2f, %.2f)" % (circle_position_new.x,circle_position_new.z)
                 res = circle_position_new + rtv
-                print "newpos+rtv: (%.2f, %.2f)" %(res.x, res.z)
                 #CollisionDetector.count -= 1
                 #if CollisionDetector.count < 0:
                 #    return "asdfasdf"
                 
                 return  (rtv.x, rtv.z)
-        
-        if len(segments) > 1:
-            return False
+        # else if not in voroni region...
+        elif len(segments) == 2:
+            # get the axis
+            axis = circle_position_new - rect_position
+            axis.normalise()
+            print "NON-VORONI REGION"
+            
+            print "Axis: (%.2f, %.2f)" %(axis.x, axis.z)
+            
+            # get the corner closest to the circle
+            point1 = segments[0].point1 + rect_position
+            point2 = segments[0].point1 + segments[0].vector + rect_position
+            
+            dp1 = CollisionDetector._get_position_on_axis(point1, axis, rect_position)
+            dp2 = CollisionDetector._get_position_on_axis(point2, axis, rect_position)
+            
+            if dp1 > dp2:
+                corner = point1
+                corner_axis_pos = dp1
+            else:
+                corner = point2
+                corner_axis_pos = dp2
+            
+            print "Closest corner: (%.2f, %.2f)     Distance: %.2f" %(corner.x, corner.z, corner_axis_pos)
+            
+            print "Rectangle position: (%.2f, %.2f)"%(rect_position.x, rect_position.z)
+            
+            print "Circle Position: (%.2f, %.2f)" %(circle_position_new.x, circle_position_new.z)
+            
+            distance = CollisionDetector._get_xz_distance(circle_position_new, rect_position)
+            
+            # check for collision
+            circle_edge_pos = distance - circle.radius
+            if circle_edge_pos <= corner_axis_pos:
+                # collision occurred
+                
+                # calculate rtv
+                rtv_magnitude = corner_axis_pos - circle_edge_pos
+                rtv_magnitude += CollisionDetector.SPACING
+                rtv = axis * rtv_magnitude
+                # return rtv as tuple
+                return (rtv.x, rtv.z)
+            else:
+                return False
         
         return False
         
