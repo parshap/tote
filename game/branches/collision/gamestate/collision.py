@@ -30,7 +30,6 @@ class BoundingRectangle(BoundingObject):
         self.width = width
         self.height = height
         self.rotation = math.radians(rotation)
-        print "rotation: " + str(self.rotation)
         
         w = width/2
         h = height/2
@@ -39,26 +38,14 @@ class BoundingRectangle(BoundingObject):
         self.max_distance = c
         
         # calculate rectangle vertices as relative offsets from center
-        # @todo: make sure we are using sin and -sin in the right places (backwards z-axis)
         
         theta = math.atan2(height, width)
 
-        print "theta: " + str(theta)
-                
-        print "c: " + str(c/math.sqrt(2))
-        
-        print "rotation + theta: " + str(self.rotation + theta)
         #DONT CHANGE THIS - order of points is important
         point1 = ogre.Vector3(c * math.cos(self.rotation + theta), 0, c * math.sin(self.rotation + theta))
         point2 = ogre.Vector3(c * math.cos(self.rotation + (math.pi - theta)), 0, c * math.sin(self.rotation + (math.pi - theta)))
         point3 = ogre.Vector3(c * math.cos(self.rotation + (math.pi + theta)), 0, c * math.sin(self.rotation + (math.pi + theta)))
-        point4 = ogre.Vector3(c * math.cos(self.rotation + (-theta)), 0, c * math.sin(self.rotation + (-theta)))
-        
-        self.printpt(point1, "Point1: ")
-        self.printpt(point2, "Point2: ")
-        self.printpt(point3, "Point3: ")
-        self.printpt(point4, "Point4: ")
-        
+        point4 = ogre.Vector3(c * math.cos(self.rotation + (-theta)), 0, c * math.sin(self.rotation + (-theta)))        
         
         # calculate normals
         mp1 = ogre.Vector3.midPoint(point1, point2)
@@ -70,12 +57,7 @@ class BoundingRectangle(BoundingObject):
         normalp2p3 = ogre.Vector3(mp2.x, 0, mp2.z).normalisedCopy()
         normalp3p4 = ogre.Vector3(mp3.x, 0, mp3.z).normalisedCopy()
         normalp4p1 = ogre.Vector3(mp4.x, 0, mp4.z).normalisedCopy()
-        
-        self.printpt(normalp1p2, "Normal1: ")
-        self.printpt(normalp2p3, "Normal2: ")
-        self.printpt(normalp3p4, "Normal3: ")
-        self.printpt(normalp4p1, "Normal4: ")
-        
+
         # create component BoundingLineSegments that make up this BoundingRectangle
         side1 = BoundingLineSegment((point1.x, point1.z), (point2.x, point2.z), (normalp1p2.x, normalp1p2.z))
         side2 = BoundingLineSegment((point2.x, point2.z), (point3.x, point3.z), (normalp2p3.x, normalp2p3.z))
@@ -86,25 +68,16 @@ class BoundingRectangle(BoundingObject):
         # store the BoundingLineSegments
         self.sides = (side1, side2, side3, side4)
         
-        #print "RECTANGLE VERTICES"
-        #print str(self.sides[0].point1.x) + " " + str(self.sides[0].point1.z)
-        #print str(self.sides[1].point1.x) + " " + str(self.sides[1].point1.z)
-        #print str(self.sides[2].point1.x) + " " + str(self.sides[2].point1.z)
-        #print str(self.sides[3].point1.x) + " " + str(self.sides[3].point1.z)
-        
         # store axis-aligned bounding box for collision optimization
         # @todo: for optimization for all shapes, we can have all boundingshapes store their axis-aligned bounding boxes
         # the advantage would be most collision checking (when there is no collision) would run MUCH MUCH faster
+        # IMPLEMENT THIS AS AN OPTIMIZATION STEP ONLY IF NEEDED
         xCoords = [point1.x, point2.x, point3.x, point4.x]
         zCoords = [point1.z, point2.z, point3.z, point4.z]
         self.max_x = max(xCoords)
         self.min_x = min(xCoords)
         self.max_z = max(zCoords)
         self.min_z = min(zCoords)
-        
-    def printpt(self, point, msg):
-        print msg + str(point.x) + " " + str(point.z)
-
 
 class BoundingCone(BoundingObject):
     def __init__(self, radius, orientation):
@@ -151,8 +124,7 @@ class CollisionDetector(object):
         elif shape.type == "linesegment":
             return CollisionDetector._check_line_line(shape, position, line, point1) is not False
         elif shape.type == "rectangle":
-            # @todo: implement this function
-            # return CollisionDetector._check_line_rect(shape, position, line, point1) is not False
+            #return CollisionDetector._check_line_rect(shape, position, line, point1) is not False
             return False
             
         raise UnsupportedShapesException(shape, line)
@@ -214,8 +186,6 @@ class CollisionDetector(object):
         # get the absolute position of the line segment vertices
         point1 = line_position
         point2 = line_position + line.vector
-        
-        # print "Ray Orientation: %.2f" % (orientation/math.pi)
 
         # first transform the segment vertices to coordinates relative to the circle's center
         localP1 = ogre.Vector3(point1.x - circle_position.x, 0, point1.z - circle_position.z)
@@ -235,9 +205,6 @@ class CollisionDetector(object):
             return False
         elif discrim == 0: # perfect collision
             # u is the % of the distance from p1 to p2 the intersection point falls at
-            #print str(p2Minusp1.x)
-            #print str(p2Minusp1.z)
-            #print str(a)
             u = -b / (2 * a)
             collisionPoint = ogre.Vector3(point1.x + u * p2Minusp1.x, 0, point1.z + u * p2Minusp1.z)
             if u < 0 or u > 1:
@@ -268,8 +235,6 @@ class CollisionDetector(object):
         # get the absolute position of the line segment vertices
         point1 = line_position
         point2 = line_position + line.vector
-        
-        # print "Ray Orientation: %.2f" % (orientation/math.pi)
 
         # first transform the segment vertices to coordinates relative to the circle's center
         localP1 = ogre.Vector3(point1.x - circle_position.x, 0, point1.z - circle_position.z)
@@ -289,9 +254,6 @@ class CollisionDetector(object):
             return False
         elif discrim == 0: # perfect collision
             # u is the % of the distance from p1 to p2 the intersection point falls at
-            #print str(p2Minusp1.x)
-            #print str(p2Minusp1.z)
-            #print str(a)
             u = -b / (2 * a)
             collisionPoint = ogre.Vector3(point1.x + u * p2Minusp1.x, 0, point1.z + u * p2Minusp1.z)
             if u < 0 or u > 1:
@@ -330,25 +292,56 @@ class CollisionDetector(object):
     @staticmethod
     def _check_circle_rect(circle, circle_position_new, circle_position_old, rect, rect_position):
         """
-        @todo: write me
+        Checks collision between a circle and a rectangle. If a collision exists, it will return True.
+        If a collision does not exist, it returns False.
         """
-        # Return False if no collision.
-        # Return data (tuple?) if collision.
-        # This method will be calling _check_circle_line() against the rect's
-        # line segmentsangle of incidence is
+        # determine if circle is in voroni region or not, and if it is, determine which segment's voroni 
+        segments = []       
+        for side in rect.sides:
+            axis_pos = CollisionDetector._get_position_on_axis(circle_position_old, side.normal, side.point1 + rect_position)
+            if axis_pos > 0:
+                segments.append(side)
+        if len(segments) == 0:
+            raise Exception("Circle moved from inside the rectangle.")
+        # if in voroni region...
+        elif len(segments) == 1:
+            # check for voroni region collision
+            distance_to_edge = CollisionDetector._get_position_on_axis(circle_position_new, segments[0].normal, segments[0].point1 + rect_position)
+            if distance_to_edge <= circle.radius:
+                return True
+            else:
+                return False
+        # else if not in voroni region, check for non-voroni region collision
+        elif len(segments) == 2:
+            # get the axis
+            axis = circle_position_new - rect_position
+            axis.normalise()
+            
+            # get the corner closest to the circle
+            point1 = segments[0].point1 + rect_position
+            point2 = segments[0].point1 + segments[0].vector + rect_position
+            
+            dp1 = CollisionDetector._get_position_on_axis(point1, axis, rect_position)
+            dp2 = CollisionDetector._get_position_on_axis(point2, axis, rect_position)
+            
+            if dp1 > dp2:
+                corner = point1
+                corner_axis_pos = dp1
+            else:
+                corner = point2
+                corner_axis_pos = dp2
+            
+            distance = CollisionDetector._get_xz_distance(circle_position_new, rect_position)
+            
+            # check for collision
+            circle_edge_pos = distance - circle.radius
+            if circle_edge_pos <= corner_axis_pos:
+                # collision occurred
+                return True
+            else:
+                return False
         
-        # @todo: algorithm slightly inaccurate, fix plz
-        
-        # first check to see if a collision could have occurred by checking
-        # the axis aligned bounding box (optimization step)
-        distance = CollisionDetector._get_xz_distance(circle_position_new, rect_position)
-        
-        # if no collision, return False
-        if circle.radius + rect.max_distance < distance:
-            return False
-        else:
-        # else collision, return True
-            return True
+        return False  
 
     @staticmethod
     def _check_cone_circle(cone, cone_position, circle, circle_position):
@@ -391,12 +384,6 @@ class CollisionDetector(object):
         # b1 and b2 are the endpoints of line2
         b1 = line2_position
         b2 = line2_position + line2.vector
-        
-        #rect = BoundingRectangle(1,1,1)
-        #rect.printpt(a1, "a1: ")
-        #rect.printpt(a2, "a2: ")
-        #rect.printpt(b1, "b1: ")
-        #rect.printpt(b2, "b2: ")
 
         # calculate denominator
         denom = ((b2.z - b1.z) * (a2.x - a1.x)) - ((b2.x - b1.x) * (a2.z - a1.z))
@@ -417,8 +404,16 @@ class CollisionDetector(object):
         
     @staticmethod
     def _check_line_rect(line, line_position, rect, rect_position):
-        # Return False if no collision, True if collision.
-        raise NotImplementedError()
+        """
+        Determines whether or not a line segment intersects a rectangle.
+        Returns True for collision, False for no collision.
+        """ 
+        # call check_line_line() on each side of rect
+        for side in rect.sides:
+            res = CollisionDetector._check_line_line(line, line_position, side, side.point1 + rect_position)
+            if res == True:
+                return True
+        return False
     
     @staticmethod
     def _resolve_circle_line(circle, circle_position, line, line_position):
@@ -443,10 +438,6 @@ class CollisionDetector(object):
             # calculate the endpoints of the line segment
             point1 = line_position
             point2 = line_position + line.vector
-            
-            #rect = BoundingRectangle(1,1,1)
-            #rect.printpt(point1, "segmentpoint1: ")
-            #rect.printpt(point2, "segmentpoint2: ")
             
             # pre-calculate point1-point2 for easy reference
             p2Minusp1 = ogre.Vector3(point2.x - point1.x, 0, point2.z - point1.z)
@@ -524,110 +515,26 @@ class CollisionDetector(object):
             
             # return our value
             return rtv
-        
-    @staticmethod
-    def _resolve_circle_rectangle_bak(circle, circle_position_new, circle_position_old, rect, rect_position):
-        """
-        @todo: write me
-        """
-        # Return False if no collision.
-        # Return data (tuple?) if collision.
-        # This method will be calling _check_circle_line() against the rect's
-        # line segmentsangle of incidence is
-        
-        # first check to see if a collision occurred (optimization step)
-        segmentsCollided = []
-        
-        for side in rect.sides:
-            if CollisionDetector._is_circle_intersecting_line(circle, circle_position_new, side, rect_position + side.point1):
-                segmentsCollided.append(side)
-        
-        # check to make sure a collision occurred, if not, return false
-        if len(segmentsCollided) == 0:
-            return False
-        
-        # also, if we are colliding with more than 2 segments, return the rtv opposite the move vector to deny movement
-        if len(segmentsCollided) > 2:
-            rtv = (circle_position_old.x - circle_position_new.x, circle_position_old.z - circle_position_new.z)
-            print "CASE 3+"
-            return rtv
-        
-        # if we are colliding with one segment, produce rtv using _resolve_circle_line()
-        if len(segmentsCollided) == 1:
-            print "CASE 1"
-            return CollisionDetector._resolve_circle_line(circle, circle_position_new, segmentsCollided[0], 
-                                                        rect_position + segmentsCollided[0].point1)
-            
-        # if we are colliding with 2 segments, check the dot product of the move vector and the normals to
-        # determine which line segment to resolve on
-        if len(segmentsCollided) == 2:
-            moveVector = circle_position_new - circle_position_old
-            dp_side1 = moveVector.dotProduct(segmentsCollided[0].normal)
-            dp_side2 = moveVector.dotProduct(segmentsCollided[1].normal)
-            
-            # 2 cases now, either one is negative, or both are negative
-            
-            # check to make sure both aren't positive
-            if dp_side1 >= 0 and dp_side2 >= 0:
-                raise Exception("2 positive dot products in CollisionDetector._resolve_circle_rectangle()")
-            
-            # if only 1 is negative, use the negative one for resolution
-            if dp_side1 < 0 and dp_side2 >= 0:
-                collidingSide = segmentsCollided[0]
-                print "CASE 2A"
-                return CollisionDetector._resolve_circle_line(circle, circle_position_new, collidingSide, 
-                                                        rect_position + collidingSide.point1)
-            elif dp_side1 >= 0 and dp_side2 < 0:
-                collidingSide = segmentsCollided[1]
-                print "CASE 2B"
-                return CollisionDetector._resolve_circle_line(circle, circle_position_new, collidingSide, 
-                                                        rect_position + collidingSide.point1)
-                
-            # both are negative, we have to perform an additional test to determine the colliding segment
-            else:
-                print "CASE 2C"
-                testSegment = BoundingLineSegment((circle_position_old.x, circle_position_old.z), (rect_position.x, rect_position.z))
-                
-                side0_pos = rect_position + segmentsCollided[0].point1
-                side1_pos = rect_position + segmentsCollided[1].point1
-                
-                
-                # check to see if a collision occurred for each side
-                
-                res = []
-                res.append(CollisionDetector._check_line_line(testSegment, testSegment.point1, segmentsCollided[0], side0_pos))
-                res.append(CollisionDetector._check_line_line(testSegment, testSegment.point1, segmentsCollided[1], side1_pos))
-                
-                # figure out which segment the circle collided with
-                count = 0 # number of collided segments (should be 1)
-                id = 0 # id of collided segment
-                i = 0 # loop count
-        
-                for collision in res:
-                    if collision is not False:
-                        id = i
-                        count += 1
-                    i += 1
-                #print "***************"
-                
-                # if it collided with more than 1, something is broken so raise an exception
-                if count > 1:
-                    raise Exception("Circle collided with more than one segment of rectangle.")
-                          
-                # get rtv
-                rtv = CollisionDetector._resolve_circle_line(circle, circle_position_new, segmentsCollided[id], 
-                                                             rect_position + segmentsCollided[id].point1)
-                
-                return rtv
     
     @staticmethod
     def _get_position_on_axis(point, axis_vector, axis_vector_pos):
+        """
+        returns the scalar position of "point" along the axis specified by
+        axis_vector originating from position axis_vector_pos
+        
+        the axis_vector does not need to be normalised before passing it to
+        this function
+        """
+        axis_vector.normalise()
         point_vector = point - axis_vector_pos
-        #print "vector: (%.2f, %.2f)" %(point_vector.x, point_vector.z)
         return point_vector.dotProduct(axis_vector)
     
     @staticmethod
     def _is_between_on_axis(point_to_check, endpoint_1, endpoint_2, axis_vector):
+        """
+        determines whether point_to_check lies between endpoint_1 and endpoint_2
+        on an arbitrary axis defined by axis_vector
+        """
         res_dp = _get_position_on_axis(point_to_check, axis_vector)
         res_ep1 = _get_position_on_axis(endpoint_1, axis_vector)
         res_ep2 = _get_position_on_axis(endpoint_2, axis_vector)
@@ -637,6 +544,10 @@ class CollisionDetector(object):
         
     @staticmethod
     def _resolve_circle_rectangle(circle, circle_position_new, circle_position_old, rect, rect_position):
+        """
+        Checks collision between a circle and a rectangle. If a collision exists, it will return the
+        correction vector for the circle. If a collision does not exist, it returns False.
+        """
         # determine if circle is in voroni region or not, and if it is, determine which segment's voroni 
         segments = []       
         for side in rect.sides:
@@ -647,29 +558,20 @@ class CollisionDetector(object):
             raise Exception("Circle moved from inside the rectangle.")
         # if in voroni region...
         elif len(segments) == 1:
-            print "VORONI REGION"
             # calculate the rtv for this voroni region
             distance_to_edge = CollisionDetector._get_position_on_axis(circle_position_new, segments[0].normal, segments[0].point1 + rect_position)
-            print str(distance_to_edge - 6.1)
-            print "point1: (%.2f, %.2f)" % (segments[0].point1.x + rect_position.x, segments[0].point1.z + rect_position.z)
             if distance_to_edge < circle.radius:
                 # return the rtv
                 rtv_magnitude = circle.radius - distance_to_edge
                 rtv = segments[0].normal * (math.fabs(rtv_magnitude) + CollisionDetector.SPACING)
-                res = circle_position_new + rtv
-                #CollisionDetector.count -= 1
-                #if CollisionDetector.count < 0:
-                #    return "asdfasdf"
-                
+                res = circle_position_new + rtv            
                 return  (rtv.x, rtv.z)
+            
         # else if not in voroni region...
         elif len(segments) == 2:
             # get the axis
             axis = circle_position_new - rect_position
             axis.normalise()
-            print "NON-VORONI REGION"
-            
-            print "Axis: (%.2f, %.2f)" %(axis.x, axis.z)
             
             # get the corner closest to the circle
             point1 = segments[0].point1 + rect_position
@@ -680,36 +582,29 @@ class CollisionDetector(object):
             
             if dp1 > dp2:
                 corner = point1
-                corner_axis_pos = dp1
             else:
                 corner = point2
-                corner_axis_pos = dp2
+                
             
-            print "Closest corner: (%.2f, %.2f)     Distance: %.2f" %(corner.x, corner.z, corner_axis_pos)
-            
-            print "Rectangle position: (%.2f, %.2f)"%(rect_position.x, rect_position.z)
-            
-            print "Circle Position: (%.2f, %.2f)" %(circle_position_new.x, circle_position_new.z)
-            
-            distance = CollisionDetector._get_xz_distance(circle_position_new, rect_position)
+            distance = CollisionDetector._get_xz_distance(circle_position_new, corner)
             
             # check for collision
             circle_edge_pos = distance - circle.radius
-            if circle_edge_pos <= corner_axis_pos:
+            if circle_edge_pos <= 0:
                 # collision occurred
                 
                 # calculate rtv
-                rtv_magnitude = corner_axis_pos - circle_edge_pos
+                rtv_axis = circle_position_new - corner
+                rtv_axis.normalise()
+                rtv_magnitude = -circle_edge_pos
                 rtv_magnitude += CollisionDetector.SPACING
-                rtv = axis * rtv_magnitude
+                rtv = rtv_axis * rtv_magnitude
                 # return rtv as tuple
                 return (rtv.x, rtv.z)
             else:
                 return False
         
-        return False
-        
-    count = 10    
+        return False  
 
     @staticmethod
     def _get_xz_distance(point1, point2):
