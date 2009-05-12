@@ -135,9 +135,11 @@ class CollisionDetector(object):
         Raises an UnsupportedShapesException if the given shape type is not
         supported.
         """
-        if point1[0] == point2[0] and point1[1] == point2[1]:
-            return False
         line = BoundingLineSegment(point1, point2)
+        
+        # If the line has lenght 0 it cannot possibly collide with anything.
+        if(line.vector.x == 0. and line.vector.y == 0.):
+            return False;
         
         # convert tuples to ogre.Vector3
         position = ogre.Vector3(position[0], 0, position[1])
