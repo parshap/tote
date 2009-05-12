@@ -552,7 +552,7 @@ class CollisionDetector(object):
         segments = []       
         for side in rect.sides:
             axis_pos = CollisionDetector._get_position_on_axis(circle_position_old, side.normal, side.point1 + rect_position)
-            if axis_pos > 0:
+            if axis_pos >= 0:
                 segments.append(side)
         if len(segments) == 0:
             raise Exception("Circle moved from inside the rectangle.")
