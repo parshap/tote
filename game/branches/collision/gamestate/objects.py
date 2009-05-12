@@ -166,6 +166,7 @@ class MobileObject(GameObject):
             # there is no overlap, or if there is a collision it will be the
             # position we should reset to if the object is not passable as a
             # part of collision resolution.
+            #print "newpos: (%.2f,%.2f)" %(new_pos[0], new_pos[1])
             shapeResult = CollisionDetector.check_collision_and_resolve(self.bounding_shape, new_pos, self.position, 
                                                                         object.bounding_shape, object.position)
             
@@ -197,6 +198,7 @@ class MobileObject(GameObject):
                     # We will use the shapeResult value (a corrected movement
                     # vector) returned from check_collision to move ourself
                     # flush against the object we collided with.
+                    move_mm = (move_vector[0] + shapeResult[0],move_vector[1] + shapeResult[1])
                     self._move((move_vector[0] + shapeResult[0],
                                 move_vector[1] + shapeResult[1]),
                                set([object]))
