@@ -211,7 +211,7 @@ class CollisionDetector(object):
                 return False   
             else:
                 # now we're sure the collision is valid, so we'll return the collision point
-                return u,
+                return (u,)
         elif discrim > 0: # collision with 2 intersection points
             u1 = (-b + math.sqrt(discrim)) / (2 * a)
             u2 = (-b - math.sqrt(discrim)) / (2 * a)
