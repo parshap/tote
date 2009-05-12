@@ -662,7 +662,7 @@ class CollisionDetector(object):
                 #if CollisionDetector.count < 0:
                 #    return "asdfasdf"
                 
-                return  rtv
+                return  (rtv.x, rtv.z)
         
         if len(segments) > 1:
             return False
