@@ -135,9 +135,9 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
         
         # bounding rectangle for testing
         boundary5 = gamestate.objects.GameObject(self.world)
-        boundary5.position = (-70, 0)
+        boundary5.position = (-30, 0)
         boundary5.isPassable = False
-        boundary5.bounding_shape = gamestate.collision.BoundingRectangle(60, 60, 0)
+        boundary5.bounding_shape = gamestate.collision.BoundingRectangle(40, 40, 45)
         
         
         self.world.add_object(boundary1)
