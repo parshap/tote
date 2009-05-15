@@ -160,11 +160,11 @@ class PlayerNode(MobileNode):
         
         # Listen to the events we care about.
         player.ability_used += self.on_ability_used
-        player.isRunning_changed += self.on_isRunning_changed
+        player.is_charging_changed += self.on_is_charging_changed
         
-    def on_isRunning_changed(self, gameObject, isRunning):
+    def on_is_moving_changed(self, gameObject, is_moving):
         # Play running animations when the player 
-        if isRunning:
+        if is_moving:
             self.animation_stop("idle")
             self.animation_start("run")
         else:

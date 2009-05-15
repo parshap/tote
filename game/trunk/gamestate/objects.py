@@ -45,22 +45,25 @@ class GameObject(object):
 class MobileObject(GameObject):
     def __init__(self, world):
         GameObject.__init__(self, world)
-        self._isRunning = False
-        self.isRunning_changed = Event()
-        self.runSpeed = 100
-        self.runDirection = 0
+        self.type = "mobile"
+        
+        self._is_moving = False
+        self.is_moving_changed = Event()
+        self.move_speed = 100
+        self.move_direction = 0
+        
         self.position_changed = Event()
         self.type = "mobile"
 
-    def _get_isRunning(self):
-        """ Gets or sets the object's current running state """
-        return self._isRunning
-    def _set_isRunning(self, value):
+    def _get_is_moving(self):
+        """ Gets or sets the object's current moving state """
+        return self._is_moving
+    def _set_is_moving(self, value):
         # Update the value and fire the changed event if the value has changed.
-        if value != self._isRunning:
-            self._isRunning = value
-            self.isRunning_changed(self, value)
-    isRunning = property(_get_isRunning, _set_isRunning)
+        if value != self._is_moving:
+            self._is_moving = value
+            self.is_moving_changed(self, value)
+    is_moving = property(_get_is_moving, _set_is_moving)
 
     # Override the GameObject._set_position so we can fire the event.
     def _set_position(self, value):
@@ -72,10 +75,10 @@ class MobileObject(GameObject):
     def update(self, dt):
         GameObject.update(self, dt)
 
-        if self.isRunning:
-            runSpd = self.runSpeed * dt
-            runDir = self.rotation + self.runDirection
-            self._move_towards(runSpd, runDir)
+        if self.is_moving:
+            movespd = self.move_speed * dt
+            movedir = self.rotation + self.move_direction
+            self._move_towards(movespd, movedir)
 
     def _move_towards(self, distance, direction, already_collided=None):
         """
