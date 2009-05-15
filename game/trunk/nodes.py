@@ -62,12 +62,15 @@ class Node(object):
         # Listen to the events we care about.
         gameObject.rotation_changed += self.on_rotation_changed
         
+    ## Animations
     def animation_start(self, name):
+        """ Play and loop the animation with the given name. """
         anim, speed = self.animations[name]
         anim.setLoop(True)
         anim.setEnabled(True)
         
     def animation_playonce(self, name, weight=1):
+        """ Play the animation witht he given name once and then stop. """
         anim, speed = self.animations[name]
         anim.setLoop(False)
         anim.setEnabled(True)
@@ -75,15 +78,18 @@ class Node(object):
         anim.setTimePosition(0)
         
     def animation_stop(self, name):
+        """ Stop the animation with the given name. """
         anim, speed = self.animations[name]
         anim.setEnabled(False)
         
     def animations_stopall(self):
+        """ Stop all animations. """
         for name in self.animations:
             anim, speed = self.animations[name]
             anim.setEnabled(False)
         
     def animations_addtime(self, time):
+        """ Add time to all enabled animations. """
         for name in self.animations:
             anim, speed = self.animations[name]
             if anim.getEnabled():
