@@ -57,7 +57,7 @@ class FirePrimaryInstance(AbilityInstance):
 
 
 class FireFlameRushInstance(AbilityInstance):
-    charge_speed_multiplier = 2
+    charge_speed_multiplier = 3
 
     def __init__(self, player):
         AbilityInstance.__init__(self, player)
@@ -84,7 +84,6 @@ class FireFlameRushInstance(AbilityInstance):
             return False
 
     def update(self, dt):
-        print "Flame Rush is updating."
         AbilityInstance.update(self, dt)
         self.scheduler.addtime(dt)
 
