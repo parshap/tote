@@ -132,19 +132,11 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
         boundary4.bounding_shape = gamestate.collision.BoundingLineSegment((-90, -90),
                                                                            (-90, 90),
                                                                            (1, 0))
-        
-        # bounding rectangle for testing
-        boundary5 = gamestate.objects.GameObject(self.world)
-        boundary5.position = (-30, 0)
-        boundary5.isPassable = False
-        boundary5.bounding_shape = gamestate.collision.BoundingRectangle(40, 40, 45)
-        
-        
+
         self.world.add_object(boundary1)
         self.world.add_object(boundary2)
         self.world.add_object(boundary3)
         self.world.add_object(boundary4)
-        self.world.add_object(boundary5)
         
         # Listen to the player's position change event so we can mvoe the
         # camera with the player.
