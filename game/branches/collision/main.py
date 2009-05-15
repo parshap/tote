@@ -47,7 +47,7 @@ class Application(object):
 
     def setupRenderSystem(self):
         # Show the config dialog if we don't yet have an ogre.cfg file
-        if not self.root.showConfigDialog():
+        if not self.root.restoreConfig() and not self.root.showConfigDialog():
             raise Exception("User canceled config dialog! (setupRenderSystem)")
 
     def createRenderWindow(self):

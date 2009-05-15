@@ -182,10 +182,6 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
         
         # Update the game state world.
         self.world.update(dt)
-        #self.min_dt = 1
-        #if dt > 0:
-            #fps = 1/dt
-            #print str(fps)
         
         # Add time to animations.
         for node in self.nodes:
