@@ -6,7 +6,9 @@ import ogre.gui.CEGUI as CEGUI
 import math
 
 KEYBOARD_CONTROLS = {
-
+    "ABILITY_2": OIS.KC_2,
+    "ABILITY_3": OIS.KC_3,
+    "ABILITY_4": OIS.KC_4,
 }
 
 MOUSE_CONTROLS = {
@@ -97,6 +99,12 @@ class InputHandler(OIS.MouseListener, OIS.KeyListener):
         # Quit the application if we hit the escape button
         if event.key == OIS.KC_ESCAPE:
             self.scene.quit = True
+        if event.key == KEYBOARD_CONTROLS["ABILITY_2"]:
+            self.player.useAbility(2)
+        if event.key == KEYBOARD_CONTROLS["ABILITY_3"]:
+            self.player.useAbility(3)
+        if event.key == KEYBOARD_CONTROLS["ABILITY_4"]:
+            self.player.useAbility(4)
         return True
 
     def keyReleased(self, event):
