@@ -20,6 +20,7 @@ moving the mesh in the 3d-world to objcet the player moving in the game-world).
 
 from __future__ import division
 import math
+import gamestate.abilities
 
 class Node(object):
     _unique_count = 0
@@ -159,8 +160,9 @@ class PlayerNode(MobileNode):
         MobileNode.__init__(self, sceneManager, player)
         
         # Listen to the events we care about.
-        player.ability_used += self.on_ability_used
+        player.is_moving_changed += self.on_is_moving_changed
         player.is_charging_changed += self.on_is_charging_changed
+        player.ability_used += self.on_ability_used
         
     def on_is_moving_changed(self, gameObject, is_moving):
         # Play running animations when the player 
@@ -170,10 +172,36 @@ class PlayerNode(MobileNode):
         else:
             self.animation_stop("run")
             self.animation_start("idle")
+            
+    def on_is_charging_changed(self, player, is_charging):
+        # Start/stop the charging particle effect and set the animation speed.
+        multi = gamestate.abilities.FireFlameRushInstance.charge_speed_multiplier
+        (anim, speed) = self.animations["run"]
+        if is_charging:
+            self.particle_effect_start("FireTrail")
+            self.animations["run"] = (anim, speed * multi)
+        else:
+            self.particle_effect_stop("FireTrail")
+            self.animations["run"] = (anim, speed / multi)
     
     def on_ability_used(self, player, index):
-        if index == 1:
-            # Play the animation with weight 100 so that it basically ovverides
-            # any other animations currently playing.
-            # @todo: use an actual solution instead of weight hack.
-            self.animation_playonce("ability_1", 100)
+        if player.element.type == "earth":
+            if index == 1:
+                # Earth : Primary
+                # Play the animation with weight 100 so that it basically overrides
+                # any other animations currently playing.
+                # @todo: use an actual solution instead of weight hack.
+                self.animation_playonce("ability_1", 100)
+
+        elif player.element.type == "fire":
+            if index == 1:
+                # Fire : Primary
+                # Play the animation with weight 100 so that it basically overrides
+                # any other animations currently playing.
+                # @todo: use an actual solution instead of weight hack.
+                self.animation_playonce("ability_1", 100)
+            elif index == 2:
+                # Fire :  Flame Rush
+                pass
+
+    

@@ -211,7 +211,7 @@ class MobileObject(GameObject):
         # Now that collision detection is complete, update our position to the
         # previously calculated new position.
         self.position = new_pos
-        
+
         # We now have a set of objects that we have collided with. Call
         # .collide() on each of those objects to perform collision resolution.
         for object in collided_objects:
@@ -230,6 +230,7 @@ class Player(MobileObject):
     power, action state) and performing deterministic calculations (e.g., new
     position based on velocity) on every update() (once per frame).
     """
+    gcd = 1.0
     
     def __init__(self, world):
         MobileObject.__init__(self, world)
@@ -238,30 +239,68 @@ class Player(MobileObject):
         self.bounding_shape = collision.BoundingCircle(6)
         self.type = "player"
         
-        # Create an EarthElement and pass it a reference to this player and
-        # and make it our current active element.
+        self._is_charging = False
+        self.is_charging_changed = Event()
+        
+        # Create an Element and pass it a reference to this player make it our
+        # current active element.
         # @todo: don't hardcode this
-        self.element = elements.EarthElement(self)
+        self.element = elements.FireElement(self)
         
-        # @todo: Last use time wasn't *really* at world.time=0, it was never.
-        #        Perhaps initialize to some other value (False or None or -1).
-        self.lastAbilityUseTime = 0
-        self.gcd = 1
-        
+        self.active_abilities = []
+        self.last_ability_time = 0
         self.ability_used = Event()
+        
+    def _get_is_charging(self):
+        """ Gets or sets the object's current charging state """
+        return self._is_charging
+    def _set_is_charging(self, value):
+        if value is not self._is_charging:
+            self._is_charging = value
+            self.is_charging_changed(self, value)
+    is_charging = property(_get_is_charging, _set_is_charging)
+    
+    # We will override the MobileObject.rotation property to redefine the
+    # setter used so that we can deny a rotation change while charging.
+    def _set_rotation(self, value):
+        # Update the value and fire the changed event.
+        if self.is_charging:
+            # Prevent changing direction while in the middle of a charge.
+            return
+        self._rotation = value
+        self.rotation_changed(self, value)
+    rotation = property(MobileObject._get_rotation, _set_rotation)
 
     def update(self, dt):
+        if self.is_charging:
+            # If the player is charging then force movement.
+            self.is_moving = True
         MobileObject.update(self, dt)
+
+        for ability in self.active_abilities:
+            ability.update(dt)
         
-    def ongcd(self):
-        return self.world.time <= (self.lastAbilityUseTime + self.gcd)
+    def is_ongcd(self):
+        """
+        Return wether or not the player is currently on the global ability
+        cooldown.
+        """
+        return self.last_ability_time > 0 and \
+               self.world.time <= (self.last_ability_time + self.gcd)
         
-    def useAbility(self, index):
+    def use_ability(self, index):
+        """ Uses an ability by index based on the player's current element. """
         # Try to use the ability.
-        if self.element.useAbility(index):
-            # Ability use was successful. Update the last ability use time.
-            self.lastAbilityUseTime = self.world.time
+        ability = self.element.use_ability(index)
+        if ability is not False:
+            # Ability use was successful - do some updates.
+            self.last_ability_time = self.world.time
+            self.active_abilities.append(ability)
+            ability.expired += self.on_ability_expired
             self.ability_used(self, index)
         else:
             # @todo: Notify player of error?
             pass
+            
+    def on_ability_expired(self, ability):
+        self.active_abilities.remove(ability)

@@ -72,7 +72,7 @@ class InputHandler(OIS.MouseListener, OIS.KeyListener):
 
     def mousePressed(self, event, id):
         if id == MOUSE_CONTROLS["ABILITY_1"]:
-            self.player.useAbility(1)
+            self.player.use_ability(1)
         
         # Handle any CEGUI mouseButton events
         CEGUI.System.getSingleton().injectMouseButtonDown(self._convertOISToCEGUI(id))
@@ -99,11 +99,11 @@ class InputHandler(OIS.MouseListener, OIS.KeyListener):
         if event.key == OIS.KC_ESCAPE:
             self.scene.quit = True
         if event.key == KEYBOARD_CONTROLS["ABILITY_2"]:
-            self.player.useAbility(2)
+            self.player.use_ability(2)
         if event.key == KEYBOARD_CONTROLS["ABILITY_3"]:
-            self.player.useAbility(3)
+            self.player.use_ability(3)
         if event.key == KEYBOARD_CONTROLS["ABILITY_4"]:
-            self.player.useAbility(4)
+            self.player.use_ability(4)
         return True
 
     def keyReleased(self, event):
