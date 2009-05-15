@@ -307,7 +307,6 @@ class CollisionDetector(object):
         elif len(segments) == 1:
             # check for voroni region collision
             distance_to_edge = CollisionDetector._get_position_on_axis(circle_position, segments[0].normal, segments[0].point1 + rect_position)
-            distance_to_edge = CollisionDetector._get_position_on_axis(circle_position, segments[0].normal, segments[0].point1 + rect_position)
             if distance_to_edge <= circle.radius:
                 return True
             else:
