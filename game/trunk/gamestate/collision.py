@@ -80,10 +80,11 @@ class BoundingRectangle(BoundingObject):
         self.min_z = min(zCoords)
 
 class BoundingCone(BoundingObject):
-    def __init__(self, radius, orientation):
-        BoundingObject__init__(self, "cone")
+    def __init__(self, radius, orientation, width):
+        BoundingObject.__init__(self, "cone")
         self.radius = radius
         self.orientation = orientation
+        self.width = width
 
 
 class UnsupportedShapesException(Exception):
@@ -352,7 +353,7 @@ class CollisionDetector(object):
         distance = CollisionDetector._get_xz_distance(cone_position, circle_position)
         
         # if it's too far away to collide than we can return before doing any other calculations
-        if distance > cone.radius:
+        if (distance - circle.radius ) > cone.radius:
             return False
         
         # now we need to check angles... first get the angle from conePos to pointToCheck
