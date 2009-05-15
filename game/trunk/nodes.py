@@ -148,20 +148,10 @@ class MobileNode(Node):
         
         # Listen to the events we care about.
         mobileObject.position_changed += self.on_position_changed
-        mobileObject.isRunning_changed += self.on_isRunning_changed
-        
+
     ## Game state event listeners
-    
     def on_position_changed(self, mobileObject, position):
         self.sceneNode.position = (position[0], 0, position[1])
-        
-    def on_isRunning_changed(self, gameObject, isRunning):
-        if isRunning:
-            self.animation_stop("idle")
-            self.animation_start("run")
-        else:
-            self.animation_stop("run")
-            self.animation_start("idle")
 
 
 class PlayerNode(MobileNode):
@@ -170,7 +160,17 @@ class PlayerNode(MobileNode):
         
         # Listen to the events we care about.
         player.ability_used += self.on_ability_used
+        player.isRunning_changed += self.on_isRunning_changed
         
+    def on_isRunning_changed(self, gameObject, isRunning):
+        # Play running animations when the player 
+        if isRunning:
+            self.animation_stop("idle")
+            self.animation_start("run")
+        else:
+            self.animation_stop("run")
+            self.animation_start("idle")
+    
     def on_ability_used(self, player, index):
         if index == 1:
             # Play the animation with weight 100 so that it basically ovverides
