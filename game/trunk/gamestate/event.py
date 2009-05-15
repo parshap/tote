@@ -16,8 +16,12 @@ class Event:
         return self
 
     def fire(self, *args, **kargs):
+        to_remove = []
         for handler in self.handlers:
-            handler(*args, **kargs)
+            if handler(*args, **kargs) is False:
+                to_remove.append(handler)
+        for handler in to_remove:
+            self.unhandle(handler)
 
     def getHandlerCount(self):
         return len(self.handlers)
