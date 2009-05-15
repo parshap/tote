@@ -218,6 +218,10 @@ class MobileObject(GameObject):
             self.collide(object)
             object.collide(self)
 
+    def collide(self, object):
+        GameObject.collide(self, object)
+        self.collided(self, object)
+
 
 class Player(MobileObject):
     """
