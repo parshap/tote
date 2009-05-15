@@ -50,6 +50,8 @@ class InputHandler(OIS.MouseListener, OIS.KeyListener):
         self.process()
         
     def process(self):
+		# Input states that need to be handled every state are checked
+		# here. This is similar to unbufferd input.
         mouseState = self.mouse.getMouseState()
         
         if mouseState.buttonDown(MOUSE_CONTROLS["FACE"]):
@@ -58,6 +60,8 @@ class InputHandler(OIS.MouseListener, OIS.KeyListener):
             angle = math.atan2(mousey - self.viewport.actualHeight/2,
                                mousex - self.viewport.actualWidth/2)
             self.player.rotation = angle
+            
+        self.player.is_moving = mouseState.buttonDown(MOUSE_CONTROLS["MOUSEMOVE"])
 
     def mouseMoved(self, event):
         state = event.get_state()
@@ -67,9 +71,7 @@ class InputHandler(OIS.MouseListener, OIS.KeyListener):
         return True
 
     def mousePressed(self, event, id):
-        if id == MOUSE_CONTROLS["MOUSEMOVE"]:
-            self.player.isRunning = True
-        elif id == MOUSE_CONTROLS["ABILITY_1"]:
+        if id == MOUSE_CONTROLS["ABILITY_1"]:
             self.player.useAbility(1)
         
         # Handle any CEGUI mouseButton events
@@ -77,9 +79,6 @@ class InputHandler(OIS.MouseListener, OIS.KeyListener):
         return True
 
     def mouseReleased(self, event, id):
-        if id == MOUSE_CONTROLS["MOUSEMOVE"]:
-            self.player.isRunning = False
-            
         # Handle any CEGUI mouseButton events
         CEGUI.System.getSingleton().injectMouseButtonUp(self._convertOISToCEGUI(id))
         return True
