@@ -51,6 +51,12 @@ class Node(object):
         self.animations["run"] = (self.entity.getAnimationState("Walk"), 3)
         self.animations["ability_1"] = (self.entity.getAnimationState("Attack3"), 1)
         
+        # Like animations, create a dict of our available particle effects.
+        # The particle effects are stored a tuple of the ParticleSystem and the
+        # SceneNode that the ParticleSystem is attached to.
+        self.particle_effects = { }
+        self._particle_effect_init("FireTrail", position=(0, 1, 0))
+        
         # Start the idle animation
         self.animation_start("idle")
         
@@ -97,8 +103,39 @@ class Node(object):
                 if anim.hasEnded():
                     anim.setEnabled(False)
     
-    ## Game state event listeners
+    ## Particle Effects
+    def _particle_effect_init(self, name, position=(0,0,0), rotation=0, systemname=None):
+        """
+        Initialize the particle effect with the given parameters.
+        Parameters:
+        name - The name for this particle effect.
+        position - The position of the SceneNode the ParticleSystem is attached to.
+        rotation - The rotation of the SceneNode the ParticleSystem is attached to.
+        systemname - The name of the particle_system to use, defaults to the
+            name of the particle effect.
+        """
+        systemname = systemname or name
+        system = self.sceneManager.createParticleSystem(Node._unique("PE%s" % name), systemname)
+        node = self.sceneNode.createChildSceneNode()
+        node.attachObject(system)
+        node.position = position
+        node.rotate((0, -1, 0), rotation)
+        self.particle_effects[name] = (system, node)
+        self.particle_effect_stop(name)
+
+    def particle_effect_start(self, name):
+        """ Enable the particle effect with the given name. """
+        (system, node) = self.particle_effects[name]
+        for i in xrange(system.getNumEmitters()):
+            system.getEmitter(i).setEnabled(True)
+            
+    def particle_effect_stop(self, name):
+        """ Disable the particle effect with the given name. """
+        (system, node) = self.particle_effects[name]
+        for i in xrange(system.getNumEmitters()):
+            system.getEmitter(i).setEnabled(False)
     
+    ## Game state event listeners
     def on_rotation_changed(self, gameObject, rotation):
         delta = rotation - self.rotation
         self.sceneNode.rotate((0, -1, 0), delta)
