@@ -19,6 +19,7 @@ moving the mesh in the 3d-world to objcet the player moving in the game-world).
 """
 
 from __future__ import division
+import math
 
 class Node(object):
     
@@ -30,6 +31,7 @@ class Node(object):
         self.sceneNode = sceneManager.getRootSceneNode().createChildSceneNode()
         self.sceneNode.attachObject(self.entity)
         self.sceneNode.setScale(.1, .1, .1)
+        self.rotation_offset = 3*math.pi/2
         
         # Set the scenenode's position to the GameObject's current position.
         self.sceneNode.position = (gameObject.position[0], 0, gameObject.position[1])
@@ -45,7 +47,7 @@ class Node(object):
         # Start the idle animation
         self.animation_start("idle")
         
-        self.rotation = 0
+        self.rotation = self.rotation_offset
         
         # Listen to the events we care about.
         gameObject.rotation_changed += self.on_rotation_changed
@@ -82,7 +84,8 @@ class Node(object):
     ## Game state event listeners
     
     def on_rotation_changed(self, gameObject, rotation):
-        self.sceneNode.rotate((0, 1, 0), rotation - self.rotation)
+        delta = rotation - self.rotation
+        self.sceneNode.rotate((0, -1, 0), delta)
         self.rotation = rotation
 
 

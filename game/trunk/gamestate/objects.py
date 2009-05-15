@@ -50,6 +50,7 @@ class MobileObject(GameObject):
         self.runSpeed = 100
         self.runDirection = 0
         self.position_changed = Event()
+        self.type = "mobile"
 
     def _get_isRunning(self):
         """ Gets or sets the object's current running state """
@@ -93,8 +94,8 @@ class MobileObject(GameObject):
             return
 
         # Calculate the movement vector for this move.
-        move_vector = (distance * -math.sin(direction),
-                       distance * -math.cos(direction))
+        move_vector = (distance * math.cos(direction),
+                       distance * math.sin(direction))
 
         # And call _move to perform the move with the calculated vector.
         self._move(move_vector, already_collided)

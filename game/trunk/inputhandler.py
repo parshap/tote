@@ -53,8 +53,8 @@ class InputHandler(OIS.MouseListener, OIS.KeyListener):
         if mouseState.buttonDown(MOUSE_CONTROLS["FACE"]):
             mousex = mouseState.X.abs
             mousey = mouseState.Y.abs
-            angle = self._get_angle_from_vector(mousex - self.viewport.actualWidth/2,
-                                                mousey - self.viewport.actualHeight/2)
+            angle = math.atan2(mousey - self.viewport.actualHeight/2,
+                               mousex - self.viewport.actualWidth/2)
             self.player.rotation = angle
 
     def mouseMoved(self, event):
@@ -101,23 +101,3 @@ class InputHandler(OIS.MouseListener, OIS.KeyListener):
 
     def keyReleased(self, event):
         return True
-        
-        
-    # Internal helper methods to help input handling.
-    def _get_angle_from_vector(self, x, y):
-        """
-        Returns the ccw rotation angle (in radians) from north of the given
-        screen vector. The true south vector is <0, -1> and true east is
-        <1, 0>. 
-        """
-        if x == 0:
-            if y <= 0:
-                angle = 0
-            else:
-                angle = math.pi
-        else:
-            if x >= 0:
-                angle = math.atan(-y / x) - math.pi/2
-            else:
-                angle = math.atan(-y / x) + math.pi/2
-        return angle
