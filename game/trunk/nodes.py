@@ -30,14 +30,18 @@ class Node(object):
         return "%s%s" % (prefix, Node._unique_count)
     
     def __init__(self, sceneManager, gameObject):
-        self.entity = sceneManager.createEntity(Node._unique("EntityNinja"), "ninja.mesh")
+        # Create a SceneNode for this Node (attached to RootSceneNode).
+        self.sceneManager = sceneManager
         self.sceneNode = sceneManager.getRootSceneNode().createChildSceneNode()
-        self.sceneNode.attachObject(self.entity)
-        self.sceneNode.setScale(.1, .1, .1)
-        self.rotation_offset = 3*math.pi/2
         
-        # Set the scenenode's position to the GameObject's current position.
-        self.sceneNode.position = (gameObject.position[0], 0, gameObject.position[1])
+        # Create an Entity (to represent this Node with a 3D mesh) and attach
+        # it to the SceneNode. The Entity is configured with a default rotation
+        # offset and scale.
+        self.entity = sceneManager.createEntity(Node._unique("EntityNinja"), "ninja.mesh")
+        entityNode = self.sceneNode.createChildSceneNode()
+        entityNode.attachObject(self.entity)
+        entityNode.setScale(.1, .1, .1)
+        entityNode.rotate((0, -1, 0), math.pi/2)
         
         # Create a dict of our available animations. The animations are stored
         # as a tuple of the animation state and the speed at which the
@@ -50,7 +54,10 @@ class Node(object):
         # Start the idle animation
         self.animation_start("idle")
         
-        self.rotation = self.rotation_offset
+        # Initialize the position and rotation to the GameObject's current values.
+        self.rotation = 0
+        self.sceneNode.position = (gameObject.position[0], 0, gameObject.position[1])
+        self.on_rotation_changed(gameObject, gameObject.rotation)
         
         # Listen to the events we care about.
         gameObject.rotation_changed += self.on_rotation_changed
