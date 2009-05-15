@@ -49,7 +49,7 @@ class World(object):
                 # Can't collide with an object that has no bounding shape.
                 continue
             result = CollisionDetector.check_collision(bounding_shape, position, object.bounding_shape, object.position)
-            if result is not None and object not in ignored:
+            if result is not False and object not in ignored:
                 colliders.append(object)
                 
         return colliders
