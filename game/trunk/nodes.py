@@ -22,12 +22,15 @@ from __future__ import division
 import math
 
 class Node(object):
-    
-    _countEntity = 0
+    _unique_count = 0
+    @staticmethod
+    def _unique(prefix=""):
+        """ Return a unique name prefixed with the optional parameter. """
+        Node._unique_count += 1
+        return "%s%s" % (prefix, Node._unique_count)
     
     def __init__(self, sceneManager, gameObject):
-        Node._countEntity += 1
-        self.entity = sceneManager.createEntity("Entity" + str(Node._countEntity), "ninja.mesh")
+        self.entity = sceneManager.createEntity(Node._unique("EntityNinja"), "ninja.mesh")
         self.sceneNode = sceneManager.getRootSceneNode().createChildSceneNode()
         self.sceneNode.attachObject(self.entity)
         self.sceneNode.setScale(.1, .1, .1)
