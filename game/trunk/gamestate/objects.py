@@ -160,16 +160,17 @@ class MobileObject(GameObject):
             # objects that may be between our old position and our new
             # position. This result will be True if the ray collides with the
             # object and False if not.
-            rayResult = CollisionDetector.cast_ray(self.position, new_pos, object.bounding_shape, object.position)
+            rayResult = CollisionDetector.is_between(object.bounding_shape, object.position, self.position, new_pos)
             
             # Check if our bounding shape at our new position would overlap
             # with the object's bounding shape. The result will be None if
             # there is no overlap, or if there is a collision it will be the
             # position we should reset to if the object is not passable as a
             # part of collision resolution.
-            shapeResult = CollisionDetector.check_collision(self.bounding_shape, new_pos, object.bounding_shape, object.position)
+            shapeResult = CollisionDetector.check_collision_and_resolve(self.bounding_shape, new_pos, self.position, 
+                                                                        object.bounding_shape, object.position)
             
-            if rayResult and shapeResult is None:
+            if rayResult is not False and shapeResult is False:
                 # The object collided with our ray, but not with our shape,
                 # so we must have jumped over it.
                 
@@ -181,7 +182,7 @@ class MobileObject(GameObject):
                 # Otherwise add the object to our set of collided objects.
                 collided_objects.add(object)
                 
-            if shapeResult is not None:
+            if shapeResult is not False:
                 # Our new bounding shape will be overlapping with another
                 # object's bounding shape.
                 
@@ -197,6 +198,7 @@ class MobileObject(GameObject):
                     # We will use the shapeResult value (a corrected movement
                     # vector) returned from check_collision to move ourself
                     # flush against the object we collided with.
+                    move_mm = (move_vector[0] + shapeResult[0],move_vector[1] + shapeResult[1])
                     self._move((move_vector[0] + shapeResult[0],
                                 move_vector[1] + shapeResult[1]),
                                set([object]))
