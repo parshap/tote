@@ -50,8 +50,8 @@ class InputHandler(OIS.MouseListener, OIS.KeyListener):
         self.process()
         
     def process(self):
-		# Input states that need to be handled every state are checked
-		# here. This is similar to unbufferd input.
+        # Input states that need to be handled every state are checked
+        # here. This is similar to unbufferd input.
         mouseState = self.mouse.getMouseState()
         
         if mouseState.buttonDown(MOUSE_CONTROLS["FACE"]):
