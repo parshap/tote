@@ -53,7 +53,7 @@ class MobileObject(GameObject):
         self.move_direction = 0
         
         self.position_changed = Event()
-        self.type = "mobile"
+        self.collided = Event()
 
     def _get_is_moving(self):
         """ Gets or sets the object's current moving state """
@@ -215,6 +215,7 @@ class MobileObject(GameObject):
         # We now have a set of objects that we have collided with. Call
         # .collide() on each of those objects to perform collision resolution.
         for object in collided_objects:
+            self.collide(object)
             object.collide(self)
 
 
