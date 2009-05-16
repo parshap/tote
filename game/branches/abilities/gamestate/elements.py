@@ -30,8 +30,7 @@ class EarthElement(Element):
         if index == 1:
             return self.use_ability_Primary()
         elif index == 2:
-            # ...
-            pass
+            return self.use_ability_Hook()
         
     def use_ability_Primary(self):
         if self.player.is_ongcd():
@@ -41,6 +40,16 @@ class EarthElement(Element):
         ability = abilities.EarthPrimaryInstance(self.player)
         ability.run()
         self.last_ability_times["Primary"] = self.player.world.time
+        return ability
+    
+    def use_ability_Hook(self):
+        if self.player.is_ongcd():
+            return False
+        if self.is_oncooldown(1, self.last_ability_times["Hook"]):
+            return False
+        ability = abilities.EarthHookInstance(self.player)
+        ability.run()
+        self.last_ability_times["Hook"] = self.player.world.time
         return ability
 
 

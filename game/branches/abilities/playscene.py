@@ -10,6 +10,7 @@ import gamestate
 import SceneLoader
 from inputhandler import InputHandler
 import nodes
+import math
 
 class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
     """
@@ -190,10 +191,16 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
     
     def on_world_object_added(self, gameObject):
         if gameObject.type == "player":
-            self.nodes.append(nodes.PlayerNode(self.sceneManager, gameObject))
+            newPlayerNode = nodes.PlayerNode(self.sceneManager, gameObject, "ninja.mesh")
+            newPlayerNode.set_scale(.1)
+            self.nodes.append(newPlayerNode)
         
     def on_player_position_changed(self, mobileObject, position):
         self.cameraNode.position = (position[0], 100, position[1] + 100)
+        
+    def on_static_node_expired(self, static_node):
+        print static_node.unique_scene_node_name
+        self.sceneManager.destroySceneNode(static_node.unique_scene_node_name)
 
     ## Window event listener callbacks
 

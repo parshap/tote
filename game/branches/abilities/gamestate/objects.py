@@ -220,7 +220,7 @@ class MobileObject(GameObject):
 
     def collide(self, object):
         GameObject.collide(self, object)
-        self.collided(self, object)
+        self.collided(object)
 
 
 class Player(MobileObject):
@@ -241,16 +241,21 @@ class Player(MobileObject):
         self.type = "player"
         
         self._is_charging = False
+        self._is_hooked = False
+        self.hooked_position = (0, 0)
         self.is_charging_changed = Event()
+        self.is_hooked_changed = Event()
+        self.hooked_by_player = None
         
         # Create an Element and pass it a reference to this player make it our
         # current active element.
         # @todo: don't hardcode this
-        self.element = elements.FireElement(self)
+        self.element = elements.EarthElement(self)
         
         self.active_abilities = []
         self.last_ability_time = 0
         self.ability_used = Event()
+        self.ability_instance_created = Event()
         
     def _get_is_charging(self):
         """ Gets or sets the object's current charging state """
@@ -260,6 +265,15 @@ class Player(MobileObject):
             self._is_charging = value
             self.is_charging_changed(self, value)
     is_charging = property(_get_is_charging, _set_is_charging)
+    
+    def _get_is_hooked(self):
+            return self._is_hooked
+    def _set_is_hooked(self, value):
+        if value is not self._is_hooked:
+            self._is_hooked = value
+            self.is_hooked_changed(self, value)
+    is_hooked = property(_get_is_hooked, _set_is_hooked)
+    
     
     # We will override the MobileObject.rotation property to redefine the
     # setter used so that we can deny a rotation change while charging.
@@ -276,6 +290,21 @@ class Player(MobileObject):
         if self.is_charging:
             # If the player is charging then force movement.
             self.is_moving = True
+        if self.is_hooked:
+            if collision.CollisionDetector.check_collision(collision.BoundingCircle(8), self.hooked_by_player.position,
+                                                           self.bounding_shape, self.position):
+                self.is_hooked = False
+                self.hooked_by_player = None
+            else:
+                self.is_moving = False
+                distance = 200 * dt
+                dx = self.hooked_by_player.position[0] - self.position[0]
+                dz = self.hooked_by_player.position[1] - self.position[1]
+                move_direction = math.atan2(dz, dx)              
+                
+                move_vector = (distance * math.cos(move_direction),
+                               distance * math.sin(move_direction))
+                self._move(move_vector)
         MobileObject.update(self, dt)
 
         for ability in self.active_abilities:
@@ -299,24 +328,38 @@ class Player(MobileObject):
             self.active_abilities.append(ability)
             ability.expired += self.on_ability_expired
             self.ability_used(self, index)
+            self.ability_instance_created(ability, self.world.time)
         else:
             # @todo: Notify player of error?
             pass
             
     def on_ability_expired(self, ability):
         self.active_abilities.remove(ability)
+        return False
         
-class MobileEffect(MobileObject):
-    def __init__(self, world, bounding_shape, duration):
-        MobileObject.__init__(self, world)
+class ProjectileObject(MobileObject):
+    def __init__(self, player, projectile_radius, duration):
+        MobileObject.__init__(self, player.world)
         self.time_to_live = duration
-        self.bounding_shape = bounding_shape
+        self.owner = player
+        self.bounding_shape = collision.BoundingCircle(projectile_radius)
         self.duration = duration
         self.expired = Event()
-        self.type = "mobileeffect"
+        self.type = "projectile"
+        player.world.add_object(self)
     
     def update(self, dt):
         MobileObject.update(self, dt)
         self.time_to_live -= dt
         if self.time_to_live <= 0:
             self.expired(self)
+            
+    def collide(self, object):
+        if object == self.owner:
+            return
+        MobileObject.collide(self, object)
+        self.expire()
+        
+    def expire(self):
+        self.expired(self)
+        self.world.remove_object(self)

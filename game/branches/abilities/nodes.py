@@ -21,12 +21,14 @@ moving the mesh in the 3d-world to objcet the player moving in the game-world).
 from __future__ import division
 import math
 import gamestate.abilities
-
+import gamestate.event
+import ogre.renderer.OGRE as ogre
 
 
 
 
 class Node(object):
+    """Node represents a ogre scene node with a position relative to the root scene node."""
     _unique_count = 0
     @staticmethod
     def _unique(prefix=""):
@@ -34,44 +36,87 @@ class Node(object):
         Node._unique_count += 1
         return "%s%s" % (prefix, Node._unique_count)
     
-    def __init__(self, sceneManager, gameObject):
+    def __init__(self, sceneManager):
         # Create a SceneNode for this Node (attached to RootSceneNode).
         self.sceneManager = sceneManager
         self.sceneNode = sceneManager.getRootSceneNode().createChildSceneNode()
+        self.unique_scene_node_name = Node._unique("sceneNode")
         
+        # Node spatial properties
+        self.position = (0,0,0)
+        self.rotation = -math.pi/2 #@todo: fix this
+        self.scale = 1
+        
+        # Node renderables
+        self.mesh = None
+        self.particle_system = None
+        
+    # spatial properties
+    def set_position(self, position_offset):
+        self.position = position_offset
+        self.sceneNode.setPosition(position[0], position[1], position[2])
+        
+    def set_rotation(self, rotation):
+        delta = rotation - self.rotation
+        self.sceneNode.rotate((0, -1, 0), delta)
+        self.rotation = rotation
+    
+    def set_scale(self, scale):
+        self.scale = scale
+        self.sceneNode.setScale(scale, scale, scale)
+    
+    ## Particle Effect
+    def set_particle_system(self, name, position_offset = (0,0,0), rotation = 0, scale = 1):
+        """
+        Initialize the particle effect with the given parameters.
+        Parameters:
+        name - The name for this particle effect.
+        position - The position of the SceneNode the ParticleSystem is attached to.
+        rotation - The rotation of the SceneNode the ParticleSystem is attached to.
+        systemname - The name of the particle_system to use, defaults to the
+            name of the particle effect.
+        """
+        self.particle_system = self.sceneManager.createParticleSystem(Node._unique("PE%s" % name), name)
+        particleNode = self.sceneNode.createChildSceneNode()
+        particleNode.attachObject(self.particle_system)
+        particleNode.position = position_offset
+        particleNode.rotate((0, -1, 0), rotation)
+    
+    def get_particle_system(self):
+        return self.particle_system
+        
+    def particle_effect_start(self):
+        """ Enable the particle effect with the given name. """
+        if self.particle_system is not None:
+            for i in xrange(0, self.particle_system.getNumEmitters()):
+                self.particle_system.getEmitter(i).setEnabled(True)
+        else:
+            raise Exception("Particle system not set for PlayerNode!")
+            
+    def particle_effect_stop(self):
+        """ Disable the particle effect with the given name. """
+        if self.particle_system is not None:
+            for i in xrange(0, self.particle_system.getNumEmitters()):
+                self.particle_system.getEmitter(i).setEnabled(False)
+        else:
+            raise Exception("Particle system not set for PlayerNode!")
+    
+    ## Mesh
+    def set_mesh(self, name, position_offset = (0,0,0), rotation = 0, scale = 1):
         # Create an Entity (to represent this Node with a 3D mesh) and attach
         # it to the SceneNode. The Entity is configured with a default rotation
         # offset and scale.
-        self.entity = sceneManager.createEntity(Node._unique("EntityNinja"), "ninja.mesh")
+        self.mesh = self.sceneManager.createEntity(Node._unique(name), name)
         entityNode = self.sceneNode.createChildSceneNode()
-        entityNode.attachObject(self.entity)
-        entityNode.setScale(.1, .1, .1)
-        entityNode.rotate((0, -1, 0), math.pi / 2)
-        
-        # Create a dict of our available animations. The animations are stored
-        # as a tuple of the animation state and the speed at which the
-        # animation should be played.
-        self.animations = { }
-        self.animations["idle"] = (self.entity.getAnimationState("Idle2"), 1)
-        self.animations["run"] = (self.entity.getAnimationState("Walk"), 3)
-        self.animations["ability_1"] = (self.entity.getAnimationState("Attack3"), 1)
-        
-        # Like animations, create a dict of our available particle effects.
-        # The particle effects are stored a tuple of the ParticleSystem and the
-        # SceneNode that the ParticleSystem is attached to.
-        self.particle_effects = { }
-        self._particle_effect_init("FireTrail", position=(0, 1, 0))
-        
-        # Start the idle animation
-        self.animation_start("idle")
-        
-        # Initialize the position and rotation to the GameObject's current values.
-        self.rotation = 0
-        self.sceneNode.position = (gameObject.position[0], 0, gameObject.position[1])
-        self.on_rotation_changed(gameObject, gameObject.rotation)
-        
-        # Listen to the events we care about.
-        gameObject.rotation_changed += self.on_rotation_changed
+        entityNode.attachObject(self.mesh)
+        entityNode.position = ( position_offset[0], 
+                                position_offset[1],
+                                position_offset[2] )
+        entityNode.setScale(scale, scale, scale)
+        entityNode.rotate((0, -1, 0), rotation)
+    
+    def get_mesh(self):
+        return self.mesh
         
     ## Animations
     def animation_start(self, name):
@@ -107,38 +152,18 @@ class Node(object):
                 anim.addTime(time * speed)
                 if anim.hasEnded():
                     anim.setEnabled(False)
-    
-    ## Particle Effects
-    def _particle_effect_init(self, name, position=(0, 0, 0), rotation=0, systemname=None):
-        """
-        Initialize the particle effect with the given parameters.
-        Parameters:
-        name - The name for this particle effect.
-        position - The position of the SceneNode the ParticleSystem is attached to.
-        rotation - The rotation of the SceneNode the ParticleSystem is attached to.
-        systemname - The name of the particle_system to use, defaults to the
-            name of the particle effect.
-        """
-        systemname = systemname or name
-        system = self.sceneManager.createParticleSystem(Node._unique("PE%s" % name), systemname)
-        node = self.sceneNode.createChildSceneNode()
-        node.attachObject(system)
-        node.position = position
-        node.rotate((0, -1, 0), rotation)
-        self.particle_effects[name] = (system, node)
-        self.particle_effect_stop(name)
-
-    def particle_effect_start(self, name):
-        """ Enable the particle effect with the given name. """
-        (system, node) = self.particle_effects[name]
-        for i in xrange(system.getNumEmitters()):
-            system.getEmitter(i).setEnabled(True)
-            
-    def particle_effect_stop(self, name):
-        """ Disable the particle effect with the given name. """
-        (system, node) = self.particle_effects[name]
-        for i in xrange(system.getNumEmitters()):
-            system.getEmitter(i).setEnabled(False)
+        
+class GameNode(Node):
+    """GameNode represents a Node that is attached to a gameObject."""
+    def __init__(self, sceneManager, gameObject):
+        Node.__init__(self, sceneManager)  
+        
+        # Initialize the position and rotation to the GameObject's current values.
+        self.sceneNode.position = (gameObject.position[0], 0, gameObject.position[1])
+        self.on_rotation_changed(gameObject, gameObject.rotation)
+        
+        # Listen to the events we care about.
+        gameObject.rotation_changed += self.on_rotation_changed
     
     ## Game state event listeners
     def on_rotation_changed(self, gameObject, rotation):
@@ -147,29 +172,81 @@ class Node(object):
         self.rotation = rotation
 
 
-class MobileNode(Node):
+class MobileGameNode(GameNode):
     def __init__(self, sceneManager, mobileObject):
-        Node.__init__(self, sceneManager, mobileObject)
+        GameNode.__init__(self, sceneManager, mobileObject)
+        self.is_active = True
         
         # Listen to the events we care about.
         mobileObject.position_changed += self.on_position_changed
+        if mobileObject.type == "projectile":
+            mobileObject.expired += self.on_expired
 
     ## Game state event listeners
     def on_position_changed(self, mobileObject, position):
+        if not self.is_active:
+            return False
         self.sceneNode.position = (position[0], 0, position[1])
-
-class StaticEffectNode(Node):
-    def __init__(self, world_position, system_name):
+    
+    def on_expired(self, projectileObject):
+        if not self.is_active:
+            return False
+        self.expire(projectileObject)
+        self.is_active = False
         
+    def expire(self, projectileObject):
+        # @todo: if our game is really slow, this might be a memory leak
+       self.particle_effect_stop()
+        
+class StaticEffectNode(Node):
+    """ Implementation of Node that represents an object that exists ONLY IN OGRE
+    and has no corresponding GameObject. A StaticEffectNode allows itself to be destroyed
+    a given time offset (time_to_live) after creation. This class will be used for such
+    things as PBAoE instant particle effects. time_to_live defaults to False, meaning
+    that the object is persistent.
+    """
+    def __init__(self, sceneManager, world, time_to_live = False):
+        Node.__init__(self, sceneManager)
+        self.time_to_live = time_to_live
+        if time_to_live:
+            world.world_updated += self.on_world_updated
+            
+        self.static_node_expired = gamestate.event.Event()
+    
+    def on_world_updated(self, dt):
+        self.time_to_live -= dt
+        if self.time_to_live <= 0:
+            self.expire()
+    
+    def expire(self):      
+        # throw expired event
+        self.static_node_expired()
+    
+    
 
-class PlayerNode(MobileNode):
-    def __init__(self, sceneManager, player):
-        MobileNode.__init__(self, sceneManager, player)
+class PlayerNode(MobileGameNode):
+    def __init__(self, sceneManager, player, mesh_name):
+        MobileGameNode.__init__(self, sceneManager, player)
+        
+        self.set_mesh(mesh_name)
         
         # Listen to the events we care about.
         player.is_moving_changed += self.on_is_moving_changed
         player.is_charging_changed += self.on_is_charging_changed
+        player.is_hooked_changed += self.on_is_hooked_changed
         player.ability_used += self.on_ability_used
+        player.ability_instance_created += self.on_ability_instance_created
+        
+        # Create a dict of our available animations. The animations are stored
+        # as a tuple of the animation state and the speed at which the
+        # animation should be played.
+        self.animations = { }
+        self.animations["idle"] = (self.mesh.getAnimationState("Idle2"), 1)
+        self.animations["run"] = (self.mesh.getAnimationState("Walk"), 3)
+        self.animations["ability_1"] = (self.mesh.getAnimationState("Attack3"), 1)
+        
+        # Start the idle animation
+        self.animation_start("idle")
         
     def on_is_moving_changed(self, gameObject, is_moving):
         # Play running animations when the player 
@@ -185,11 +262,36 @@ class PlayerNode(MobileNode):
         multi = gamestate.abilities.FireFlameRushInstance.charge_speed_multiplier
         (anim, speed) = self.animations["run"]
         if is_charging:
-            self.particle_effect_start("FireTrail")
+            self.set_particle_system("FireTrail")
+            self.particle_effect_start()
             self.animations["run"] = (anim, speed * multi)
         else:
-            self.particle_effect_stop("FireTrail")
+            self.particle_effect_stop()
             self.animations["run"] = (anim, speed / multi)
+    
+    def on_is_hooked_changed(self, player, is_hooked):
+        pass
+    
+    def on_ability_instance_created(self, ability, time):
+        if ability.type == "FireFlameRushInstance":
+            ability.collided += self.on_flame_rush_collided
+        if ability.type == "EarthHookInstance":
+            self.create_hook_projectile_node(ability.hook_projectile)            
+    
+    def on_flame_rush_collided(self, player):
+        effect_node = StaticEffectNode(self.sceneManager, player.world, 2)
+        effect_node.position = (player.position[0], 0, player.position[1])
+        effect_node.set_particle_system("LavaSplash", (player.position[0], 0, player.position[1]))
+        effect_node.particle_effect_start()
+             
+    def create_hook_projectile_node(self, game_object):
+        projectile_node = MobileGameNode(self.sceneManager, game_object)
+        projectile_node.position = (game_object.position[0], 0, game_object.position[1])
+        projectile_node.set_particle_system("DustEruption")
+        projectile_node.particle_effect_start()
+        print "created node"
+        
+        
     
     def on_ability_used(self, player, index):
         if player.element.type == "earth":
@@ -213,7 +315,11 @@ class PlayerNode(MobileNode):
                 pass
             elif index == 3:
                 # Fire : Lava Splash
-                pass
+                effect_node = StaticEffectNode(self.sceneManager, player.world, 2)
+                effect_node.set_particle_system("LavaSplash", (player.position[0],
+                                                               0,
+                                                               player.position[1]))
+                effect_node.particle_effect_start()
                 
 
     
