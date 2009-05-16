@@ -6,7 +6,9 @@ import ogre.gui.CEGUI as CEGUI
 import math
 
 KEYBOARD_CONTROLS = {
-
+    "ABILITY_2": OIS.KC_2,
+    "ABILITY_3": OIS.KC_3,
+    "ABILITY_4": OIS.KC_4,
 }
 
 MOUSE_CONTROLS = {
@@ -48,14 +50,18 @@ class InputHandler(OIS.MouseListener, OIS.KeyListener):
         self.process()
         
     def process(self):
+        # Input states that need to be handled every state are checked
+        # here. This is similar to unbufferd input.
         mouseState = self.mouse.getMouseState()
         
         if mouseState.buttonDown(MOUSE_CONTROLS["FACE"]):
             mousex = mouseState.X.abs
             mousey = mouseState.Y.abs
-            angle = self._get_angle_from_vector(mousex - self.viewport.actualWidth/2,
-                                                mousey - self.viewport.actualHeight/2)
+            angle = math.atan2(mousey - self.viewport.actualHeight/2,
+                               mousex - self.viewport.actualWidth/2)
             self.player.rotation = angle
+            
+        self.player.is_moving = mouseState.buttonDown(MOUSE_CONTROLS["MOUSEMOVE"])
 
     def mouseMoved(self, event):
         state = event.get_state()
@@ -65,19 +71,14 @@ class InputHandler(OIS.MouseListener, OIS.KeyListener):
         return True
 
     def mousePressed(self, event, id):
-        if id == MOUSE_CONTROLS["MOUSEMOVE"]:
-            self.player.isRunning = True
-        elif id == MOUSE_CONTROLS["ABILITY_1"]:
-            self.player.useAbility(1)
+        if id == MOUSE_CONTROLS["ABILITY_1"]:
+            self.player.use_ability(1)
         
         # Handle any CEGUI mouseButton events
         CEGUI.System.getSingleton().injectMouseButtonDown(self._convertOISToCEGUI(id))
         return True
 
     def mouseReleased(self, event, id):
-        if id == MOUSE_CONTROLS["MOUSEMOVE"]:
-            self.player.isRunning = False
-            
         # Handle any CEGUI mouseButton events
         CEGUI.System.getSingleton().injectMouseButtonUp(self._convertOISToCEGUI(id))
         return True
@@ -97,27 +98,13 @@ class InputHandler(OIS.MouseListener, OIS.KeyListener):
         # Quit the application if we hit the escape button
         if event.key == OIS.KC_ESCAPE:
             self.scene.quit = True
+        if event.key == KEYBOARD_CONTROLS["ABILITY_2"]:
+            self.player.use_ability(2)
+        if event.key == KEYBOARD_CONTROLS["ABILITY_3"]:
+            self.player.use_ability(3)
+        if event.key == KEYBOARD_CONTROLS["ABILITY_4"]:
+            self.player.use_ability(4)
         return True
 
     def keyReleased(self, event):
         return True
-        
-        
-    # Internal helper methods to help input handling.
-    def _get_angle_from_vector(self, x, y):
-        """
-        Returns the ccw rotation angle (in radians) from north of the given
-        screen vector. The true south vector is <0, -1> and true east is
-        <1, 0>. 
-        """
-        if x == 0:
-            if y <= 0:
-                angle = 0
-            else:
-                angle = math.pi
-        else:
-            if x >= 0:
-                angle = math.atan(-y / x) - math.pi/2
-            else:
-                angle = math.atan(-y / x) + math.pi/2
-        return angle

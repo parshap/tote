@@ -45,21 +45,25 @@ class GameObject(object):
 class MobileObject(GameObject):
     def __init__(self, world):
         GameObject.__init__(self, world)
-        self._isRunning = False
-        self.isRunning_changed = Event()
-        self.runSpeed = 100
-        self.runDirection = 0
+        self.type = "mobile"
+        
+        self._is_moving = False
+        self.is_moving_changed = Event()
+        self.move_speed = 100
+        self.move_direction = 0
+        
         self.position_changed = Event()
+        self.collided = Event()
 
-    def _get_isRunning(self):
-        """ Gets or sets the object's current running state """
-        return self._isRunning
-    def _set_isRunning(self, value):
+    def _get_is_moving(self):
+        """ Gets or sets the object's current moving state """
+        return self._is_moving
+    def _set_is_moving(self, value):
         # Update the value and fire the changed event if the value has changed.
-        if value != self._isRunning:
-            self._isRunning = value
-            self.isRunning_changed(self, value)
-    isRunning = property(_get_isRunning, _set_isRunning)
+        if value != self._is_moving:
+            self._is_moving = value
+            self.is_moving_changed(self, value)
+    is_moving = property(_get_is_moving, _set_is_moving)
 
     # Override the GameObject._set_position so we can fire the event.
     def _set_position(self, value):
@@ -71,10 +75,10 @@ class MobileObject(GameObject):
     def update(self, dt):
         GameObject.update(self, dt)
 
-        if self.isRunning:
-            runSpd = self.runSpeed * dt
-            runDir = self.rotation + self.runDirection
-            self._move_towards(runSpd, runDir)
+        if self.is_moving:
+            movespd = self.move_speed * dt
+            movedir = self.rotation + self.move_direction
+            self._move_towards(movespd, movedir)
 
     def _move_towards(self, distance, direction, already_collided=None):
         """
@@ -93,8 +97,8 @@ class MobileObject(GameObject):
             return
 
         # Calculate the movement vector for this move.
-        move_vector = (distance * -math.sin(direction),
-                       distance * -math.cos(direction))
+        move_vector = (distance * math.cos(direction),
+                       distance * math.sin(direction))
 
         # And call _move to perform the move with the calculated vector.
         self._move(move_vector, already_collided)
@@ -160,16 +164,17 @@ class MobileObject(GameObject):
             # objects that may be between our old position and our new
             # position. This result will be True if the ray collides with the
             # object and False if not.
-            rayResult = CollisionDetector.cast_ray(self.position, new_pos, object.bounding_shape, object.position)
+            rayResult = CollisionDetector.is_between(object.bounding_shape, object.position, self.position, new_pos)
             
             # Check if our bounding shape at our new position would overlap
             # with the object's bounding shape. The result will be None if
             # there is no overlap, or if there is a collision it will be the
             # position we should reset to if the object is not passable as a
             # part of collision resolution.
-            shapeResult = CollisionDetector.check_collision(self.bounding_shape, new_pos, object.bounding_shape, object.position)
+            shapeResult = CollisionDetector.check_collision_and_resolve(self.bounding_shape, new_pos, self.position, 
+                                                                        object.bounding_shape, object.position)
             
-            if rayResult and shapeResult is None:
+            if rayResult is not False and shapeResult is False:
                 # The object collided with our ray, but not with our shape,
                 # so we must have jumped over it.
                 
@@ -181,7 +186,7 @@ class MobileObject(GameObject):
                 # Otherwise add the object to our set of collided objects.
                 collided_objects.add(object)
                 
-            if shapeResult is not None:
+            if shapeResult is not False:
                 # Our new bounding shape will be overlapping with another
                 # object's bounding shape.
                 
@@ -197,6 +202,7 @@ class MobileObject(GameObject):
                     # We will use the shapeResult value (a corrected movement
                     # vector) returned from check_collision to move ourself
                     # flush against the object we collided with.
+                    move_mm = (move_vector[0] + shapeResult[0],move_vector[1] + shapeResult[1])
                     self._move((move_vector[0] + shapeResult[0],
                                 move_vector[1] + shapeResult[1]),
                                set([object]))
@@ -205,11 +211,16 @@ class MobileObject(GameObject):
         # Now that collision detection is complete, update our position to the
         # previously calculated new position.
         self.position = new_pos
-        
+
         # We now have a set of objects that we have collided with. Call
         # .collide() on each of those objects to perform collision resolution.
         for object in collided_objects:
+            self.collide(object)
             object.collide(self)
+
+    def collide(self, object):
+        GameObject.collide(self, object)
+        self.collided(self, object)
 
 
 class Player(MobileObject):
@@ -219,6 +230,7 @@ class Player(MobileObject):
     power, action state) and performing deterministic calculations (e.g., new
     position based on velocity) on every update() (once per frame).
     """
+    gcd = 1.0
     
     def __init__(self, world):
         MobileObject.__init__(self, world)
@@ -227,30 +239,68 @@ class Player(MobileObject):
         self.bounding_shape = collision.BoundingCircle(6)
         self.type = "player"
         
-        # Create an EarthElement and pass it a reference to this player and
-        # and make it our current active element.
+        self._is_charging = False
+        self.is_charging_changed = Event()
+        
+        # Create an Element and pass it a reference to this player make it our
+        # current active element.
         # @todo: don't hardcode this
-        self.element = elements.EarthElement(self)
+        self.element = elements.FireElement(self)
         
-        # @todo: Last use time wasn't *really* at world.time=0, it was never.
-        #        Perhaps initialize to some other value (False or None or -1).
-        self.lastAbilityUseTime = 0
-        self.gcd = 1
-        
+        self.active_abilities = []
+        self.last_ability_time = 0
         self.ability_used = Event()
+        
+    def _get_is_charging(self):
+        """ Gets or sets the object's current charging state """
+        return self._is_charging
+    def _set_is_charging(self, value):
+        if value is not self._is_charging:
+            self._is_charging = value
+            self.is_charging_changed(self, value)
+    is_charging = property(_get_is_charging, _set_is_charging)
+    
+    # We will override the MobileObject.rotation property to redefine the
+    # setter used so that we can deny a rotation change while charging.
+    def _set_rotation(self, value):
+        # Update the value and fire the changed event.
+        if self.is_charging:
+            # Prevent changing direction while in the middle of a charge.
+            return
+        self._rotation = value
+        self.rotation_changed(self, value)
+    rotation = property(MobileObject._get_rotation, _set_rotation)
 
     def update(self, dt):
+        if self.is_charging:
+            # If the player is charging then force movement.
+            self.is_moving = True
         MobileObject.update(self, dt)
+
+        for ability in self.active_abilities:
+            ability.update(dt)
         
-    def ongcd(self):
-        return self.world.time <= (self.lastAbilityUseTime + self.gcd)
+    def is_ongcd(self):
+        """
+        Return wether or not the player is currently on the global ability
+        cooldown.
+        """
+        return self.last_ability_time > 0 and \
+               self.world.time <= (self.last_ability_time + self.gcd)
         
-    def useAbility(self, index):
+    def use_ability(self, index):
+        """ Uses an ability by index based on the player's current element. """
         # Try to use the ability.
-        if self.element.useAbility(index):
-            # Ability use was successful. Update the last ability use time.
-            self.lastAbilityUseTime = self.world.time
+        ability = self.element.use_ability(index)
+        if ability is not False:
+            # Ability use was successful - do some updates.
+            self.last_ability_time = self.world.time
+            self.active_abilities.append(ability)
+            ability.expired += self.on_ability_expired
             self.ability_used(self, index)
         else:
             # @todo: Notify player of error?
             pass
+            
+    def on_ability_expired(self, ability):
+        self.active_abilities.remove(ability)

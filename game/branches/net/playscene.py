@@ -132,6 +132,7 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
         boundary4.bounding_shape = gamestate.collision.BoundingLineSegment((-90, -90),
                                                                            (-90, 90),
                                                                            (1, 0))
+
         self.world.add_object(boundary1)
         self.world.add_object(boundary2)
         self.world.add_object(boundary3)
