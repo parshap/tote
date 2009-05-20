@@ -101,14 +101,14 @@ class ClientApplication(object):
 
 
 class ServerApplication(object):
-    def __init__(self):
-        pass
+    def __init__(self, port=8981):
+        self.port = port
         
     def go(self):
         self.world = gamestate.world.World()
         self.scene = gamestate.scenes.TestScene(self.world)
         
-        self.server = net.server.GameServer(self.world, 8981)
+        self.server = net.server.GameServer(self.world, self.port)
         self.server_thread = threading.Thread(target=self.server.go)
         self.server_thread.start()
         
