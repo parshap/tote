@@ -1,12 +1,13 @@
 from __future__ import division
-import gc
+import threading, time
 
 # Import OGRE-specific (and other UI-Client) external packages and modules.
 import ogre.renderer.OGRE as ogre
 import ogre.io.OIS as OIS
+from twisted.internet import reactor
 
 # Import internal packages and modules modules.
-import gamestate
+import gamestate, net
 import SceneLoader
 from inputhandler import InputHandler
 import nodes
@@ -88,6 +89,12 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
         # Create the world.
         self.world = gamestate.world.World()
         
+        # Create the client and connect.
+        self.client = net.client.GameClient(self.world, "localhost", 8981)
+        self.client.connected += self.on_client_connected
+        self.client_thread = threading.Thread(target=self.client.go)
+        self.client_thread.start()
+        
         # Attach a handler to world.object_added
         self.world.object_added += self.on_world_object_added
         
@@ -95,48 +102,8 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
         self.player = gamestate.objects.Player(self.world)
         self.world.add_object(self.player)
         
-        # Add stationary NPC ninja...
-        npc = gamestate.objects.Player(self.world)
-        self.world.add_object(npc)
-        npc.position = (45, 45)
-        npc.isPassable = False
-        
-        # Add boundary lines for map walls.
-        # @todo: move this out of here!
-        
-        # north wall
-        boundary1 = gamestate.objects.GameObject(self.world)
-        boundary1.position = (-90, -90)
-        boundary1.isPassable = False
-        boundary1.bounding_shape = gamestate.collision.BoundingLineSegment((-90, -90),
-                                                                           (90, -90),
-                                                                           (0, 1))
-        # south wall
-        boundary2 = gamestate.objects.GameObject(self.world)
-        boundary2.position = (-90, 90)
-        boundary2.isPassable = False
-        boundary2.bounding_shape = gamestate.collision.BoundingLineSegment((-90, 90),
-                                                                           (90, 90),
-                                                                           (0, -1))
-        # east wall
-        boundary3 = gamestate.objects.GameObject(self.world)
-        boundary3.position = (90, -90)
-        boundary3.isPassable = False
-        boundary3.bounding_shape = gamestate.collision.BoundingLineSegment((90, -90),
-                                                                           (90, 90),
-                                                                           (-1, 0))
-        # west wall
-        boundary4 = gamestate.objects.GameObject(self.world)
-        boundary4.position = (-90, -90)
-        boundary4.isPassable = False
-        boundary4.bounding_shape = gamestate.collision.BoundingLineSegment((-90, -90),
-                                                                           (-90, 90),
-                                                                           (1, 0))
-
-        self.world.add_object(boundary1)
-        self.world.add_object(boundary2)
-        self.world.add_object(boundary3)
-        self.world.add_object(boundary4)
+        # Set up the TestScene
+        self.scene = gamestate.scenes.TestScene(self.world)
         
         # Listen to the player's position change event so we can mvoe the
         # camera with the player.
@@ -157,6 +124,11 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
         # Setup camera node
         self.cameraNode.position = (0, 100, 100)
         self.cameraNode.pitch(ogre.Degree(-45))
+        
+    def on_client_connected(self):
+        # request a join
+        pass
+        
 
     def frameStarted(self, event):
         """ 
@@ -168,6 +140,15 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
         """
         
         dt = event.timeSinceLastFrame
+        
+        # Get buffered input from server
+        while not self.client.input.empty():
+            data = self.client.inpt.get_nowait()
+            # process it
+            pass
+            
+        # Send buffered output to server.
+        reactor.callFromThread(self.client.send)
 
         # Capture any buffered events (and fire any callbacks).
         self.inputHandler.capture()
@@ -187,7 +168,6 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
         return True
         
     ## Game event callbacks
-    
     def on_world_object_added(self, gameObject):
         if gameObject.type == "player":
             self.nodes.append(nodes.PlayerNode(self.sceneManager, gameObject))
@@ -196,7 +176,6 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
         self.cameraNode.position = (position[0], 100, position[1] + 100)
 
     ## Window event listener callbacks
-
     def windowResized(self, renderWindow):
         self.mouse.getMouseState().width = renderWindow.width
         self.mouse.getMouseState().height = renderWindow.height
