@@ -80,6 +80,27 @@ class EarthHookInstance(AbilityInstance):
                 object_collided_with.hooked_by_player = self.player
                 self.expire()
 
+class EarthEarthquakeInstance(AbilityInstance):
+    def __init__(self, player):
+        AbilityInstance.__init__(self, player)
+        self.type = "EarthEarthQuakeInstance"
+        self.hitRadius = 30
+        
+    def run(self):
+        AbilityInstance.run(self)
+        
+        # get a list of players that were hit by the earthquake
+        self.bounding_circle = collision.BoundingCircle(self.hitRadius)
+        
+        colliders = self.player.world.get_colliders(self.bounding_circle, self.player.position,
+                                                    [self.player], objects.Player)
+        
+        # apply effects
+        for player in colliders:
+            # @todo: apply slow effects, etc
+            print "Earthquake collided with another player!"
+            
+        self.expire()
 
 class FirePrimaryInstance(AbilityInstance):
     def __init__(self, player):

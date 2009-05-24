@@ -220,6 +220,8 @@ class StaticEffectNode(Node):
     
     def expire(self):      
         # throw expired event
+        if self.particle_system is not None:
+            self.particle_effect_stop()
         self.static_node_expired()
     
     
@@ -276,7 +278,7 @@ class PlayerNode(MobileGameNode):
         if ability.type == "FireFlameRushInstance":
             ability.collided += self.on_flame_rush_collided
         if ability.type == "EarthHookInstance":
-            self.create_hook_projectile_node(ability.hook_projectile)            
+            self.create_hook_projectile_node(ability.hook_projectile)       
     
     def on_flame_rush_collided(self, player):
         effect_node = StaticEffectNode(self.sceneManager, player.world, 2)
@@ -301,6 +303,20 @@ class PlayerNode(MobileGameNode):
                 # any other animations currently playing.
                 # @todo: use an actual solution instead of weight hack.
                 self.animation_playonce("ability_1", 100)
+            
+            elif index == 2:
+                # Earth : Hook
+                # handled elsewhere
+                pass
+            
+            elif index == 3:
+                # Earth : Earthquake
+                # Play the particle animation
+                effect_node = StaticEffectNode(self.sceneManager, player.world, 2) 
+                effect_node.set_particle_system("Earthquake", (player.position[0],
+                                                               0,
+                                                               player.position[1]))
+                effect_node.particle_effect_start()
 
         elif player.element.type == "fire":
             if index == 1:
