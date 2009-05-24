@@ -317,6 +317,11 @@ class PlayerNode(MobileGameNode):
                                                                0,
                                                                player.position[1]))
                 effect_node.particle_effect_start()
+            
+            elif index == 4:
+                # Earth : Power Swing
+                # Play the animation
+                self.animation_playonce("ability_1", 100)
 
         elif player.element.type == "fire":
             if index == 1:

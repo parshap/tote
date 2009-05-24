@@ -28,13 +28,16 @@ class EarthPrimaryInstance(AbilityInstance):
     def __init__(self, player):
         AbilityInstance.__init__(self, player)
         self.type = "EarthPrimaryInstance"
+        
+        self.hit_angle = math.pi/2
+        self.range = self.player.bounding_shape.radius + 8
 
     def run(self):
         AbilityInstance.run(self)
         # @todo: have swing delay
         bounding_shape = collision.BoundingCone(
-            self.player.bounding_shape.radius + 8,
-            self.player.rotation, math.pi/2)
+            self.range,
+            self.player.rotation, self.hit_angle)
         colliders = self.player.world.get_colliders(
             bounding_shape, self.player.position,
             [self.player], objects.Player)
@@ -101,6 +104,27 @@ class EarthEarthquakeInstance(AbilityInstance):
             print "Earthquake collided with another player!"
             
         self.expire()
+        
+class EarthPowerSwingInstance(AbilityInstance):
+    def __init__(self, player):
+        AbilityInstance.__init__(self, player)
+        self.type = "EarthPowerSwingInstance"
+        self.hit_angle = math.pi/2
+        self.range = 10
+        
+    def run(self):
+        AbilityInstance.run(self)
+        # @todo: have swing delay
+        bounding_shape = collision.BoundingCone(
+            self.range,
+            self.player.rotation, self.hit_angle)
+        colliders = self.player.world.get_colliders(
+            bounding_shape, self.player.position,
+            [self.player], objects.Player)
+        print "Earth Power Swing ability collided with %s players." % (len(colliders))
+        self.expire()
+        
+        
 
 class FirePrimaryInstance(AbilityInstance):
     def __init__(self, player):
