@@ -134,4 +134,59 @@ class FireElement(Element):
         self.last_ability_times["RingOfFire"] = self.player.world.time
         return ability
 
+
+
+class AirElement(Element):
+    def __init__(self, player):
+        Element.__init__(self, player, "air")
+        
+    def use_ability(self, index):
+        """ Use an ability by index. """
+        if index == 1:
+            return self.use_ability_Primary()
+        elif index == 2:
+            return self.use_ability_GustOfWind()
+        elif index == 3:
+            return self.use_ability_WindWhisk()
+        elif index == 4:
+            return self.use_ability_LightningBolt()
+        
+    def use_ability_Primary(self):
+        if self.player.is_ongcd():
+            return False
+        ability = abilities.AirPrimaryInstance(self.player)
+        ability.run()
+        self.last_ability_times["Primary"] = self.player.world.time
+        return ability
+        
+    def use_ability_GustOfWind(self):
+        if self.player.is_ongcd():
+            return False
+        if self.is_oncooldown(2, self.last_ability_times["GustOfWind"]):
+            return False
+        ability = abilities.AirGustOfWindInstance(self.player)
+        ability.run()
+        self.last_ability_times["GustOfWind"] = self.player.world.time
+        return ability
     
+    def use_ability_WindWhisk(self):
+        cooldown = 2
+        if(self.player.is_ongcd()):
+            return False
+        if self.is_oncooldown(cooldown, self.last_ability_times["WindWhisk"]):
+            return False
+        ability = abilities.AirWindWhiskInstance(self.player)
+        ability.run()
+        self.last_ability_times["WindWhisk"] = self.player.world.time
+        return ability
+    
+    def use_ability_LightningBolt(self):
+        cooldown = 2
+        if(self.player.is_ongcd()):
+            return False
+        if self.is_oncooldown(cooldown, self.last_ability_times["LightningBolt"]):
+            return False
+        ability = abilities.AirLightningBoltInstance(self.player)
+        ability.run()
+        self.last_ability_times["LightningBolt"] = self.player.world.time
+        return ability    

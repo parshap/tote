@@ -287,4 +287,35 @@ class FireRingOfFireInstance(AbilityInstance):
                 print "Another player was hit by Ring of Fire!"
                 # @todo: : apply damage etc etc etc
     
+class AirPrimaryInstance(AbilityInstance):
+    start_velocity = 200
+    acceleration = 500
+    projectile_radius = 10
+    duration = 10
+    collided = Event()
+    
+    def __init__(self, player):
+        AbilityInstance.__init__(self, player)
+        self.type = "AirPrimaryInstance"
+        self.projectile = objects.ProjectileObject(self.player, self.projectile_radius, self.duration)
+        self.projectile.position = self.player.position
+        self.projectile.collided += self.on_collided
+        self.projectile.rotate(player.rotation)
                 
+    def run(self):
+        AbilityInstance.run(self)
+        self.projectile.move_speed = self.start_velocity
+        self.projectile.is_moving = True
+  
+    def update(self, dt):
+        AbilityInstance.update(self, dt)
+        self.projectile.move_speed += self.acceleration * dt
+        
+    def on_collided(self, object_collided_with):
+        if not object_collided_with == self.player:
+            self.collided()
+        if object_collided_with.type == "player":
+            print "Air Shot collided with another player!"
+        
+        
+        

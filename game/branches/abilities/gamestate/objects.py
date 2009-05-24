@@ -250,7 +250,7 @@ class Player(MobileObject):
         # Create an Element and pass it a reference to this player make it our
         # current active element.
         # @todo: don't hardcode this
-        self.element = elements.FireElement(self)
+        self.element = elements.AirElement(self)
         
         self.active_abilities = []
         self.last_ability_time = 0
@@ -327,7 +327,11 @@ class Player(MobileObject):
             self.last_ability_time = self.world.time
             self.active_abilities.append(ability)
             ability.expired += self.on_ability_expired
-            self.ability_used(self, index)
+            # @todo: find a more elegant way to pass the mobileobject/projectile than passing the entire ability
+            # this won't be an easy design issue to fix, but luckily doing it this way will work and be easy to
+            # implement and understand (even if it's a tad sloppy)
+            self.ability_used(self, index, ability)
+            
             self.ability_instance_created(ability, self.world.time)
         else:
             # @todo: Notify player of error?

@@ -176,6 +176,7 @@ class MobileGameNode(GameNode):
     def __init__(self, sceneManager, mobileObject):
         GameNode.__init__(self, sceneManager, mobileObject)
         self.is_active = True
+        self.type = mobileObject.type
         
         # Listen to the events we care about.
         mobileObject.position_changed += self.on_position_changed
@@ -197,7 +198,47 @@ class MobileGameNode(GameNode):
     def expire(self, projectileObject):
         # @todo: if our game is really slow, this might be a memory leak
        self.particle_effect_stop()
+       
+
+class ProjectileNode(MobileGameNode):
+    def __init__(self, sceneManager, projectileObject):
+        MobileGameNode.__init__(self, sceneManager, projectileObject)
         
+        self.secondary_particle_system = None
+        projectileObject.collided += self.on_collided
+        projectileObject.expired -= self.on_expired
+    
+    def set_secondary_particle_system(self, system_name, position_offset = (0,0,0), rotation = 0, scale = 1):
+        self.secondary_particle_system = self.sceneManager.createParticleSystem(Node._unique("PE%s" % system_name), system_name)
+        particleNode = self.sceneNode.createChildSceneNode()
+        particleNode.attachObject(self.secondary_particle_system)
+        particleNode.position = position_offset
+        particleNode.rotate((0, -1, 0), rotation)
+        for i in xrange(0, self.secondary_particle_system.getNumEmitters()):
+                self.secondary_particle_system.getEmitter(i).setEnabled(False)
+    
+    def on_collided(self, object_collided_with):
+        if self.particle_system is not None:
+            self.particle_effect_stop()
+            if self.secondary_particle_system is not None:
+                self.secondary_particle_effect_start()
+            
+    def secondary_particle_effect_start(self):
+        if self.secondary_particle_system is not None:
+            for i in xrange(0, self.secondary_particle_system.getNumEmitters()):
+                self.secondary_particle_system.getEmitter(i).setEnabled(True)
+        else:
+            raise Exception("Particle system not set!")
+    
+    def secondary_particle_effect_stop(self):
+        if self.secondary_particle_system is not None:
+            for i in xrange(0, self.secondary_particle_system.getNumEmitters()):
+                self.secondary_particle_system.getEmitter(i).setEnabled(False)
+        else:
+            raise Exception("Particle system not set!")
+    
+    
+  
 class StaticEffectNode(Node):
     """ Implementation of Node that represents an object that exists ONLY IN OGRE
     and has no corresponding GameObject. A StaticEffectNode allows itself to be destroyed
@@ -224,8 +265,6 @@ class StaticEffectNode(Node):
             self.particle_effect_stop()
         self.static_node_expired()
     
-    
-
 class PlayerNode(MobileGameNode):
     def __init__(self, sceneManager, player, mesh_name):
         MobileGameNode.__init__(self, sceneManager, player)
@@ -295,7 +334,7 @@ class PlayerNode(MobileGameNode):
         
         
     
-    def on_ability_used(self, player, index):
+    def on_ability_used(self, player, index, ability_instance):
         if player.element.type == "earth":
             if index == 1:
                 # Earth : Primary
@@ -349,6 +388,19 @@ class PlayerNode(MobileGameNode):
                                                                0,
                                                                player.position[1]))
                 effect_node.particle_effect_start()
+        
+        elif player.element.type == "air":
+            if index == 1:
+                # Air : Primary
+                
+                # @note: this is why passing the ability_instance to on_ability_used is sloppy
+                # but the effect_node that represents the projectile object on the ogre side of
+                # things NEEDS a reference to the corresponding ProjectileObject.
+                # Find a better way to do this someday. 
+                projectile_node = ProjectileNode(self.sceneManager, ability_instance.projectile)
+                projectile_node.set_particle_system("AirShot")
+                projectile_node.set_secondary_particle_system("LavaSplash")
+                projectile_node.particle_effect_start()
                 
 
     
