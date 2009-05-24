@@ -341,6 +341,14 @@ class PlayerNode(MobileGameNode):
                                                                0,
                                                                player.position[1]))
                 effect_node.particle_effect_start()
+            
+            elif index == 4:
+                # Fire : Ring of Fire
+                effect_node = StaticEffectNode(self.sceneManager, player.world, 3)
+                effect_node.set_particle_system("RingOfFire", (player.position[0],
+                                                               0,
+                                                               player.position[1]))
+                effect_node.particle_effect_start()
                 
 
     

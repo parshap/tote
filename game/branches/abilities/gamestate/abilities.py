@@ -4,6 +4,7 @@ from collision import CollisionDetector
 import objects
 import math
 from event import Event, Scheduler
+from collections import defaultdict
 
 
 class AbilityInstance(object):
@@ -177,9 +178,7 @@ class FireFlameRushInstance(AbilityInstance):
             for player in colliders:
                 # @todo: apply damage
                 print "Flame Rush collided with some other object!"
-            
-            
-            
+                
             self.expire()
             return False
 
@@ -222,3 +221,70 @@ class FireLavaSplashInstance(AbilityInstance):
     
     def expire(self):
         AbilityInstance.expire(self)
+        
+class FireRingOfFireInstance(AbilityInstance):
+    damage_per_tick = 10
+    duration = 3
+    radius = 40
+    tick_time = 1
+    last_player_hit_times = defaultdict(int)
+    
+    def __init__(self, player):
+        AbilityInstance.__init__(self, player)
+        self.type = "FireRingOfFireInstance"
+        self.time_to_live = self.duration
+        self.ring_of_fire = objects.ProjectileObject(self.player, self.radius,
+                                                     self.duration)
+        self.ring_of_fire.position = self.player.position
+        self.ring_of_fire.bounding_shape = collision.BoundingCircle(self.radius, True)
+        self.ring_of_fire.outer_bounding_circle = collision.BoundingCircle(self.radius + 10, True)
+        self.ring_of_fire.inner_bounding_circle = collision.BoundingCircle(self.radius - 10, True)
+        self.ring_of_fire.move_speed = 0
+        self.ring_of_fire.is_moving = False
+        
+    def run(self):
+        AbilityInstance.run(self)
+        # nothing to do here really
+  
+    def update(self, dt):
+        AbilityInstance.update(self, dt)
+                
+        # if the ability has expired...
+        self.duration -= dt
+        if self.duration <= 0:
+            self.player.world.remove_object(self.ring_of_fire)
+            print "effect destroyed"
+            self.expire()
+            return
+        
+        # otherwise do our updates
+        colliders = self.player.world.get_colliders(self.ring_of_fire.bounding_shape, self.ring_of_fire.position,
+                                                    [self.player], objects.Player)
+        inner_colliders = self.player.world.get_colliders(self.ring_of_fire.inner_bounding_circle, self.ring_of_fire.position,
+                                                    [self.player], objects.Player)
+        outer_colliders = self.player.world.get_colliders(self.ring_of_fire.outer_bounding_circle, self.ring_of_fire.position,
+                                                          [self.player], objects.Player)
+        for collider in inner_colliders:
+            colliders.append(collider)
+        for collider in outer_colliders:
+            colliders.append(collider)
+        
+        for collider in colliders:
+            # if this player has already been hit
+            if self.last_player_hit_times.has_key(collider):
+                if collider == self.player:
+                    print "player collided"
+                    continue
+                # check to see if the player was hit long ago enough to hit him again
+                dt = self.player.world.time - self.last_player_hit_times[collider]
+                if dt >= self.tick_time:
+                    print "Another player was hit by Ring of Fire!"
+                    self.last_player_hit_times[collider] = self.player.world.time
+                    # @todo: apply damage etc etc etc
+            # if the player has not already been hit
+            else:
+                self.last_player_hit_times[collider] = self.player.world.time
+                print "Another player was hit by Ring of Fire!"
+                # @todo: : apply damage etc etc etc
+    
+                

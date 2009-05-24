@@ -91,6 +91,8 @@ class FireElement(Element):
             return self.use_ability_FlameRush()
         elif index == 3:
             return self.use_ability_LavaSplash()
+        elif index == 4:
+            return self.use_ability_RingOfFire()
         
     def use_ability_Primary(self):
         if self.player.is_ongcd():
@@ -119,6 +121,17 @@ class FireElement(Element):
         ability = abilities.FireLavaSplashInstance(self.player)
         ability.run()
         self.last_ability_times["LavaSplash"] = self.player.world.time
+        return ability
+    
+    def use_ability_RingOfFire(self):
+        cooldown = 2
+        if(self.player.is_ongcd()):
+            return False
+        if self.is_oncooldown(cooldown, self.last_ability_times["RingOfFire"]):
+            return False
+        ability = abilities.FireRingOfFireInstance(self.player)
+        ability.run()
+        self.last_ability_times["RingOfFire"] = self.player.world.time
         return ability
 
     

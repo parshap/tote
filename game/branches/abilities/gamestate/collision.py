@@ -7,10 +7,10 @@ class BoundingObject(object):
 
 
 class BoundingCircle(BoundingObject):
-    def __init__(self, radius):
+    def __init__(self, radius, is_hollow = False):
         BoundingObject.__init__(self, "circle")
         self.radius = radius
-
+        self.is_hollow = is_hollow
 
 class BoundingLineSegment(BoundingObject):
     def __init__(self, point1, point2, normal=None):
@@ -146,7 +146,10 @@ class CollisionDetector(object):
         if shape1.type == "circle" and shape2.type == "linesegment":
             return CollisionDetector._check_circle_line(shape1, position1, shape2, position2) is not False
         elif shape1.type == "circle" and shape2.type == "circle":
-            return CollisionDetector._check_circle_circle(shape1, position1, shape2, position2) is not False
+            if not shape1.is_hollow:
+                return CollisionDetector._check_circle_circle(shape1, position1, shape2, position2) is not False
+            else:
+                return CollisionDetector._check_circle_circle_hollow(shape1, position1, shape2, position2) is not False
         elif shape1.type == "circle" and shape2.type == "rectangle":
             return CollisionDetector._check_circle_rect(shape1, position1, shape2, position2) is not False
         elif shape1.type == "cone" and shape2.type == "circle":
@@ -282,6 +285,41 @@ class CollisionDetector(object):
         
         # Calculate the distance between the center points of the two circles.
         distance = CollisionDetector._get_xz_distance(circle1_position, circle2_position)
+        
+        if distance > circle1.radius + circle2.radius:
+            # If the distance is greater than the sum of the two circles' radii
+            # then the circles are not overlapping and there is no collision.
+            return False
+        else:
+            return True
+        
+    @staticmethod
+    def _check_circle_circle_hollow(circle1, circle1_position, circle2, circle2_position):
+        """
+        NOTE: The difference between hollow collision and non-hollow collision is this will
+        ONLY return true if there are actual point(s) of intersection. This method will
+        return false if one circle is inside the other and not intersecting.
+        
+        Checks if circle1 centered about circle1_position is overlapping with circle2
+        centered about circle2_position. If there is no overlap, False is returned. If
+        there is an overlap, True is returned.
+        """
+        # if one circle is inside the other, then return False
+        if circle1.radius > circle2.radius:
+            larger_circle = circle1
+            larger_circle_position = circle1_position
+            smaller_circle = circle2
+            smaller_circle_position = circle2_position
+        else:
+            larger_circle = circle2
+            larger_circle_position = circle2_position
+            smaller_circle = circle1
+            smaller_circle_position = circle1_position
+            
+        distance = CollisionDetector._get_xz_distance(circle1_position, circle2_position)
+        
+        if larger_circle.radius > distance + smaller_circle.radius:
+            return False
         
         if distance > circle1.radius + circle2.radius:
             # If the distance is greater than the sum of the two circles' radii
