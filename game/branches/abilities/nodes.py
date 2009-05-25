@@ -452,6 +452,8 @@ class PlayerNode(MobileGameNode):
                 projectile_node.particle_effect_start()
 
             elif index == 2:
+                # Water : Water Gush
+                # @todo: make splashes etc
                 pass
             elif index == 3:
                 pass
