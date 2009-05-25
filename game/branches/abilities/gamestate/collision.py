@@ -652,3 +652,9 @@ class CollisionDetector(object):
         dx = point2.x - point1.x
         dz = point2.z - point1.z
         return math.sqrt(dx*dx + dz*dz)
+    
+    @staticmethod
+    def normalise_vector(tuple_vector):
+        vector = ogre.Vector3(tuple_vector[0], 0, tuple_vector[1])
+        vector.normalise()
+        return (vector.x, vector.z)

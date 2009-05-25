@@ -402,5 +402,15 @@ class PlayerNode(MobileGameNode):
                 projectile_node.set_secondary_particle_system("LavaSplash")
                 projectile_node.particle_effect_start()
                 
+            if index == 2:
+                # Air : Gust of Wind
+                effect_node = StaticEffectNode(self.sceneManager, player.world, 0.5)
+                effect_node.set_particle_system("GustOfWind", (player.position[0],
+                                                               0,
+                                                               player.position[1]),
+                                                               player.rotation)
+               
+                effect_node.particle_effect_start()
+                
 
     

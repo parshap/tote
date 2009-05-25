@@ -193,7 +193,7 @@ class FireFlameRushInstance(AbilityInstance):
         
 class FireLavaSplashInstance(AbilityInstance):
     damage_dealt = 1
-    radius = 18
+    radius = 30
         
     def __init__(self, player):
         AbilityInstance.__init__(self, player)
@@ -316,6 +316,44 @@ class AirPrimaryInstance(AbilityInstance):
             self.collided()
         if object_collided_with.type == "player":
             print "Air Shot collided with another player!"
+            
+class AirGustOfWindInstance(AbilityInstance):
+    knockback_strength = 150
+    acceleration_factor = 2
+    hit_radius = 50
+    hit_angle = math.pi / 2
+    duration = 0.25
+    
+    def __init__(self, player):
+        AbilityInstance.__init__(self, player)
+        self.type = "AirGustOfWindInstance"
+    
+    def run(self):
+        AbilityInstance.run(self)
+        # create the bounding circle to check collision against
+        bounding_cone = collision.BoundingCone(self.hit_radius, self.player.rotation, self.hit_angle) 
+        
+        # get a list of colliding players
+        colliders = self.player.world.get_colliders(bounding_cone, self.player.position,
+                                                    [self.player], objects.Player)
+        
+        # for each player, apply effects
+        for player in colliders:
+            # get force vector for other player
+            force_vector = ((player.position[0] - self.player.position[0],
+                             player.position[1] - self.player.position[1]))
+            player.apply_force(force_vector, self.knockback_strength, self.acceleration_factor, self.duration)
+            print "Gust of wind collided with another player!"
+                
+        # end the effect
+        self.expire()
+            
+    def update(self, dt):
+        AbilityInstance.update(self, dt)
+    
+    def expire(self):
+        AbilityInstance.expire(self)
+        
         
         
         

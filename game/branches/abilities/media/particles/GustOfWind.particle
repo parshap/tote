@@ -1,0 +1,50 @@
+
+particle_system GustOfWind
+{
+	quota	200
+	material	PE/Flare
+	particle_width	11.76
+	particle_height	32.39
+	cull_each	false
+	renderer	billboard
+	billboard_type	point
+
+	emitter Point
+	{
+		angle	45
+		colour	0.6 0.6 0.6 0.2
+		colour_range_start	0.6 0.6 0.6 0.2
+		colour_range_end	0.6 0.6 0.6 0.2
+		direction	1 0 0
+		emission_rate	800
+		position	0 0 0
+		velocity	500
+		velocity_min	100
+		velocity_max	100
+		time_to_live	0.25
+		time_to_live_min	0.25
+		time_to_live_max	0.5
+		duration	0
+		duration_min	0
+		duration_max	0
+		repeat_delay	1.8
+		repeat_delay_min	1.8
+		repeat_delay_max	1.8
+	}
+
+	affector ColourFader
+	{
+		red	0.2
+		green	0.2
+		blue	0.2
+		alpha	0.2195
+	}
+
+	affector Rotator
+	{
+		rotation_speed_range_start	26.34
+		rotation_speed_range_end	125.2
+		rotation_range_start	0
+		rotation_range_end	310.9
+	}
+}

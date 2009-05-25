@@ -54,6 +54,11 @@ class MobileObject(GameObject):
         
         self.position_changed = Event()
         self.collided = Event()
+        
+        self.force_vector = (0, 0)
+        self.force_strength = 0
+        self.force_applied = False
+        self.force_duration = 0
 
     def _get_is_moving(self):
         """ Gets or sets the object's current moving state """
@@ -71,9 +76,39 @@ class MobileObject(GameObject):
         GameObject._set_position(self, value)
         self.position_changed(self, value)
     position = property(GameObject._get_position, _set_position)
+    
+    def apply_force(self, vector, strength, acceleration_factor = 1, duration = False):
+        self.force_vector = CollisionDetector.normalise_vector(vector)
+        self.force_strength = strength
+        self.force_duration = duration
+        self.force_acceleration = acceleration_factor
+        self.force_applied = True
+        
+    def remove_force(self):
+        self.force_applied = False
 
     def update(self, dt):
         GameObject.update(self, dt)
+
+        # if a force is applied to this mobileobject
+        if self.force_applied:
+            # if there is time remaining for the force, or if no duration was set
+            if self.force_duration > 0 or not self.force_duration:
+                # move this object based on the force
+                self._move((self.force_vector[0] * self.force_strength * dt, 
+                            self.force_vector[1] * self.force_strength * dt))
+                # update duration if duration is set
+                if self.force_duration is not False:
+                    self.force_duration -= dt
+                
+                # apply force acceleration
+                self.force_vector = (self.force_vector[0] + self.force_acceleration * self.force_vector[0] * dt,
+                                     self.force_vector[1] + self.force_acceleration * self.force_vector[1] * dt)
+            else:
+                # duration expired
+                print "force expired"
+                self.force_duration = 0
+                self.force_applied = False
 
         if self.is_moving:
             movespd = self.move_speed * dt
