@@ -348,12 +348,6 @@ class AirGustOfWindInstance(AbilityInstance):
                 
         # end the effect
         self.expire()
-            
-    def update(self, dt):
-        AbilityInstance.update(self, dt)
-    
-    def expire(self):
-        AbilityInstance.expire(self)
         
 class AirWindWhiskInstance(AbilityInstance):
     teleport_distance = 8
@@ -390,4 +384,47 @@ class AirWindWhiskInstance(AbilityInstance):
             i += 1
         # end the effect
         self.expire()
+        
+class AirLightningBoltInstance(AbilityInstance):
+    damage_dealt = 10
+    range = 50
+    
+    def __init__(self, player):
+        AbilityInstance.__init__(self, player)
+        self.target = None
+        
+    def run(self):
+        AbilityInstance.run(self)
+        
+        bounding_circle = collision.BoundingCircle(self.range) 
+        
+        # find a target
+        colliders = self.player.world.get_colliders(bounding_circle, self.player.position,
+                                                    [self.player], objects.Player)
+        if len(colliders) == 0:
+            # no targets in range
+            return
+        
+        self.target = colliders[0]
+        min_distance = self._square_of_distance(self.player, colliders[0])
+        
+        for collider in colliders:
+            distance_to_collider = self._square_of_distance(self.player, collider)
+            if distance_to_collider < min_distance:
+                min_distance = distance_to_collider
+                self.target = collider
+                
+        # target found, cast spell
+        # @todo: apply damage to self.target here 
+        print "Another player was hit by lightning bolt!"
+        
+    def _square_of_distance(self, player1, player2):
+        return (player2.position[0] - player1.position[0]) * (player2.position[0] - player1.position[0]) + (player2.position[1] - player1.position[1]) * (player2.position[1] - player1.position[1])
+                
+        
+    def update(self, dt):
+        AbilityInstance.update(self, dt)
+    
+    def expire(self):
+        AbilityInstance.expire(self)
         

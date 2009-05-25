@@ -425,5 +425,16 @@ class PlayerNode(MobileGameNode):
                                                                0,
                                                                player.position[1]))
                 effect_node2.particle_effect_start()
+                
+            if index == 4:
+                # Air : Lightning Bolt
+                if ability_instance.target is None:
+                    # event was launched because ability was used, but there was no target in range
+                    return
+                effect_node = StaticEffectNode(self.sceneManager, player.world, 0.5)
+                # @todo: come up with a particle effect for this ability
+                effect_node.set_particle_system("LavaSplash", (ability_instance.target.position[0],
+                                                               0,
+                                                               ability_instance.target.position[1]))
 
     
