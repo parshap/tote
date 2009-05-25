@@ -436,5 +436,26 @@ class PlayerNode(MobileGameNode):
                 effect_node.set_particle_system("LavaSplash", (ability_instance.target.position[0],
                                                                0,
                                                                ability_instance.target.position[1]))
+        
+        elif player.element.type == "water":
+            if index == 1:
+                # Water : Primary
+ 
+                # @note: this is why passing the ability_instance to on_ability_used is sloppy
+                # but the effect_node that represents the projectile object on the ogre side of
+                # things NEEDS a reference to the corresponding ProjectileObject.
+                # Find a better way to do this someday. 
+                projectile_node = ProjectileNode(self.sceneManager, ability_instance.projectile)
+                #@todo: make particle effects for these
+                projectile_node.set_particle_system("AirShot")
+                projectile_node.set_secondary_particle_system("WaterSplash")
+                projectile_node.particle_effect_start()
+
+            elif index == 2:
+                pass
+            elif index == 3:
+                pass
+            elif index == 4:
+                pass
 
     

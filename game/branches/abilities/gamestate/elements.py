@@ -190,3 +190,58 @@ class AirElement(Element):
         ability.run()
         self.last_ability_times["LightningBolt"] = self.player.world.time
         return ability    
+    
+class WaterElement(Element):
+    def __init__(self, player):
+        Element.__init__(self, player, "water")
+        
+    def use_ability(self, index):
+        """ Use an ability by index. """
+        if index == 1:
+            return self.use_ability_Primary()
+        elif index == 2:
+            return self.use_ability_WaterGush()
+        elif index == 3:
+            return self.use_ability_TidalWave()
+        elif index == 4:
+            return self.use_ability_IceBurst()
+        
+    def use_ability_Primary(self):
+        if self.player.is_ongcd():
+            return False
+        ability = abilities.WaterPrimaryInstance(self.player)
+        ability.run()
+        self.last_ability_times["Primary"] = self.player.world.time
+        return ability
+        
+    def use_ability_WaterGush(self):
+        if self.player.is_ongcd():
+            return False
+        if self.is_oncooldown(2, self.last_ability_times["WaterGush"]):
+            return False
+        ability = abilities.WaterWaterGushInstance(self.player)
+        ability.run()
+        self.last_ability_times["WaterGush"] = self.player.world.time
+        return ability
+    
+    def use_ability_TidalWave(self):
+        cooldown = 2
+        if(self.player.is_ongcd()):
+            return False
+        if self.is_oncooldown(cooldown, self.last_ability_times["TidalWave"]):
+            return False
+        ability = abilities.WaterTidalWaveInstance(self.player)
+        ability.run()
+        self.last_ability_times["TidalWave"] = self.player.world.time
+        return ability
+    
+    def use_ability_IceBurst(self):
+        cooldown = 2
+        if(self.player.is_ongcd()):
+            return False
+        if self.is_oncooldown(cooldown, self.last_ability_times["IceBurst"]):
+            return False
+        ability = abilities.WaterIceBurstInstance(self.player)
+        ability.run()
+        self.last_ability_times["IceBurst"] = self.player.world.time
+        return ability    

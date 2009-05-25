@@ -428,3 +428,34 @@ class AirLightningBoltInstance(AbilityInstance):
     def expire(self):
         AbilityInstance.expire(self)
         
+class WaterPrimaryInstance(AbilityInstance):
+    velocity = 100
+    projectile_radius = 10
+    duration = 20
+    damage_dealt = 10
+    collided = Event()
+    
+    def __init__(self, player):
+        AbilityInstance.__init__(self, player)
+        self.type = "WaterPrimaryInstance"
+        self.projectile = objects.ProjectileObject(self.player, self.projectile_radius, self.duration)
+        self.projectile.position = self.player.position
+        self.projectile.collided += self.on_collided
+        self.projectile.rotate(player.rotation)
+                
+    def run(self):
+        AbilityInstance.run(self)
+        self.projectile.move_speed = self.velocity
+        self.projectile.is_moving = True
+  
+    def update(self, dt):
+        AbilityInstance.update(self, dt)
+        
+    def on_collided(self, object_collided_with):
+        if not object_collided_with == self.player:
+            self.collided()
+        if object_collided_with.type == "player":
+            print "Ice Shot collided with another player!"
+            #@todo: apply damage etc
+
+        
