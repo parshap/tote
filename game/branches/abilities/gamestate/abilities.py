@@ -499,3 +499,68 @@ class WaterWaterGushInstance(AbilityInstance):
             i += 1
         # end the effect
         self.expire()      
+        
+class WaterTidalWaveInstance(AbilityInstance):
+    hit_radius = 40
+    hit_angle = math.pi / 2
+    damage_dealt = 10
+    
+    def __init__(self, player):
+        AbilityInstance.__init__(self, player)
+        self.type = "WaterTidalWaveInstance"
+    
+    def run(self):
+        AbilityInstance.run(self)
+        # create the bounding circle to check collision against
+        bounding_cone = collision.BoundingCone(self.hit_radius, self.player.rotation, self.hit_angle) 
+        
+        # get a list of colliding players
+        colliders = self.player.world.get_colliders(bounding_cone, self.player.position,
+                                                    [self.player], objects.Player)
+        
+        # for each player, apply effects
+        for player in colliders:
+            # @todo: apply damage etc
+            print "Tidal Wave collided with another player!"
+                
+        # end the effect
+        self.expire()
+        
+class WaterIceBurstInstance(AbilityInstance):
+    invulnerable_duration = 2
+    shard_damage = 10
+    shard_radius = 30
+    
+    def __init__(self, player):
+        AbilityInstance.__init__(self, player)
+        self.type = "WaterIceBurstInstance"
+        
+    def run(self):
+        AbilityInstance.run(self)        
+        self.player.is_invulnerable = True
+        self.player.is_immobilized = True
+        print "Player invulnerable for 2 seconds!"
+            
+    def update(self, dt):
+        AbilityInstance.update(self, dt)
+        self.invulnerable_duration -= dt
+        if self.invulnerable_duration <= 0:
+            self.player.is_invulnerable = False
+            self.player.is_immobilized = False
+            self.create_shard_explosion()
+            
+    def create_shard_explosion(self):
+        bounding_circle = collision.BoundingCircle(self.shard_radius) 
+        
+        # get a list of colliding players
+        colliders = self.player.world.get_colliders(bounding_circle, self.player.position,
+                                                    [self.player], objects.Player)
+        
+        # for each player, apply effects
+        for player in colliders:
+            # @todo: apply damage
+            print "Ice Burst collided with another player!"
+                
+        # end the effect
+        self.expire()
+                

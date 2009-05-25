@@ -272,6 +272,7 @@ class Player(MobileObject):
         self.move_speed = 100
         self.power = 100
         self.health = 100
+        self.dead = False
         self.bounding_shape = collision.BoundingCircle(6)
         self.type = "player"
         
@@ -281,6 +282,8 @@ class Player(MobileObject):
         self.is_charging_changed = Event()
         self.is_hooked_changed = Event()
         self.hooked_by_player = None
+        self.is_invulnerable = False
+        self.is_immobilized = False
         
         # Create an Element and pass it a reference to this player make it our
         # current active element.
@@ -291,6 +294,12 @@ class Player(MobileObject):
         self.last_ability_time = 0
         self.ability_used = Event()
         self.ability_instance_created = Event()
+        
+    def apply_damage(self, amount):
+        if not self.invulnerable:
+            self.health -= amount
+            if self.health <= 0:
+                self.dead = True
         
     def _get_is_charging(self):
         """ Gets or sets the object's current charging state """
@@ -340,6 +349,8 @@ class Player(MobileObject):
                 move_vector = (distance * math.cos(move_direction),
                                distance * math.sin(move_direction))
                 self._move(move_vector)
+        if self.is_immobilized:
+            self.is_moving = False
         MobileObject.update(self, dt)
 
         for ability in self.active_abilities:

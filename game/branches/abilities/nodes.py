@@ -456,8 +456,12 @@ class PlayerNode(MobileGameNode):
                 # @todo: make splashes etc
                 pass
             elif index == 3:
+                # Water : Tidal Wave
+                # @todo: make particle effect
                 pass
             elif index == 4:
+                # Water : Ice Burst
+                # @todo: make particle effect
                 pass
 
     
