@@ -1,4 +1,5 @@
 #from event import Event
+from __future__ import division
 import collision
 from collision import CollisionDetector
 import objects
@@ -354,6 +355,39 @@ class AirGustOfWindInstance(AbilityInstance):
     def expire(self):
         AbilityInstance.expire(self)
         
+class AirWindWhiskInstance(AbilityInstance):
+    teleport_distance = 8
+    
+    # increasing move_samples increases collision detection accuracy (no jumping over stuff etc)
+    # at the cost of extra calculation time. Each sample will be tested at intervals of length
+    # (teleport_distance / move_samples).
+    move_samples = 30 
+    
+    def __init__(self, player):
+        AbilityInstance.__init__(self, player)
+        self.type = "AirGustOfWindInstance"
+        self.has_collided = False
+        self.player_start_position = player.position
         
-        
+    
+    def run(self):
+        AbilityInstance.run(self)
+        # hackish implementation
+        # @todo: make this less hackish
+        i = 0
+        while i < self.move_samples:
+            sample_position = (self.player.position[0] + i * (self.teleport_distance /  self.move_samples) * math.cos(self.player.rotation),
+                               self.player.position[1] + i * (self.teleport_distance /  self.move_samples) * math.sin(self.player.rotation))
+            colliders = self.player.world.get_colliders(self.player.bounding_shape, sample_position,
+                                                   [self.player])
+            for collider in colliders:
+                if collider.type == "player" or collider.type == "projectile":
+                    continue
+                else:
+                    self.has_collided = True
+            move_vector = (sample_position[0] - self.player.position[0], sample_position[1] - self.player.position[1])
+            self.player._move(move_vector) # <-- this is why it's hackish
+            i += 1
+        # end the effect
+        self.expire()
         

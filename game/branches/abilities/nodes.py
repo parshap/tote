@@ -412,5 +412,18 @@ class PlayerNode(MobileGameNode):
                
                 effect_node.particle_effect_start()
                 
+            if index == 3:
+                # Air : Wind Whisk
+                effect_node1 = StaticEffectNode(self.sceneManager, player.world, 0.3)
+                effect_node1.set_particle_system("WindWhisk", (ability_instance.player_start_position[0],
+                                                               0,
+                                                               ability_instance.player_start_position[1]))
+                effect_node1.particle_effect_start()
+                
+                effect_node2 = StaticEffectNode(self.sceneManager, player.world, 0.3)
+                effect_node2.set_particle_system("WindWhisk", (player.position[0],
+                                                               0,
+                                                               player.position[1]))
+                effect_node2.particle_effect_start()
 
     
