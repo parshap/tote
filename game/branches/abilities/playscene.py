@@ -39,10 +39,10 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
         # Create the inputManager using the supplied renderWindow
         windowHnd = self.renderWindow.getCustomAttributeInt("WINDOW")
         paramList = [("WINDOW", str(windowHnd)), \
-                     ("w32_mouse", "DISCL_FOREGROUND"), \
-                     ("w32_mouse", "DISCL_NONEXCLUSIVE"), \
-                     ("w32_keyboard", "DISCL_FOREGROUND"), \
-                     ("w32_keyboard", "DISCL_NONEXCLUSIVE"),]
+                     ("w640_mouse", "DISCL_FOREGROUND"), \
+                     ("w640_mouse", "DISCL_NONEXCLUSIVE"), \
+                     ("w640_keyboard", "DISCL_FOREGROUND"), \
+                     ("w640_keyboard", "DISCL_NONEXCLUSIVE"),]
                      # @todo: add mac/linux parameters
         self.inputManager = OIS.createPythonInputSystem(paramList)
 
@@ -99,7 +99,7 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
         # Add stationary NPC ninja...
         npc = gamestate.objects.Player(self.world)
         self.world.add_object(npc)
-        npc.position = (45, 45)
+        npc.position = (128, 128)
         npc.isPassable = False
         
         # Add boundary lines for map walls.
@@ -107,31 +107,31 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
         
         # north wall
         boundary1 = gamestate.objects.GameObject(self.world)
-        boundary1.position = (-90, -90)
+        boundary1.position = (-640, -640)
         boundary1.isPassable = False
-        boundary1.bounding_shape = gamestate.collision.BoundingLineSegment((-90, -90),
-                                                                           (90, -90),
+        boundary1.bounding_shape = gamestate.collision.BoundingLineSegment((-640, -640),
+                                                                           (640, -640),
                                                                            (0, 1))
         # south wall
         boundary2 = gamestate.objects.GameObject(self.world)
-        boundary2.position = (-90, 90)
+        boundary2.position = (-640, 640)
         boundary2.isPassable = False
-        boundary2.bounding_shape = gamestate.collision.BoundingLineSegment((-90, 90),
-                                                                           (90, 90),
+        boundary2.bounding_shape = gamestate.collision.BoundingLineSegment((-640, 640),
+                                                                           (640, 640),
                                                                            (0, -1))
         # east wall
         boundary3 = gamestate.objects.GameObject(self.world)
-        boundary3.position = (90, -90)
+        boundary3.position = (640, -640)
         boundary3.isPassable = False
-        boundary3.bounding_shape = gamestate.collision.BoundingLineSegment((90, -90),
-                                                                           (90, 90),
+        boundary3.bounding_shape = gamestate.collision.BoundingLineSegment((640, -640),
+                                                                           (640, 640),
                                                                            (-1, 0))
         # west wall
         boundary4 = gamestate.objects.GameObject(self.world)
-        boundary4.position = (-90, -90)
+        boundary4.position = (-640, -640)
         boundary4.isPassable = False
-        boundary4.bounding_shape = gamestate.collision.BoundingLineSegment((-90, -90),
-                                                                           (-90, 90),
+        boundary4.bounding_shape = gamestate.collision.BoundingLineSegment((-640, -640),
+                                                                           (-640, 640),
                                                                            (1, 0))
 
         self.world.add_object(boundary1)
