@@ -27,9 +27,9 @@ particle_system WindWhisk
 		duration	0
 		duration_min	0
 		duration_max	0
-		repeat_delay	5
-		repeat_delay_min	5
-		repeat_delay_max	5
+		repeat_delay	0
+		repeat_delay_min	0
+		repeat_delay_max	0
 		width	12
 		height	30
 		depth	12

@@ -27,9 +27,9 @@ particle_system GustOfWind
 		duration	0
 		duration_min	0
 		duration_max	0
-		repeat_delay	1.8
-		repeat_delay_min	1.8
-		repeat_delay_max	1.8
+		repeat_delay	0
+		repeat_delay_min	0
+		repeat_delay_max	0
 	}
 
 	affector ColourFader
