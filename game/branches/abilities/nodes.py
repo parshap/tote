@@ -77,16 +77,20 @@ class Node(object):
             name of the particle effect.
         """
         self.particle_system = self.sceneManager.createParticleSystem(Node._unique("PE%s" % name), name)
+        if self.particle_system is not None:
+            for i in xrange(0, self.particle_system.getNumEmitters()):
+                self.particle_system.getEmitter(i).setEnabled(False)
         particleNode = self.sceneNode.createChildSceneNode()
         particleNode.attachObject(self.particle_system)
         particleNode.position = position_offset
-        particleNode.rotate((0, -1, 0), rotation)
+        particleNode.rotate((0, -1, 0), rotation)     
     
     def get_particle_system(self):
         return self.particle_system
         
     def particle_effect_start(self):
         """ Enable the particle effect with the given name. """
+        print "particle started!"
         if self.particle_system is not None:
             for i in xrange(0, self.particle_system.getNumEmitters()):
                 self.particle_system.getEmitter(i).setEnabled(True)
@@ -246,25 +250,38 @@ class StaticEffectNode(Node):
     things as PBAoE instant particle effects. time_to_live defaults to False, meaning
     that the object is persistent.
     """
-    def __init__(self, sceneManager, world, time_to_live = False):
+    def __init__(self, sceneManager, world, time_to_live = False, triggerable = False):
         Node.__init__(self, sceneManager)
         self.time_to_live = time_to_live
+        self.triggered = False
+        self.triggerable = triggerable
+        self.world = world
         if time_to_live:
             world.world_updated += self.on_world_updated
             
         self.static_node_expired = gamestate.event.Event()
     
     def on_world_updated(self, dt):
-        self.time_to_live -= dt
-        if self.time_to_live <= 0:
-            self.expire()
+        if not self.triggerable or self.triggered:
+            self.time_to_live -= dt
+            if self.time_to_live <= 0:
+                self.expire()
+                return False
     
     def expire(self):      
         # throw expired event
         if self.particle_system is not None:
+            print "turning particle effect off"
             self.particle_effect_stop()
-        self.sceneNode.setVisible(False)
+        if self.mesh is not None:
+            self.sceneNode.setVisible(False)
         self.static_node_expired()
+        
+    def on_triggered(self):
+        self.triggered = True
+        if self.particle_system is not None:
+            self.particle_effect_start()
+        return False
     
 class PlayerNode(MobileGameNode):
     def __init__(self, sceneManager, player, mesh_name):
@@ -464,3 +481,9 @@ class PlayerNode(MobileGameNode):
                 # Water : Ice Burst                
                 mesh_node = StaticEffectNode(self.sceneManager, player.world, 2)
                 mesh_node.set_mesh("iceblock.mesh", (player.position[0], 0, player.position[1] + 10), 0, 15)
+                
+                explosion_node = StaticEffectNode(self.sceneManager, player.world, 0.5, True)
+                explosion_node.set_particle_system("IceBurstExplosion", (player.position[0],
+                                                                         0,
+                                                                         player.position[1]))
+                mesh_node.static_node_expired += explosion_node.on_triggered
