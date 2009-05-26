@@ -263,6 +263,7 @@ class StaticEffectNode(Node):
         # throw expired event
         if self.particle_system is not None:
             self.particle_effect_stop()
+        self.sceneNode.setVisible(False)
         self.static_node_expired()
     
 class PlayerNode(MobileGameNode):
@@ -460,8 +461,6 @@ class PlayerNode(MobileGameNode):
                 # @todo: make particle effect
                 pass
             elif index == 4:
-                # Water : Ice Burst
-                # @todo: make particle effect
-                pass
-
-    
+                # Water : Ice Burst                
+                mesh_node = StaticEffectNode(self.sceneManager, player.world, 2)
+                mesh_node.set_mesh("iceblock.mesh", (player.position[0], 0, player.position[1] + 10), 0, 15)
