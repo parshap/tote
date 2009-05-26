@@ -449,12 +449,23 @@ class PlayerNode(MobileGameNode):
                 if ability_instance.target is None:
                     # event was launched because ability was used, but there was no target in range
                     return
-                effect_node = StaticEffectNode(self.sceneManager, player.world, 0.5)
+                effect_node = StaticEffectNode(self.sceneManager, player.world, 0.2)
                 # @todo: come up with a particle effect for this ability
-                effect_node.set_particle_system("LavaSplash", (ability_instance.target.position[0],
-                                                               0,
-                                                               ability_instance.target.position[1]))
-        
+                
+                dx = -player.position[0] + ability_instance.target.position[0]
+                dz = -player.position[1] + ability_instance.target.position[1]
+                distance = math.sqrt( dx * dx + dz * dz)
+                rotation = math.atan2(dz, dx)
+                x_offset = dx/2
+                z_offset = dz/2
+                
+                effect_node.set_particle_system("Lightning", (player.position[0] + x_offset,
+                                                               10,
+                                                               player.position[1] + z_offset), rotation)
+                
+                effect_node.particle_effect_start()
+                effect_node.particle_system.getEmitter(0).setParameter("depth", str(distance))
+                
         elif player.element.type == "water":
             if index == 1:
                 # Water : Primary

@@ -387,7 +387,7 @@ class AirWindWhiskInstance(AbilityInstance):
         
 class AirLightningBoltInstance(AbilityInstance):
     damage_dealt = 10
-    range = 50
+    range = 100
     
     def __init__(self, player):
         AbilityInstance.__init__(self, player)
@@ -468,7 +468,7 @@ class WaterWaterGushInstance(AbilityInstance):
     
     def __init__(self, player):
         AbilityInstance.__init__(self, player)
-        self.type = "AirGustOfWindInstance"
+        self.type = "WaterWaterGushInstance"
         self.has_collided = False
         self.player_start_position = player.position
         
