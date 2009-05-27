@@ -240,7 +240,7 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
             try:
                 if packet.move_speed > 0:
                     diff_vector = ogre.Vector3(packet.x - object.position[0], 0, packet.z - object.position[1])
-                    move_vector = ogre.Vector3(packet.move_speed * math.cos(packet.rotation),
+                    move_vector = ogre.Vector3(packet.move_speed * math.cos(packet.rotation), 0,
                                                packet.move_speed * math.sin(packet.rotation))
                     resultant = diff_vector + move_vector
                     angle = math.atan2(resultant.z, resultant.x)
