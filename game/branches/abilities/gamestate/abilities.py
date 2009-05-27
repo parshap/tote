@@ -226,7 +226,8 @@ class FireLavaSplashInstance(AbilityInstance):
 class FireRingOfFireInstance(AbilityInstance):
     damage_per_tick = 10
     duration = 3
-    radius = 40
+    radius = 96
+    ring_thickness = 8
     tick_time = 1
     last_player_hit_times = defaultdict(int)
     
@@ -238,8 +239,8 @@ class FireRingOfFireInstance(AbilityInstance):
                                                      self.duration)
         self.ring_of_fire.position = self.player.position
         self.ring_of_fire.bounding_shape = collision.BoundingCircle(self.radius, True)
-        self.ring_of_fire.outer_bounding_circle = collision.BoundingCircle(self.radius + 10, True)
-        self.ring_of_fire.inner_bounding_circle = collision.BoundingCircle(self.radius - 10, True)
+        self.ring_of_fire.outer_bounding_circle = collision.BoundingCircle(self.radius + self.ring_thickness, True)
+        self.ring_of_fire.inner_bounding_circle = collision.BoundingCircle(self.radius - self.ring_thickness, True)
         self.ring_of_fire.move_speed = 0
         self.ring_of_fire.is_moving = False
         
