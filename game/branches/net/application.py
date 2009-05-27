@@ -132,12 +132,12 @@ class ServerApplication(object):
         while not self.server.input.empty():
             (client, packet) = self.server.input.get_nowait()
             self.process_packet(client, packet)
-            
-        # Send buffered output to clients.
-        reactor.callFromThread(self.server.send)
         
         # Update the game state world.
         self.world.update(dt)
+        
+        # Send buffered output to clients.
+        reactor.callFromThread(self.server.send)
         
         # Sleep some if we're updating too fast.
         extra = 0.01 - dt

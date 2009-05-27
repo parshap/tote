@@ -136,15 +136,15 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
         while not self.client.input.empty():
             packet = self.client.input.get_nowait()
             self.process_packet(packet)
-            
-        # Send buffered output to server.
-        reactor.callFromThread(self.client.send)
 
         # Capture any buffered events (and fire any callbacks).
         self.inputHandler.capture()
         
         # Update the game state world.
         self.world.update(dt)
+        
+        # Send buffered output to server.
+        reactor.callFromThread(self.client.send)
         
         # Add time to animations.
         for node in self.nodes:
