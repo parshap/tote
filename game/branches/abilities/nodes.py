@@ -486,8 +486,11 @@ class PlayerNode(MobileGameNode):
                 pass
             elif index == 3:
                 # Water : Tidal Wave
-                # @todo: make particle effect
-                pass
+                effect_node = StaticEffectNode(self.sceneManager, player.world, 1)
+                effect_node.set_particle_system("TidalWave", (player.position[0] + 10 * math.cos(player.rotation), 
+                                                              15, 
+                                                              player.position[1] + 10 * math.sin(player.rotation)), player.rotation)
+                effect_node.particle_effect_start()
             elif index == 4:
                 # Water : Ice Burst                
                 mesh_node = StaticEffectNode(self.sceneManager, player.world, 2)
