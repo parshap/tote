@@ -7,17 +7,19 @@ import packets
 
 class ServerProtocol(protocol.Protocol):
     def connectionMade(self):
-        print "New connection #%s from %s." % (len(self.factory.clients), self.transport.getPeer())
         self.factory.client_count += 1
         self.client_id = self.factory.client_count
         self.factory.clients.append(self)
+        print "New connection #%s client=%s from %s." % \
+            (len(self.factory.clients), self.client_id, self.transport.getPeer())
         self.factory.client_connected(self)
         self.current_packet = None
         self.buffer = ""
 
     def connectionLost(self, reason):
         self.factory.clients.remove(self)
-        print "Lost connection #%s from %s." % (len(self.factory.clients), self.transport.getPeer())
+        print "Lost connection #%s client=%s from %s." % \
+            (len(self.factory.clients), self.client_id, self.transport.getPeer())
 
     def dataReceived(self, data):
         self.buffer += data

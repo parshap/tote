@@ -161,10 +161,9 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
     
     def process_packet(self, packet):
         ptype = type(packet)
-        print "Processing packet=%s: %s" % (packet.id, ptype)
+        print "Processing packet=%s: %s from server." % (packet.id, ptype.__name__)
 
         if ptype is packets.JoinResponse:
-            print "Received JoinResponse packet."
             # @todo: handle deny
             # Add a player to the world and set it as our active player.
             self.player = gamestate.objects.Player(self.world)

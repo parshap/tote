@@ -146,10 +146,9 @@ class ServerApplication(object):
     
     def process_packet(self, client, packet):
         ptype = type(packet)
-        print "Processing packet=%s: %s" % (packet.id, ptype)
+        print "Processing packet=%s: %s from client=%s." % (packet.id, ptype.__name__, client.client_id)
         
         if ptype is packets.JoinRequest:
-            print "Received JoinRequest packet."
             # @todo: deny conditions
             response = packets.JoinResponse()
             response.player_id = 1

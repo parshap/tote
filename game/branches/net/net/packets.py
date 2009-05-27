@@ -2,7 +2,7 @@ import struct
 
 def unpack(packed):
     id, = struct.unpack_from("!B", packed)
-    print "Unpacking packet id=%s" % id
+    print "Unpacking packet id=%s." % id
     packet = packets[id]()
     packet.unpack(packed)
     return packet
