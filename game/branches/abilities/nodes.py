@@ -54,7 +54,7 @@ class Node(object):
     # spatial properties
     def set_position(self, position_offset):
         self.position = position_offset
-        self.sceneNode.setPosition(position[0], position[1], position[2])
+        self.sceneNode.setPosition(position_offset[0], position_offset[1], position_offset[2])
         
     def set_rotation(self, rotation):
         delta = rotation - self.rotation
@@ -218,6 +218,7 @@ class ProjectileNode(MobileGameNode):
         particleNode.attachObject(self.secondary_particle_system)
         particleNode.position = position_offset
         particleNode.rotate((0, -1, 0), rotation)
+        self.secondary_particle_node = particleNode
         for i in xrange(0, self.secondary_particle_system.getNumEmitters()):
                 self.secondary_particle_system.getEmitter(i).setEnabled(False)
     
@@ -225,7 +226,13 @@ class ProjectileNode(MobileGameNode):
         if self.particle_system is not None:
             self.particle_effect_stop()
             if self.secondary_particle_system is not None:
-                self.secondary_particle_effect_start()
+                if object_collided_with.type == "player":
+                    self.set_position((object_collided_with.position[0],
+                                       0,
+                                       object_collided_with.position[1]))
+                    self.secondary_particle_effect_start()
+                else:
+                    self.secondary_particle_effect_start()
             
     def secondary_particle_effect_start(self):
         if self.secondary_particle_system is not None:
@@ -482,7 +489,23 @@ class PlayerNode(MobileGameNode):
 
             elif index == 2:
                 # Water : Water Gush
-                # @todo: make splashes etc
+                effect_node = StaticEffectNode(self.sceneManager, player.world, 0.5)
+                # @todo: come up with a particle effect for this ability
+                
+                dx = -player.position[0] + ability_instance.player_start_position[0]
+                dz = -player.position[1] + ability_instance.player_start_position[1]
+                distance = math.sqrt( dx * dx + dz * dz)
+                rotation = math.atan2(dz, dx)
+                x_offset = dx/2
+                z_offset = dz/2
+                
+                effect_node.set_particle_system("WaterTrail", (player.position[0] + x_offset,
+                                                                  5,
+                                                                  player.position[1] + z_offset), rotation)
+                
+                effect_node.particle_effect_start()
+                effect_node.particle_system.getEmitter(0).setParameter("depth", str(distance))
+                
                 pass
             elif index == 3:
                 # Water : Tidal Wave
