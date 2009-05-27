@@ -26,7 +26,7 @@ class ServerProtocol(protocol.Protocol):
         self.buffer += data
         self._processBuffer()
     
-    def processBuffer(self):
+    def _processBuffer(self):
         if self.current_packet is None and len(self.buffer) >= 3:
             self.current_packet = packets.Packet()
             self.current_packet.unpack(self.buffer)
