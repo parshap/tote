@@ -54,8 +54,7 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
             raise
 
         # Use an InputHandler object to handle the callback functions.
-        self.inputHandler = InputHandler(mouse=self.mouse, keyboard=self.keyboard,
-                                         scene=self, player=self.player)
+        self.inputHandler = InputHandler(self.mouse, self.keyboard, self)
         self.mouse.setEventCallback(self.inputHandler)
         self.keyboard.setEventCallback(self.inputHandler)
 
@@ -89,25 +88,31 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
         # Create the world.
         self.world = gamestate.world.World()
         
-        # Create the client and connect.
+        # Create the client and set listeners.
         self.client = net.client.GameClient(self.world, "localhost", 8981)
         self.client.connected += self.on_client_connected
+        # listen to client spawn request
+        # on spawn -> listen to player.on_ability_used
+        
+        # Start the netclient and connect.
         self.client_thread = threading.Thread(target=self.client.go)
         self.client_thread.start()
         
         # Attach a handler to world.object_added
         self.world.object_added += self.on_world_object_added
         
-        # Add a player to the world and set it as our active player.
-        self.player = gamestate.objects.Player(self.world)
-        self.world.add_object(self.player)
+        self.player = None
         
         # Set up the TestScene
         self.scene = gamestate.scenes.TestScene(self.world)
         
+        # Add a player to the world and set it as our active player.
+        #self.player = gamestate.objects.Player(self.world)
+        #self.world.add_object(self.player)
+        
         # Listen to the player's position change event so we can mvoe the
         # camera with the player.
-        self.player.position_changed += self.on_player_position_changed
+        # self.player.position_changed += self.on_player_position_changed
 
         # Setup camera
         self.camera.nearClipDistance = 1
