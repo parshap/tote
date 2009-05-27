@@ -8,6 +8,7 @@ from twisted.internet import reactor
 
 # Import internal packages and modules modules.
 import gamestate, net
+from net import packets
 import SceneLoader
 from inputhandler import InputHandler
 import nodes
@@ -91,8 +92,6 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
         # Create the client and set listeners.
         self.client = net.client.GameClient(self.world, "localhost", 8981)
         self.client.connected += self.on_client_connected
-        # listen to client spawn request
-        # on spawn -> listen to player.on_ability_used
         
         # Start the netclient and connect.
         self.client_thread = threading.Thread(target=self.client.go)
@@ -105,14 +104,6 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
         
         # Set up the TestScene
         self.scene = gamestate.scenes.TestScene(self.world)
-        
-        # Add a player to the world and set it as our active player.
-        #self.player = gamestate.objects.Player(self.world)
-        #self.world.add_object(self.player)
-        
-        # Listen to the player's position change event so we can mvoe the
-        # camera with the player.
-        # self.player.position_changed += self.on_player_position_changed
 
         # Setup camera
         self.camera.nearClipDistance = 1
@@ -129,11 +120,6 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
         # Setup camera node
         self.cameraNode.position = (0, 100, 100)
         self.cameraNode.pitch(ogre.Degree(-45))
-        
-    def on_client_connected(self):
-        # request a join
-        pass
-        
 
     def frameStarted(self, event):
         """ 
@@ -146,11 +132,10 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
         
         dt = event.timeSinceLastFrame
         
-        # Get buffered input from server
+        # Get buffered input from server and process it.
         while not self.client.input.empty():
-            data = self.client.inpt.get_nowait()
-            # process it
-            pass
+            packet = self.client.input.get_nowait()
+            self.process_packet(packet)
             
         # Send buffered output to server.
         reactor.callFromThread(self.client.send)
@@ -171,6 +156,29 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
             return False
         
         return True
+    
+    ## Net event callbacks
+    
+    def process_packet(self, packet):
+        ptype = type(packet)
+        print "Processing packet=%s: %s" % (packet.id, ptype)
+
+        if ptype is packets.JoinResponse:
+            print "Received JoinResponse packet."
+            # @todo: handle deny
+            # Add a player to the world and set it as our active player.
+            self.player = gamestate.objects.Player(self.world)
+            self.world.add_object(self.player)
+            
+            # Listen to the player's position change event so we can mvoe the
+            # camera with the player.
+            self.player.position_changed += self.on_player_position_changed
+    
+    def on_client_connected(self):
+        packet = packets.JoinRequest()
+        # @todo: Get player_name from somewhere.
+        packet.player_name = "Player1"
+        self.client.output.put_nowait(packet)
         
     ## Game event callbacks
     def on_world_object_added(self, gameObject):

@@ -8,6 +8,8 @@ import packets
 class ServerProtocol(protocol.Protocol):
     def connectionMade(self):
         print "New connection #%s from %s." % (len(self.factory.clients), self.transport.getPeer())
+        self.factory.client_count += 1
+        self.client_id = self.factory.client_count
         self.factory.clients.append(self)
         self.factory.client_connected(self)
         self.current_packet = None
@@ -38,12 +40,13 @@ class GameServer(protocol.ServerFactory):
         self.world = world
         self.port = port
         self.client_connected = Event()
+        self.input = Queue()
+        self.output = Queue()
+        self.clients = []
+        self.client_count = 0
 
     def startFactory(self):
         print "Server starting and listening on port %s." % self.port
-        self.clients = []
-        self.input = Queue()
-        self.output = Queue()
         pass
         
     def stopFactory(self):

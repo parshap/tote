@@ -3,6 +3,7 @@ from __future__ import division
 # Import OGRE-specific (and other UI-Client) external packages and modules.
 import ogre.renderer.OGRE as ogre
 import ogre.gui.CEGUI as CEGUI
+from twisted.internet import reactor
 
 # Import other external packages and modules.
 import threading, time
@@ -10,6 +11,7 @@ import threading, time
 # Import internal packages and modules modules.
 from playscene import PlayScene
 import gamestate, net
+from net import packets
 
 class ClientApplication(object):
 
@@ -126,7 +128,29 @@ class ServerApplication(object):
         self.server.stop()
         
     def update(self, dt):
+        # Get buffered input from clients and process it.
+        while not self.server.input.empty():
+            (client, packet) = self.server.input.get_nowait()
+            self.process_packet(client, packet)
+            
+        # Send buffered output to clients.
+        reactor.callFromThread(self.server.send)
+        
+        # Update the game state world.
         self.world.update(dt)
+        
+        # Sleep some if we're updating too fast.
         extra = 0.01 - dt
         if extra >= 0.001:
             time.sleep(extra)
+    
+    def process_packet(self, client, packet):
+        ptype = type(packet)
+        print "Processing packet=%s: %s" % (packet.id, ptype)
+        
+        if ptype is packets.JoinRequest:
+            print "Received JoinRequest packet."
+            # @todo: deny conditions
+            response = packets.JoinResponse()
+            response.player_id = 1
+            self.server.output.put_nowait((client, response))
