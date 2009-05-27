@@ -288,7 +288,7 @@ class Player(MobileObject):
         # Create an Element and pass it a reference to this player make it our
         # current active element.
         # @todo: don't hardcode this
-        self.element = elements.AirElement(self)
+        self.element = elements.WaterElement(self)
         
         self.active_abilities = []
         self.last_ability_time = 0
