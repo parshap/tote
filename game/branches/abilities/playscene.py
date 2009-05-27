@@ -39,10 +39,10 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
         # Create the inputManager using the supplied renderWindow
         windowHnd = self.renderWindow.getCustomAttributeInt("WINDOW")
         paramList = [("WINDOW", str(windowHnd)), \
-                     ("w640_mouse", "DISCL_FOREGROUND"), \
-                     ("w640_mouse", "DISCL_NONEXCLUSIVE"), \
-                     ("w640_keyboard", "DISCL_FOREGROUND"), \
-                     ("w640_keyboard", "DISCL_NONEXCLUSIVE"),]
+                     ("w32_mouse", "DISCL_FOREGROUND"), \
+                     ("w32_mouse", "DISCL_NONEXCLUSIVE"), \
+                     ("w32_keyboard", "DISCL_FOREGROUND"), \
+                     ("w32_keyboard", "DISCL_NONEXCLUSIVE"),]
                      # @todo: add mac/linux parameters
         self.inputManager = OIS.createPythonInputSystem(paramList)
 
