@@ -212,20 +212,7 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
                 boundary_wall.isPassable = False
                 boundary_wall.position = point1
                 
-                print "Attempting bound at (%.2f, %.2f) to (%.2f, %.2f) with normal (%.2f, %.2f)" %(point1[0], 
-                                                                                                    point1[1], 
-                                                                                                    point2[0], 
-                                                                                                    point2[1], 
-                                                                                                    normal[0], 
-                                                                                                    normal[1])
                 boundary_wall.bounding_shape = gamestate.collision.BoundingLineSegment(point1, point2, normal)
-                print "Created boundary at (%.2f, %.2f) to (%.2f, %.2f) with normal (%.2f, %.2f)" %(boundary_wall.bounding_shape.point1[0], 
-                                                                                                     boundary_wall.bounding_shape.point1[2], 
-                                                                                                     boundary_wall.bounding_shape.point2[0], 
-                                                                                                     boundary_wall.bounding_shape.point2[2], 
-                                                                                                     boundary_wall.bounding_shape.normal[0], 
-                                                                                                     boundary_wall.bounding_shape.normal[2])
-                print "********************************************************************"
                 
                 self.world.add_object(boundary_wall)
                 
