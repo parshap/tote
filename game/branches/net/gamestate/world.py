@@ -10,6 +10,7 @@ class World(object):
     """
     def __init__(self):
         self.objects = []
+        self.objects_hash = { }
         self.object_id_pos = 0
         self.object_added = Event()
         self.debug_file = open("world.log", "w")
@@ -23,6 +24,7 @@ class World(object):
         else:
             object.object_id = object_id
         self.objects.append(object)
+        self.objects_hash[object.object_id] = object
         self.object_added(object)
         
     def update(self, dt):
