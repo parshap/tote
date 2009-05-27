@@ -1,8 +1,9 @@
 from twisted.internet import reactor, protocol
 
-import threading, time
+import threading, time, struct
 from Queue import Queue
 from event import Event
+import packets
 
 
 class ClientProtocol(protocol.Protocol):
@@ -11,9 +12,23 @@ class ClientProtocol(protocol.Protocol):
         print "Connected to %s:%s." % (server.host, server.port)
         self.factory.server_transport = self.transport
         self.factory.connected()
+        self.current_packet = None
+        self.buffer = ""
     
     def dataReceived(self, data):
-        self.factory.input.put_nowait(data)
+        self.buffer += data
+        
+        if self.current_packet is None and len(self.buffer) >= 3:
+            self.current_packet = packets.Packet()
+            self.current_packet.unpack(self.buffer)
+            
+        if self.current_packet is not None and len(self.buffer) >= self.current_packet.size:
+            packet = packets.unpack(self.buffer)
+            self.buffer = self.buffer[packet.size:]
+            self.factory.input.put_nowait(packet)
+            self.current_packet = None
+        else:
+            print "Received partial packet of size %s." % len(data)
     
     def connectionLost(self, reason):
         server = self.transport.getPeer()
@@ -48,7 +63,7 @@ class GameClient(protocol.ClientFactory):
     def send(self):
         while not self.output.empty():
             data = self.output.get_nowait()
-            self.server_transport.write(data)
+            self.server_transport.write(data.pack())
         
     def go(self):
         reactor.connectTCP(self.addr, self.port, self)

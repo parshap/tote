@@ -32,11 +32,14 @@ element_types = {
 
 class JoinRequest(Packet):
     """
-    Required attributes:
-    player_name
+    Optional attributes: player_name
     """
     id = 1
     format = "!H%ds"
+    
+    def __init__(self):
+        Packet.__init__(self)
+        self.player_name = ""
     
     def pack(self, packed=""):
         format = JoinRequest.format % len(self.player_name)
@@ -136,6 +139,7 @@ class PlayerUpdate(Packet):
 object_types = {
     "player": 1, 1: "player",
 }
+
 
 class ObjectInit(Packet):
     """
