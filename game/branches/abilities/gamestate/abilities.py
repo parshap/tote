@@ -148,7 +148,7 @@ class FirePrimaryInstance(AbilityInstance):
 class FireFlameRushInstance(AbilityInstance):
     charge_speed_multiplier = 3
     damage_dealt = 1 
-    duration = 2
+    duration = .5
     radius = 12
 
     def __init__(self, player):
@@ -166,6 +166,8 @@ class FireFlameRushInstance(AbilityInstance):
         self.player.collided += self.on_player_collided
         
     def on_player_collided(self, object):
+        if not self.player.is_charging:
+            return False
         if not object.isPassable:
             self.collided(self.player)
             # create the bounding circle to check collision against
@@ -502,7 +504,7 @@ class WaterWaterGushInstance(AbilityInstance):
         self.expire()      
         
 class WaterTidalWaveInstance(AbilityInstance):
-    hit_radius = 40
+    hit_radius = 60
     hit_angle = math.pi / 2
     damage_dealt = 10
     
