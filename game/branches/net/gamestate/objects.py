@@ -9,6 +9,7 @@ from event import Event
 class GameObject(object):
     def __init__(self, world):
         self.world = world
+        self.object_id = None
         self._rotation = 0
         self.rotation_changed = Event()
         self._position = (0, 0)
