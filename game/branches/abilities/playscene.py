@@ -11,6 +11,7 @@ import SceneLoader
 from inputhandler import InputHandler
 import nodes
 import math
+from xml.dom import minidom, Node
 
 class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
     """
@@ -139,6 +140,8 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
         self.world.add_object(boundary3)
         self.world.add_object(boundary4)
         
+        self.setup_level_boundaries("media/levelbounds.bounds")
+        
         # Listen to the player's position change event so we can mvoe the
         # camera with the player.
         self.player.position_changed += self.on_player_position_changed
@@ -187,6 +190,61 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
         
         return True
         
+        
+    def setup_level_boundaries(self, filepath):
+        """
+        Takes an xml-style file that specifies all of the level's static boundinglinesegments, and creates those
+        bounds in the world.
+        """
+        xml_data = minidom.parse(filepath)
+        docRoot = xml_data.getElementsByTagName('segments')[0].childNodes
+        for segmentNode in docRoot:
+            if segmentNode.nodeType == Node.ELEMENT_NODE and segmentNode.nodeName == 'segment':
+                point1_data = self.getXMLNode(segmentNode, "point1").attributes
+                point2_data = self.getXMLNode(segmentNode, "point2").attributes
+                normal_data = self.getXMLNode(segmentNode, "normal").attributes
+                
+                point1 = (float(point1_data["x"].nodeValue),  -float(point1_data["z"].nodeValue))
+                point2 = (float(point2_data["x"].nodeValue),  -float(point2_data["z"].nodeValue))
+                normal = (float(normal_data["x"].nodeValue),  float(normal_data["z"].nodeValue))
+                
+                boundary_wall = gamestate.objects.GameObject(self.world)
+                boundary_wall.isPassable = False
+                boundary_wall.position = point1
+                
+                print "Attempting bound at (%.2f, %.2f) to (%.2f, %.2f) with normal (%.2f, %.2f)" %(point1[0], 
+                                                                                                    point1[1], 
+                                                                                                    point2[0], 
+                                                                                                    point2[1], 
+                                                                                                    normal[0], 
+                                                                                                    normal[1])
+                boundary_wall.bounding_shape = gamestate.collision.BoundingLineSegment(point1, point2, normal)
+                print "Created boundary at (%.2f, %.2f) to (%.2f, %.2f) with normal (%.2f, %.2f)" %(boundary_wall.bounding_shape.point1[0], 
+                                                                                                     boundary_wall.bounding_shape.point1[2], 
+                                                                                                     boundary_wall.bounding_shape.point2[0], 
+                                                                                                     boundary_wall.bounding_shape.point2[2], 
+                                                                                                     boundary_wall.bounding_shape.normal[0], 
+                                                                                                     boundary_wall.bounding_shape.normal[2])
+                print "********************************************************************"
+                
+                self.world.add_object(boundary_wall)
+                
+    def getXMLNode(self, base, name):
+        """
+        This function basically doubles as both a test for element 
+        existence and a getter for that element node... used with setup_level_boundaries()
+        """
+        if base.hasChildNodes:
+            baseChildNodes = base.childNodes
+            
+            for node in baseChildNodes:
+                if node.nodeType == Node.ELEMENT_NODE and node.nodeName == name:
+                    return node
+            
+            return False
+        
+    ## Game event callbacks    
+    
     ## Game event callbacks
     
     def on_world_object_added(self, gameObject):
