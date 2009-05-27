@@ -114,6 +114,8 @@ class ServerApplication(object):
         self.server_thread = threading.Thread(target=self.server.go)
         self.server_thread.start()
         
+        self.last_update_time = { }
+        
         self.run = True
         
         last = time.clock()
@@ -136,6 +138,32 @@ class ServerApplication(object):
         # Update the game state world.
         self.world.update(dt)
         
+        # Send necessary ObjectUpdate packets.
+        for object in self.world.objects:
+            # Only send updates for MobileObjects.
+            if not isinstance(object, gamestate.objects.MobileObject):
+                continue
+
+            if self.last_update_time.has_key(object):
+                update_time, updates = self.last_update_time[object]
+                
+                # Only send if update threshold has expired.
+                if update_time + 0.05 > self.world.time:
+                    continue
+                    
+                # Only send if position/rotation/speed/direction has changed.
+                last_position = updates[0]
+                if object.position == last_position:
+                    #print "Skipping id=%s because (%.2f, %.2f) == (%.2f, %.2f)" % \
+                    #    (object.object_id, last_position[0], last_position[1], object.position[0], object.position[1])
+                    # @todo: implement other attributes than position.
+                    continue
+            
+            print "Broadcasting update for object id=%s." % object.object_id
+            update = self._update_from_object(object)
+            self.server.output_broadcast.put_nowait((update, object))
+            self.last_update_time[object] = (self.world.time, (object.position,))
+        
         # Send buffered output to clients.
         reactor.callFromThread(self.server.send)
         
@@ -148,6 +176,7 @@ class ServerApplication(object):
         ptype = type(packet)
         print "Processing packet=%s: %s from client=%s." % (packet.id, ptype.__name__, client.client_id)
         
+        # JoinRequest
         if ptype is packets.JoinRequest:
             # @todo: deny conditions
             # Create the player in the world.
@@ -155,15 +184,48 @@ class ServerApplication(object):
             player.position = (-20, -20)
             player.rotation = 1.5707963267948966
             self.world.add_object(player)
+            client.player = player
             print "Creating player in world with id=%s for client id=%s." % \
                 (player.object_id, client.client_id)
+                
             # Send the JoinResponse.
             response = packets.JoinResponse()
             response.player_id = player.object_id
             self.server.output.put_nowait((client, response))
-            # Send a ObjectUpdate for the new player object.
+            
+            # Sent a ObjectInit for the new player obeject to everyone but the player.
+            init = packets.ObjectInit()
+            init.object_id = player.object_id
+            init.object_type = "player"
+            self.server.output_broadcast.put_nowait((init, player))
+            
+            # Send a ObjectUpdate for the new player object to everyone.
             update = self._update_from_object(player)
-            self.server.output.put_nowait((client, update))
+            self.server.output_broadcast.put_nowait((update, None))
+            
+            # Send ObjectUpdate and ObjectInit to the player for each object.
+            for object in self.world.objects:
+                if not isinstance(object, gamestate.objects.MobileObject):
+                    continue
+                if object == player:
+                    continue
+                init = packets.ObjectInit()
+                init.object_id = object.object_id
+                init.object_type = "player"
+                self.server.output.put_nowait((client, init))
+                update = self._update_from_object(object)
+                self.server.output.put_nowait((client, update))
+  
+        # PlayerUpdate
+        elif ptype is packets.PlayerUpdate:
+            client.player.position = (packet.x, packet.z)
+            client.player.rotation = packet.rotation
+            if packet.move_speed > 0:
+                client.player.is_moving = True
+                client.player.move_speed = packet.move_speed
+                client.player.move_direction = packet.move_direction
+            else:
+                client.player.is_moving = False
     
     def _update_from_object(self, object):
         """ Helper method to create an ObjectUpdate packet from a game object. """
@@ -173,8 +235,12 @@ class ServerApplication(object):
         update.z = object.position[1]
         update.rotation = object.rotation
         try:
-            update.move_speed = object.move_speed
-            update.move_direction = object.move_direction
+            if object.is_moving:
+                update.move_speed = object.move_speed
+                update.move_direction = object.move_direction
+            else:
+                update.move_speed = 0
+                update.move_direction = 0
         except:
             update.move_speed = 0
             update.move_direction = 0

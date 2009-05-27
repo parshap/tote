@@ -36,6 +36,10 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
         
         # Set up the scene.
         self.setupScene()
+        
+        # Init attributes.
+        self.player = None
+        self.last_update = None
 
         # Create the inputManager using the supplied renderWindow
         windowHnd = self.renderWindow.getCustomAttributeInt("WINDOW")
@@ -100,8 +104,6 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
         # Attach a handler to world.object_added
         self.world.object_added += self.on_world_object_added
         
-        self.player = None
-        
         # Set up the TestScene
         self.scene = gamestate.scenes.TestScene(self.world)
 
@@ -143,6 +145,9 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
         # Update the game state world.
         self.world.update(dt)
         
+        # Send an PlayerUpdate packet to the server if appropriate.
+        self._send_update()
+        
         # Send buffered output to server.
         reactor.callFromThread(self.client.send)
         
@@ -157,7 +162,45 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
         
         return True
     
-    ## Net event callbacks
+    ## Net event callbacks & helpers
+    
+    def _send_update(self):
+        """ Sends a PlayerUpdate packet to the server if appropriate. """
+        if self.player is None:
+            return
+
+        update = self._get_update()
+        if self.last_update is not None:
+            update_time, last_update = self.last_update
+            
+            # Don't send if we've sent in the last 0.1s.
+            if update_time + 0.05 > self.world.time:
+                return
+                
+            # Don't send if info hasn't changed since the last update.
+            if last_update.x == update.x and last_update.z == update.z and \
+                last_update.rotation == update.rotation and \
+                last_update.move_speed == update.move_speed and \
+                last_update.move_direction == update.move_direction:
+                return
+        
+        print "Sending player update to server."
+        self.client.output.put_nowait(update)
+        self.last_update = (self.world.time, update)
+    
+    def _get_update(self):
+        """ Returns a PlayerUpdate packet based on the current player state. """
+        update = packets.PlayerUpdate()
+        update.x, update.z = self.player.position
+        update.rotation = self.player.rotation
+        if self.player.is_moving:
+            update.move_speed = self.player.move_speed
+            update.move_direction = self.player.move_direction
+        else:
+            update.move_speed = 0
+            update.move_direction = 0
+        return update
+        
     
     def process_packet(self, packet):
         ptype = type(packet)
@@ -173,6 +216,15 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
             # Listen to the player's position change event so we can mvoe the
             # camera with the player.
             self.player.position_changed += self.on_player_position_changed
+            
+        elif ptype is packets.ObjectInit:
+            if packet.object_type == "player":
+                object = gamestate.objects.Player(self.world)
+            else:
+                raise Exception("Invalid object_type")
+            # @todo: implement name, owner_id, ttl
+
+            self.world.add_object(object, packet.object_id)
         
         elif ptype is packets.ObjectUpdate:
             object = self.world.objects_hash[packet.object_id]
