@@ -173,6 +173,20 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
             # Listen to the player's position change event so we can mvoe the
             # camera with the player.
             self.player.position_changed += self.on_player_position_changed
+        
+        elif ptype is packets.ObjectUpdate:
+            object = self.world.objects_hash[packet.object_id]
+            print "Updating object id=%s." % object.object_id
+            object.position = (packet.x, packet.z)
+            object.rotation = packet.rotation
+            try:
+                if packet.move_speed > 0:
+                    object.move_speed = packet.move_speed
+                    object.move_direction = packet.move_direction
+                    object.is_moving = True
+                else:
+                    object.is_moving = False
+            except: pass
     
     def on_client_connected(self):
         packet = packets.JoinRequest()

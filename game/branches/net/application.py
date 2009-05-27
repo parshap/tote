@@ -150,10 +150,32 @@ class ServerApplication(object):
         
         if ptype is packets.JoinRequest:
             # @todo: deny conditions
-            response = packets.JoinResponse()
+            # Create the player in the world.
             player = gamestate.objects.Player(self.world)
+            player.position = (-20, -20)
+            player.rotation = 1.5707963267948966
             self.world.add_object(player)
             print "Creating player in world with id=%s for client id=%s." % \
                 (player.object_id, client.client_id)
+            # Send the JoinResponse.
+            response = packets.JoinResponse()
             response.player_id = player.object_id
             self.server.output.put_nowait((client, response))
+            # Send a ObjectUpdate for the new player object.
+            update = self._update_from_object(player)
+            self.server.output.put_nowait((client, update))
+    
+    def _update_from_object(self, object):
+        """ Helper method to create an ObjectUpdate packet from a game object. """
+        update = packets.ObjectUpdate()
+        update.object_id = object.object_id
+        update.x = object.position[0]
+        update.z = object.position[1]
+        update.rotation = object.rotation
+        try:
+            update.move_speed = object.move_speed
+            update.move_direction = object.move_direction
+        except:
+            update.move_speed = 0
+            update.move_direction = 0
+        return update
