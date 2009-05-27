@@ -151,5 +151,9 @@ class ServerApplication(object):
         if ptype is packets.JoinRequest:
             # @todo: deny conditions
             response = packets.JoinResponse()
-            response.player_id = 1
+            player = gamestate.objects.Player(self.world)
+            self.world.add_object(player)
+            print "Creating player in world with id=%s for client id=%s." % \
+                (player.object_id, client.client_id)
+            response.player_id = player.object_id
             self.server.output.put_nowait((client, response))

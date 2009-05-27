@@ -166,8 +166,9 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
         if ptype is packets.JoinResponse:
             # @todo: handle deny
             # Add a player to the world and set it as our active player.
+            print "Creating player in world with id=%s." % packet.player_id
             self.player = gamestate.objects.Player(self.world)
-            self.world.add_object(self.player)
+            self.world.add_object(self.player, packet.player_id)
             
             # Listen to the player's position change event so we can mvoe the
             # camera with the player.

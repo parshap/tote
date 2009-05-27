@@ -9,6 +9,7 @@ class ServerProtocol(protocol.Protocol):
     def connectionMade(self):
         self.factory.client_count += 1
         self.client_id = self.factory.client_count
+        self.player = None
         self.factory.clients.append(self)
         print "New connection #%s client=%s from %s." % \
             (len(self.factory.clients), self.client_id, self.transport.getPeer())
