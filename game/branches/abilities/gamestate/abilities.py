@@ -166,7 +166,7 @@ class FireFlameRushInstance(AbilityInstance):
         self.player.collided += self.on_player_collided
         
     def on_player_collided(self, object):
-        if not self.player.is_charging:
+        if not self.is_active:
             return False
         if not object.isPassable:
             self.collided(self.player)
