@@ -229,7 +229,7 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
             self.world.add_object(object, packet.object_id)
         
         elif ptype is packets.ObjectUpdate:
-            if not self.world.object_hash.has_key(packet.object_id):
+            if not self.world.objects_hash.has_key(packet.object_id):
                 return
             object = self.world.objects_hash[packet.object_id]
             print "Updating object id=%s." % object.object_id
