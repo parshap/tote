@@ -7,12 +7,6 @@ class TestScene(Scene):
     def __init__(self, world):
         self.world = world
         
-        # Add stationary NPC ninja...
-        npc = gamestate.objects.Player(self.world)
-        self.world.add_object(npc)
-        npc.position = (45, 45)
-        npc.isPassable = False
-        
         # Add boundary lines for map walls.
         
         # north wall
