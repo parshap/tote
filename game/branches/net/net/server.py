@@ -24,7 +24,9 @@ class ServerProtocol(protocol.Protocol):
 
     def dataReceived(self, data):
         self.buffer += data
-        
+        self._processBuffer()
+    
+    def processBuffer(self):
         if self.current_packet is None and len(self.buffer) >= 3:
             self.current_packet = packets.Packet()
             self.current_packet.unpack(self.buffer)
@@ -34,6 +36,7 @@ class ServerProtocol(protocol.Protocol):
             self.buffer = self.buffer[packet.size:]
             self.factory.input.put_nowait((self, packet))
             self.current_packet = None
+            self._processBuffer()
 
 
 class GameServer(protocol.ServerFactory):

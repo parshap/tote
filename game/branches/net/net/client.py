@@ -17,7 +17,9 @@ class ClientProtocol(protocol.Protocol):
     
     def dataReceived(self, data):
         self.buffer += data
+        self._processBuffer()
         
+    def _processBuffer(self):
         if self.current_packet is None and len(self.buffer) >= 3:
             self.current_packet = packets.Packet()
             self.current_packet.unpack(self.buffer)
@@ -27,8 +29,7 @@ class ClientProtocol(protocol.Protocol):
             self.buffer = self.buffer[packet.size:]
             self.factory.input.put_nowait(packet)
             self.current_packet = None
-        else:
-            print "Received partial packet of size %s." % len(data)
+            self._processBuffer()
     
     def connectionLost(self, reason):
         server = self.transport.getPeer()
