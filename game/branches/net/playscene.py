@@ -1,5 +1,5 @@
 from __future__ import division
-import threading, time
+import threading, time, math
 
 # Import OGRE-specific (and other UI-Client) external packages and modules.
 import ogre.renderer.OGRE as ogre
@@ -207,7 +207,8 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
     def process_packet(self, packet):
         ptype = type(packet)
         print "Processing packet=%s: %s from server." % (packet.id, ptype.__name__)
-
+        
+        # JoinResponse
         if ptype is packets.JoinResponse:
             # @todo: handle deny
             # Add a player to the world and set it as our active player.
@@ -218,7 +219,8 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
             # Listen to the player's position change event so we can mvoe the
             # camera with the player.
             self.player.position_changed += self.on_player_position_changed
-            
+        
+        # ObjectInit
         elif ptype is packets.ObjectInit:
             if packet.object_type == "player":
                 object = gamestate.objects.Player(self.world)
@@ -228,21 +230,29 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
 
             self.world.add_object(object, packet.object_id)
         
+        # ObjectUpdate
         elif ptype is packets.ObjectUpdate:
             if not self.world.objects_hash.has_key(packet.object_id):
                 return
             object = self.world.objects_hash[packet.object_id]
             print "Updating object id=%s." % object.object_id
-            object.position = (packet.x, packet.z)
             object.rotation = packet.rotation
             try:
                 if packet.move_speed > 0:
+                    diff_vector = ogre.Vector3(packet.x - object.position[0], 0, packet.z - object.position[1])
+                    move_vector = ogre.Vector3(packet.move_speed * math.cos(packet.rotation),
+                                               packet.move_speed * math.sin(packet.rotation))
+                    resultant = diff_vector + move_vector
+                    angle = math.atan2(resultant.z, resultant.x)
                     object.move_speed = packet.move_speed
-                    object.move_direction = packet.move_direction
+                    object.rotation = angle
+                    object.move_direction = 0
                     object.is_moving = True
                 else:
+                    object.position = (packet.x, packet.z)
                     object.is_moving = False
-            except: pass
+            except:
+                object.position = (packet.x, packet.z)
     
     def on_client_connected(self):
         packet = packets.JoinRequest()
