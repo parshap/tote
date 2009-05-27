@@ -24,7 +24,7 @@ def main(argv=None):
             app.go()
         except KeyboardInterrupt:
             app.stop()
-        except Exception as e:
+        except Exception:
             raise
             try: app.stop()
             except: pass
