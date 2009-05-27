@@ -48,6 +48,7 @@ class GameServer(protocol.ServerFactory):
         self.client_connected = Event()
         self.input = Queue()
         self.output = Queue()
+        self.output_broadcast = Queue()
         self.clients = []
         self.client_count = 0
 
@@ -61,8 +62,15 @@ class GameServer(protocol.ServerFactory):
     
     def send(self):
         while not self.output.empty():
-            (client, data) = self.output.get_nowait()
-            client.transport.write(data.pack())
+            (client, packet) = self.output.get_nowait()
+            client.transport.write(packet.pack())
+        while not self.output_broadcast.empty():
+            (packet, ignore) = self.output_broadcast.get_nowait()
+            packed = packet.pack()
+            for client in self.clients:
+                if client.player is not None and client.player == ignore:
+                    continue
+                client.transport.write(packed)
         
     def go(self):
         reactor.listenTCP(self.port, self)
