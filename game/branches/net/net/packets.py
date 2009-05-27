@@ -59,7 +59,7 @@ class JoinResponse(Packet):
     Required attributes:
     player_id
     """
-    id = 1
+    id = 2
     format = "!H" # player_id
     
     def pack(self, packed=""):
