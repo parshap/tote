@@ -20,11 +20,13 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
     frameStarted()).
     """
 
-    def __init__(self, sceneManager):
+    def __init__(self, sceneManager, address, port):
         # Initialize the various listener classes we are a subclass from
         ogre.FrameListener.__init__(self)
         ogre.WindowEventListener.__init__(self)
-
+        
+        self.address = address
+        self.port = port
         
         self.renderWindow = ogre.Root.getSingleton().getAutoCreatedWindow()
         self.sceneManager = sceneManager
@@ -94,7 +96,7 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
         self.world = gamestate.world.World()
         
         # Create the client and set listeners.
-        self.client = net.client.GameClient(self.world, "localhost", 8981)
+        self.client = net.client.GameClient(self.world, self.address, self.port)
         self.client.connected += self.on_client_connected
         
         # Start the netclient and connect.

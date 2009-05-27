@@ -14,8 +14,11 @@ import gamestate, net
 from net import packets
 
 class ClientApplication(object):
-
     app_title = "MyApplication"
+    
+    def __init__(self, address, port=8981):
+        self.address = address
+        self.port = port
 
     def go(self):
         # See Basic Tutorial 6 for details
@@ -74,7 +77,7 @@ class ClientApplication(object):
         vp.backGroundColor = (0, 0, 0)
 
     def createFrameListener(self):
-        self.playScene = PlayScene(self.sceneManager)
+        self.playScene = PlayScene(self.sceneManager, self.address, self.port)
         self.root.addFrameListener(self.playScene)
 
     def setupCEGUI(self):

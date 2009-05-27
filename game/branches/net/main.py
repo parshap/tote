@@ -18,7 +18,7 @@ def main(argv=None):
         argv = sys.argv
 
     # Start the application.
-    if len(argv) > 1 and sys.argv[1] == "server":
+    if len(argv) > 1 and argv[1] == "server":
         try:
             app = application.ServerApplication()
             app.go()
@@ -29,8 +29,15 @@ def main(argv=None):
             try: app.stop()
             except: pass
     else:
+        address = "localhost"
+        port = 8981
+        if len(argv) > 1:
+            address = argv[1]
+        if len(argv) > 2:
+            port = int(argv[2])
+        print address, port
         try:
-            app = application.ClientApplication()
+            app = application.ClientApplication(address, port)
             app.go()
         except ogre.OgreException, e:
             print e
