@@ -353,7 +353,7 @@ class AirGustOfWindInstance(AbilityInstance):
         self.expire()
         
 class AirWindWhiskInstance(AbilityInstance):
-    teleport_distance = 8
+    teleport_distance = 100
     
     # increasing move_samples increases collision detection accuracy (no jumping over stuff etc)
     # at the cost of extra calculation time. Each sample will be tested at intervals of length
@@ -373,8 +373,8 @@ class AirWindWhiskInstance(AbilityInstance):
         # @todo: make this less hackish
         i = 0
         while i < self.move_samples:
-            sample_position = (self.player.position[0] + i * (self.teleport_distance /  self.move_samples) * math.cos(self.player.rotation),
-                               self.player.position[1] + i * (self.teleport_distance /  self.move_samples) * math.sin(self.player.rotation))
+            sample_position = (self.player.position[0] + (self.teleport_distance /  self.move_samples) * math.cos(self.player.rotation),
+                               self.player.position[1] + (self.teleport_distance /  self.move_samples) * math.sin(self.player.rotation))
             colliders = self.player.world.get_colliders(self.player.bounding_shape, sample_position,
                                                    [self.player])
             for collider in colliders:
@@ -462,7 +462,7 @@ class WaterPrimaryInstance(AbilityInstance):
             #@todo: apply damage etc
 
 class WaterWaterGushInstance(AbilityInstance):  
-    teleport_distance = 8
+    teleport_distance = 100
     
     # increasing move_samples increases collision detection accuracy (no jumping over stuff etc)
     # at the cost of extra calculation time. Each sample will be tested at intervals of length
@@ -483,8 +483,8 @@ class WaterWaterGushInstance(AbilityInstance):
         i = 0
         already_collided = defaultdict(int)
         while i < self.move_samples:
-            sample_position = (self.player.position[0] + i * (self.teleport_distance /  self.move_samples) * math.cos(self.player.rotation),
-                               self.player.position[1] + i * (self.teleport_distance /  self.move_samples) * math.sin(self.player.rotation))
+            sample_position = (self.player.position[0] + (self.teleport_distance /  self.move_samples) * math.cos(self.player.rotation),
+                               self.player.position[1] + (self.teleport_distance /  self.move_samples) * math.sin(self.player.rotation))
             colliders = self.player.world.get_colliders(self.player.bounding_shape, sample_position,
                                                    [self.player])
             for collider in colliders:
