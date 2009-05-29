@@ -4,13 +4,20 @@ import ogre.renderer.OGRE as ogre
 class BoundingObject(object):
     def __init__(self, type):
         self.type = type
-
+        
+    def setup_AABB(self, top, right, bottom, left):
+        self.aabb_top = top
+        self.aabb_right = right
+        self.aabb_bottom = bottom
+        self.aabb_left = left
 
 class BoundingCircle(BoundingObject):
     def __init__(self, radius, is_hollow = False):
         BoundingObject.__init__(self, "circle")
         self.radius = radius
         self.is_hollow = is_hollow
+        
+        self.setup_AABB(-radius, radius, radius, -radius)
 
 class BoundingLineSegment(BoundingObject):
     def __init__(self, point1, point2, normal=None):
@@ -21,7 +28,13 @@ class BoundingLineSegment(BoundingObject):
         if normal is not None:
             self.normal = ogre.Vector3(normal[0], 0, normal[1])
         #@todo: if normal == None, calculate it from p1, p2
-
+        
+        top = min((point1[1], point2[1])) - point1[1]
+        right = max((point1[0], point2[0])) - point1[0]
+        bottom = max((point1[1], point2[1])) - point1[1]
+        left = min((point1[0], point2[0])) - point1[0]
+        
+        self.setup_AABB(top, right, bottom, left)
 
 class BoundingRectangle(BoundingObject):
     def __init__(self, width, height, rotation):
@@ -74,10 +87,12 @@ class BoundingRectangle(BoundingObject):
         # IMPLEMENT THIS AS AN OPTIMIZATION STEP ONLY IF NEEDED
         xCoords = [point1.x, point2.x, point3.x, point4.x]
         zCoords = [point1.z, point2.z, point3.z, point4.z]
-        self.max_x = max(xCoords)
-        self.min_x = min(xCoords)
-        self.max_z = max(zCoords)
-        self.min_z = min(zCoords)
+        right = max(xCoords)
+        left = min(xCoords)
+        bottom = max(zCoords)
+        top = min(zCoords)
+        
+        self.setup_AABB(top, right, bottom, left)
 
 class BoundingCone(BoundingObject):
     def __init__(self, radius, orientation, width):
@@ -85,6 +100,8 @@ class BoundingCone(BoundingObject):
         self.radius = radius
         self.orientation = orientation
         self.width = width
+        
+        self.setup_AABB(-radius, radius, radius, -radius)
 
 
 class UnsupportedShapesException(Exception):
@@ -101,6 +118,29 @@ class CollisionDetector(object):
     SPACING = 0.1
 
     @staticmethod
+    def check_aabb_collision(shape1, pos1, shape2, pos2):
+        # if the left side of the collider shape is to the right of the right side of the collidee
+        # shape, no aabb collision is possible
+        if shape1.aabb_left + pos1[0] > shape2.aabb_right + pos2[0]:
+            return False
+        # if the top of the collider shape is below the bottom of the collidee shape
+        # no aabb collision is possible
+        if shape1.aabb_top + pos1[1] > shape2.aabb_bottom + pos2[1]:
+            return False
+        # if the right side of the collider shape is to the left of the left side of the collidee shape
+        # no aabb collision is possible
+        if shape1.aabb_right + pos1[0] < shape2.aabb_left + pos2[0]:
+            return False
+        # if the bottom of the collider shape is above the top of the collidee shape
+        # no collision is possible
+        if shape1.aabb_bottom + pos1[1] < shape2.aabb_top + pos2[1]:
+            return False
+        
+        # otherwise, return true
+        return True
+        
+
+    @staticmethod
     def is_between(shape, position, point1, point2):
         """
         Returns True if the given shape at the given position is between the
@@ -109,8 +149,18 @@ class CollisionDetector(object):
         Raises an UnsupportedShapesException if the given shape type is not
         supported.
         """
+        
+        # @todo: optimize this function so it no longer lags the game to death
+        # for the meantime, the conditions this function protects against are so rare
+        # they are not worth the performance hit
         return False
+    
+    
         line = BoundingLineSegment(point1, point2)
+        
+        # first check axis-aligned bounding box collision for speed increase
+        if CollisionDetector.check_aabb_collision(shape, position, line, point1) is False:
+            return False
         
         # If the line has lenght 0 it cannot possibly collide with anything.
         if(line.vector.x == 0. and line.vector.y == 0.):
@@ -140,6 +190,10 @@ class CollisionDetector(object):
         the given shapes is not supported.
         """
         
+        # first check axis-aligned bounding box collision for speed increase
+        if CollisionDetector.check_aabb_collision(shape1,position1, shape2, position2) is False:
+            return False
+        
         # convert tuples to ogre.Vector3
         position1 = ogre.Vector3(position1[0], 0, position1[1])
         position2 = ogre.Vector3(position2[0], 0, position2[1])
@@ -166,6 +220,11 @@ class CollisionDetector(object):
         vector shape1 would have to move from position1 to no longer be
         overlapping with shape2 at position2.
         """
+        
+        # first check axis-aligned bounding box collision for speed increase
+        if CollisionDetector.check_aabb_collision(shape1,position1, shape2, position2) is False:
+            return False
+        
         # convert tuples to ogre.Vector3
         position1 = ogre.Vector3(position1[0], 0, position1[1])
         position2 = ogre.Vector3(position2[0], 0, position2[1])
