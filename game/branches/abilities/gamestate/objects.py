@@ -222,6 +222,10 @@ class MobileObject(GameObject):
                 # and we will completely deny the move by returning.
                 if not object.isPassable:
                     print "DENIED MOVEMENT!!"
+                    
+                    # must collide these two objects to throw the proper events
+                    self.collide(object)
+                    object.collide(self)
                     return
                     
                 # Otherwise add the object to our set of collided objects.
