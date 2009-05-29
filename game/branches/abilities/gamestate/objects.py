@@ -184,6 +184,11 @@ class MobileObject(GameObject):
             # previously collided with objects.
             collided_objects = already_collided
         
+        # Create a BoundingLineSegment that represents the player's move vector
+        # We do this here so that we only have to do it ONCE to check against all
+        # objects in the world.
+        move_segment = collision.BoundingLineSegment(self.position, new_pos)
+        
         # Loop over all objects in the world to test against.
         for object in self.world.objects:
             if self == object:
@@ -199,7 +204,7 @@ class MobileObject(GameObject):
             # objects that may be between our old position and our new
             # position. This result will be True if the ray collides with the
             # object and False if not.
-            rayResult = CollisionDetector.is_between(object.bounding_shape, object.position, self.position, new_pos)
+            rayResult = CollisionDetector.is_between(object.bounding_shape, object.position, move_segment)
             
             # Check if our bounding shape at our new position would overlap
             # with the object's bounding shape. The result will be None if
@@ -216,6 +221,7 @@ class MobileObject(GameObject):
                 # If the object is not passable, then this is a critical error
                 # and we will completely deny the move by returning.
                 if not object.isPassable:
+                    print "DENIED MOVEMENT!!"
                     return
                     
                 # Otherwise add the object to our set of collided objects.
@@ -288,7 +294,7 @@ class Player(MobileObject):
         # Create an Element and pass it a reference to this player make it our
         # current active element.
         # @todo: don't hardcode this
-        self.element = elements.WaterElement(self)
+        self.element = elements.AirElement(self)
         
         self.active_abilities = []
         self.last_ability_time = 0

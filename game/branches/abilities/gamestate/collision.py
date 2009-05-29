@@ -141,7 +141,7 @@ class CollisionDetector(object):
         
 
     @staticmethod
-    def is_between(shape, position, point1, point2):
+    def is_between(shape, position, line):
         """
         Returns True if the given shape at the given position is between the
         two given points (i.e., if it collides with the line segment between
@@ -153,30 +153,24 @@ class CollisionDetector(object):
         # @todo: optimize this function so it no longer lags the game to death
         # for the meantime, the conditions this function protects against are so rare
         # they are not worth the performance hit
-        return False
-    
-    
-        line = BoundingLineSegment(point1, point2)
+        
         
         # first check axis-aligned bounding box collision for speed increase
-        if CollisionDetector.check_aabb_collision(shape, position, line, point1) is False:
+        if CollisionDetector.check_aabb_collision(shape, position, line, (line.point1.x, line.point1.z)) is False:
             return False
+        
+        shape_position = ogre.Vector3(position[0], 0, position[1])
         
         # If the line has lenght 0 it cannot possibly collide with anything.
         if(line.vector.x == 0. and line.vector.y == 0.):
             return False;
         
-        # convert tuples to ogre.Vector3
-        position = ogre.Vector3(position[0], 0, position[1])
-        point1 = ogre.Vector3(point1[0], 0, point1[1])
-        point2 = ogre.Vector3(point2[0], 0, point2[1])
-        
         if shape.type == "circle":
-            return CollisionDetector._check_circle_line(shape, position, line, point1) is not False
+            return CollisionDetector._check_circle_line(shape, shape_position, line, line.point1) is not False
         elif shape.type == "linesegment":
-            return CollisionDetector._check_line_line(shape, position, line, point1) is not False
+            return CollisionDetector._check_line_line(shape, shape_position, line, line.point1) is not False
         elif shape.type == "rectangle":
-            #return CollisionDetector._check_line_rect(shape, position, line, point1) is not False
+            return CollisionDetector._check_line_rect(shape, shape_position, line, line.point1) is not False
             return False
             
         raise UnsupportedShapesException(shape, line)
