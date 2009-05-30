@@ -33,6 +33,7 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
         self.sceneManager = sceneManager
         self.camera = self.sceneManager.getCamera("PrimaryCamera")
         self.cameraNode = self.sceneManager.getSceneNode("PrimaryCamera")
+        self.FPSCounter = gui.FPSCounter("UI/FPS/Meter")
         
         self.viewport = self.camera.getViewport()
         
@@ -61,7 +62,7 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
         ability_1 = gui.Button("UI/AbilityBar/Ability1", rect)
         ability_1.clicked += click_handler
         self.gui_elements.append(ability_1)
-
+        
         # Create the inputManager using the supplied renderWindow
         windowHnd = self.renderWindow.getCustomAttributeInt("WINDOW")
         paramList = [("WINDOW", str(windowHnd)), \
@@ -165,7 +166,8 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
         """
         
         dt = event.timeSinceLastFrame
-
+        self.FPSCounter.update(dt)
+        
         # Capture any buffered events (and fire any callbacks).
         self.inputHandler.capture()
         
