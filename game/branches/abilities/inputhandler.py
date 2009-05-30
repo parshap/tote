@@ -2,6 +2,7 @@ from __future__ import division
 
 import ogre.io.OIS as OIS
 import ogre.gui.CEGUI as CEGUI
+import gui
 
 import math
 
@@ -74,13 +75,21 @@ class InputHandler(OIS.MouseListener, OIS.KeyListener):
         if id == MOUSE_CONTROLS["ABILITY_1"]:
             self.player.use_ability(1)
         
-        # Handle any CEGUI mouseButton events
-        CEGUI.System.getSingleton().injectMouseButtonDown(self._convertOISToCEGUI(id))
+        # Inject mouse press to UI elements.
+        for element in self.scene.gui_elements:
+            if isinstance(element, gui.IClickable):
+                element.inject_mouse_press(id,
+                    event.get_state().X.abs, event.get_state().Y.abs)
+
         return True
 
     def mouseReleased(self, event, id):
-        # Handle any CEGUI mouseButton events
-        CEGUI.System.getSingleton().injectMouseButtonUp(self._convertOISToCEGUI(id))
+        # Inject mouse release to UI elements.
+        for element in self.scene.gui_elements:
+            if isinstance(element, gui.IClickable):
+                element.inject_mouse_release(id,
+                    event.get_state().X.abs, event.get_state().Y.abs)
+
         return True
 
     def _convertOISToCEGUI(self, oisID):

@@ -10,6 +10,9 @@ import gamestate
 import SceneLoader
 from inputhandler import InputHandler
 import nodes
+import gui
+
+# Import other python modules
 import math
 from xml.dom import minidom, Node
 
@@ -31,11 +34,33 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
         self.camera = self.sceneManager.getCamera("PrimaryCamera")
         self.cameraNode = self.sceneManager.getSceneNode("PrimaryCamera")
         
+        self.viewport = self.camera.getViewport()
+        
         # Create an empty list of nodes
         self.nodes = []
         
+        # Create an empty list of UI elements.
+        self.gui_elements = []
+        
         # Set up the scene.
         self.setupScene()
+        
+        # Set up the overlay UI.
+        self.setupOverlay()
+        
+        # Create UI elements to interact with.
+        def click_handler(element, mouse_button):
+            element.hide()
+            print "clicked"
+        vp = self.viewport
+        rect = ogre.Rectangle()
+        rect.left = vp.actualWidth/2 - 128
+        rect.top = vp.actualHeight - 64
+        rect.right = rect.left + 64
+        rect.bottom = rect.top + 64
+        ability_1 = gui.Button("UI/AbilityBar/Ability1", rect)
+        ability_1.clicked += click_handler
+        self.gui_elements.append(ability_1)
 
         # Create the inputManager using the supplied renderWindow
         windowHnd = self.renderWindow.getCustomAttributeInt("WINDOW")
@@ -103,43 +128,7 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
         npc.position = (128, 128)
         npc.isPassable = False
         
-        # Add boundary lines for map walls.
-        # @todo: move this out of here!
-        
-        # north wall
-        boundary1 = gamestate.objects.GameObject(self.world)
-        boundary1.position = (-640, -640)
-        boundary1.isPassable = False
-        boundary1.bounding_shape = gamestate.collision.BoundingLineSegment((-640, -640),
-                                                                           (640, -640),
-                                                                           (0, 1))
-        # south wall
-        boundary2 = gamestate.objects.GameObject(self.world)
-        boundary2.position = (-640, 640)
-        boundary2.isPassable = False
-        boundary2.bounding_shape = gamestate.collision.BoundingLineSegment((-640, 640),
-                                                                           (640, 640),
-                                                                           (0, -1))
-        # east wall
-        boundary3 = gamestate.objects.GameObject(self.world)
-        boundary3.position = (640, -640)
-        boundary3.isPassable = False
-        boundary3.bounding_shape = gamestate.collision.BoundingLineSegment((640, -640),
-                                                                           (640, 640),
-                                                                           (-1, 0))
-        # west wall
-        boundary4 = gamestate.objects.GameObject(self.world)
-        boundary4.position = (-640, -640)
-        boundary4.isPassable = False
-        boundary4.bounding_shape = gamestate.collision.BoundingLineSegment((-640, -640),
-                                                                           (-640, 640),
-                                                                           (1, 0))
-
-        self.world.add_object(boundary1)
-        self.world.add_object(boundary2)
-        self.world.add_object(boundary3)
-        self.world.add_object(boundary4)
-        
+        # Add boundary lines for map walls.       
         self.setup_level_boundaries("media/levelbounds.bounds")
         
         # Listen to the player's position change event so we can mvoe the
@@ -161,6 +150,10 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
         # Setup camera node
         self.cameraNode.position = (0, 100, 100)
         self.cameraNode.pitch(ogre.Degree(-45))
+        
+    def setupOverlay(self):
+        pOver = ogre.OverlayManager.getSingleton().getByName("UI")
+        pOver.show()
 
     def frameStarted(self, event):
         """ 
@@ -252,7 +245,7 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
     def windowResized(self, renderWindow):
         self.mouse.getMouseState().width = renderWindow.width
         self.mouse.getMouseState().height = renderWindow.height
-        vp = self.camera.getViewport()
+        vp = self.viewport
         self.camera.aspectRatio = vp.actualWidth / vp.actualHeight
         # @todo: Scale the image so viewable area remains the same.
 
