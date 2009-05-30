@@ -24,7 +24,6 @@ class Application(object):
         self.initializeResourceGroups()
         self.setupScene()
         self.createFrameListener()
-        self.setupCEGUI()
         self.startRenderLoop()
         self.cleanUp()
 
@@ -74,22 +73,6 @@ class Application(object):
     def createFrameListener(self):
         self.playScene = PlayScene(self.sceneManager)
         self.root.addFrameListener(self.playScene)
-
-    def setupCEGUI(self):
-        sceneManager = self.sceneManager
-
-        # CEGUI
-        self.renderer = CEGUI.OgreCEGUIRenderer(self.renderWindow, ogre.RENDER_QUEUE_OVERLAY, False, 3000, sceneManager)
-        self.system = CEGUI.System(self.renderer)
-
-        # CEGUI.SchemeManager.getSingleton().loadScheme("TaharezLookSkin.scheme")
-        # self.system.setDefaultMouseCursor("TaharezLook", "MouseArrow")
-        # self.system.setDefaultFont("BlueHighway-12")
-
-        # Uncomment the following to read in a CEGUI sheet (from CELayoutEditor)
-        # 
-        # self.mainSheet = CEGUI.WindowManager.getSingleton().loadWindowLayout("myapplication.layout")
-        # self.system.setGUISheet(self.mainSheet)
 
     def startRenderLoop(self):
         self.root.startRendering()
