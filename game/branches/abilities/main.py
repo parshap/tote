@@ -2,7 +2,6 @@ from __future__ import division
 
 # Import OGRE-specific (and other UI-Client) external packages and modules.
 import ogre.renderer.OGRE as ogre
-import ogre.gui.CEGUI as CEGUI
 
 # Import other external packages and modules.
 import sys

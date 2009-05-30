@@ -1,7 +1,6 @@
 from __future__ import division
 
 import ogre.io.OIS as OIS
-import ogre.gui.CEGUI as CEGUI
 import gui
 
 import math
@@ -65,10 +64,6 @@ class InputHandler(OIS.MouseListener, OIS.KeyListener):
         self.player.is_moving = mouseState.buttonDown(MOUSE_CONTROLS["MOUSEMOVE"])
 
     def mouseMoved(self, event):
-        state = event.get_state()
-        
-        # Pass the location of the mouse pointer over to CEGUI
-        CEGUI.System.getSingleton().injectMouseMove(state.X.rel, state.Y.rel)
         return True
 
     def mousePressed(self, event, id):
@@ -91,17 +86,6 @@ class InputHandler(OIS.MouseListener, OIS.KeyListener):
                     event.get_state().X.abs, event.get_state().Y.abs)
 
         return True
-
-    def _convertOISToCEGUI(self, oisID):
-        """ Converts an OIS mouse button ID to a CEGUI mouse button ID """
-        if oisID == OIS.MB_Left:
-            return CEGUI.LeftButton
-        elif oisID == OIS.MB_Right:
-            return CEGUI.RightButton
-        elif oisID == OIS.MB_Middle:
-            return CEGUI.MiddleButton
-        else:
-            return CEGUI.LeftButton
 
     def keyPressed(self, event):
         # Quit the application if we hit the escape button
