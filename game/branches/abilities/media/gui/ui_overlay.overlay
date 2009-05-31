@@ -59,24 +59,32 @@ UI
             width 64
             height 64
             
-            // material Examples/Ninja
+            material Examples/Ninja
             transparent false
-            
-            element TextArea(UI/AbilityBar/Ability1/Cooldown)
+            container Panel(UI/AbilityBar/Ability1/CooldownContainer)
             {
-                metrics_mode pixels
-                horz_align center
-                left 0
-                top 16
-                alignment center
-                width 64
-                height 32
-                
-                font_name arial
-                char_height 40
-                caption 1
-                colour 1 0 0
-            }
+	            metrics_mode pixels
+            	left 0
+            	width 64
+            	height 64
+            	
+            	material mat_cooldown_overlay
+	            
+	            element TextArea(UI/AbilityBar/Ability1/Cooldown)
+	            {
+	                metrics_mode pixels
+	                horz_align center
+	                left 0
+	                top 16
+	                alignment center
+	                width 64
+	                height 32
+	                
+	                font_name arial
+	                char_height 40
+	                colour 1 0 0
+	            }
+	    	}
 		}
 		
 		container Panel(UI/AbilityBar/Ability2)
@@ -86,24 +94,33 @@ UI
             width 64
             height 64
             
-            // material Examples/Ninja
+            material Examples/Ninja
             transparent false
             
-            element TextArea(UI/AbilityBar/Ability2/Cooldown)
+            container Panel(UI/AbilityBar/Ability2/CooldownContainer)
             {
-                metrics_mode pixels
-                horz_align center
-                left 0
-                top 16
-                alignment center
-                width 64
-                height 32
-                
-                font_name arial
-                char_height 40
-                caption 2
-                colour 1 0 0
-            }
+	            metrics_mode pixels
+            	left 0
+            	width 64
+            	height 64
+            	
+            	material mat_cooldown_overlay
+            	
+	            element TextArea(UI/AbilityBar/Ability2/Cooldown)
+	            {
+	                metrics_mode pixels
+	                horz_align center
+	                left 0
+	                top 16
+	                alignment center
+	                width 64
+	                height 32
+	                
+	                font_name arial
+	                char_height 40
+	                colour 1 0 0
+	            }
+	    	}
 		}
 		
 		container Panel(UI/AbilityBar/Ability3)
@@ -116,21 +133,31 @@ UI
             // material Examples/Ninja
             transparent false
             
-            element TextArea(UI/AbilityBar/Ability3/Cooldown)
+            
+            container Panel(UI/AbilityBar/Ability3/CooldownContainer)
             {
-                metrics_mode pixels
-                horz_align center
-                left 0
-                top 16
-                alignment center
-                width 64
-                height 32
-                
-                font_name arial
-                char_height 40
-                caption 3
-                colour 1 0 0
-            }
+	            metrics_mode pixels
+            	left 0
+            	width 64
+            	height 64
+            	
+            	material mat_cooldown_overlay
+            	
+	            element TextArea(UI/AbilityBar/Ability3/Cooldown)
+	            {
+	                metrics_mode pixels
+	                horz_align center
+	                left 0
+	                top 16
+	                alignment center
+	                width 64
+	                height 32
+	                
+	                font_name arial
+	                char_height 40
+	                colour 1 0 0
+	            }
+	        }
 		}
 		
 		container Panel(UI/AbilityBar/Ability4)
@@ -143,21 +170,30 @@ UI
             // material Examples/Ninja
             transparent false
             
-            element TextArea(UI/AbilityBar/Ability4/Cooldown)
+            container Panel(UI/AbilityBar/Ability4/CooldownContainer)
             {
-                metrics_mode pixels
-                horz_align center
-                left 0
-                top 16
-                alignment center
-                width 64
-                height 32
-                
-                font_name arial
-                char_height 40
-                caption 4
-                colour 1 0 0
-            }
+	            metrics_mode pixels
+            	left 0
+            	width 64
+            	height 64
+            	
+            	material mat_cooldown_overlay
+            	
+	            element TextArea(UI/AbilityBar/Ability4/Cooldown)
+	            {
+	                metrics_mode pixels
+	                horz_align center
+	                left 0
+	                top 16
+	                alignment center
+	                width 64
+	                height 32
+	                
+	                font_name arial
+	                char_height 40
+	                colour 1 0 0
+	            }
+	        }
 		}
     }
     

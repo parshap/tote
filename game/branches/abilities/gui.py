@@ -72,9 +72,11 @@ class AbilityCooldownDisplay(Element):
         self.cooldown_time = cooldown_time
         self.time_till_enable = 0
         self.ability_index = ability_index
-        self.text_area = self.overlay.getChild(overlay_name+"/Cooldown")
-        #self.cooldown_overlay = self.overlay.getChild(overlay_name+"/CooldownOverlay")
-        #print "should be true: " + str(self.cooldown_overlay is not None)
+        self.cooldown_container = self.overlay.getChild(overlay_name+"/CooldownContainer")
+        self.text_area = self.cooldown_container.getChild(overlay_name+"/Cooldown")
+        self.cooldown_container.hide()
+        print "should be true if found container: " + str(self.cooldown_container is not None)
+        
         
     def on_ability_used(self, player, index, ability):
         if index == self.ability_index:
@@ -91,14 +93,14 @@ class AbilityCooldownDisplay(Element):
             
     def begin_cooldown(self):
         # udpate display
-        self.text_area.show()
+        self.cooldown_container.show()
         
         # set cooldown time
         self.time_till_enable = self.cooldown_time
     
     def end_cooldown(self):
         # update display
-        self.text_area.hide()
+        self.cooldown_container.hide()
         
     def set_player_listener(self, player):
         player.ability_used += self.on_ability_used
