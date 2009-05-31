@@ -354,10 +354,7 @@ class PlayerNode(MobileGameNode):
         projectile_node = MobileGameNode(self.sceneManager, game_object)
         projectile_node.position = (game_object.position[0], 0, game_object.position[1])
         projectile_node.set_particle_system("DustEruption")
-        projectile_node.particle_effect_start()
-        print "created node"
-        
-        
+        projectile_node.particle_effect_start() 
     
     def on_ability_used(self, player, index, ability_instance):
         
