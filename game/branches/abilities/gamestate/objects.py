@@ -347,6 +347,9 @@ class Player(MobileObject):
             self.health = self.health - amount
             if self.health <= 0:
                 self.dead = True
+                
+    def use_power(self, amount):
+        self.power = self.power - amount
         
     def _get_is_charging(self):
         """ Gets or sets the object's current charging state """

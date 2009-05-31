@@ -9,6 +9,7 @@ from collections import defaultdict
 
 
 class AbilityInstance(object):
+    power_cost = 0
     def __init__(self, player):
         self.player = player
         self.expired = Event()
@@ -17,6 +18,7 @@ class AbilityInstance(object):
 
     def run(self):
         self.is_active = True
+        self.player.use_power(self.power_cost)
 
     def update(self, dt):
         pass
@@ -27,6 +29,7 @@ class AbilityInstance(object):
 
 
 class EarthPrimaryInstance(AbilityInstance):
+    power_cost = 10
     def __init__(self, player):
         AbilityInstance.__init__(self, player)
         self.type = "EarthPrimaryInstance"
@@ -47,6 +50,7 @@ class EarthPrimaryInstance(AbilityInstance):
         self.expire()
         
 class EarthHookInstance(AbilityInstance):
+    power_cost = 10
     projectile_velocity = 200
     projectile_radius = 12
     projectile_duration = 0.5
@@ -86,6 +90,7 @@ class EarthHookInstance(AbilityInstance):
                 self.expire()
 
 class EarthEarthquakeInstance(AbilityInstance):
+    power_cost = 10
     def __init__(self, player):
         AbilityInstance.__init__(self, player)
         self.type = "EarthEarthQuakeInstance"
@@ -108,6 +113,7 @@ class EarthEarthquakeInstance(AbilityInstance):
         self.expire()
         
 class EarthPowerSwingInstance(AbilityInstance):
+    power_cost = 10
     def __init__(self, player):
         AbilityInstance.__init__(self, player)
         self.type = "EarthPowerSwingInstance"
@@ -129,6 +135,7 @@ class EarthPowerSwingInstance(AbilityInstance):
         
 
 class FirePrimaryInstance(AbilityInstance):
+    power_cost = 10
     def __init__(self, player):
         AbilityInstance.__init__(self, player)
         self.type = "FirePrimaryInstance"
@@ -146,6 +153,7 @@ class FirePrimaryInstance(AbilityInstance):
 
 
 class FireFlameRushInstance(AbilityInstance):
+    power_cost = 10
     charge_speed_multiplier = 3
     damage_dealt = 1 
     duration = .5
@@ -195,6 +203,7 @@ class FireFlameRushInstance(AbilityInstance):
         self.player.move_speed /= self.charge_speed_multiplier
         
 class FireLavaSplashInstance(AbilityInstance):
+    power_cost = 10
     damage_dealt = 1
     radius = 30
         
@@ -226,6 +235,7 @@ class FireLavaSplashInstance(AbilityInstance):
         AbilityInstance.expire(self)
         
 class FireRingOfFireInstance(AbilityInstance):
+    power_cost = 10
     damage_per_tick = 10
     duration = 3
     radius = 96
@@ -292,6 +302,7 @@ class FireRingOfFireInstance(AbilityInstance):
                 # @todo: : apply damage etc etc etc
     
 class AirPrimaryInstance(AbilityInstance):
+    power_cost = 10
     start_velocity = 200
     acceleration = 500
     projectile_radius = 10
@@ -322,6 +333,7 @@ class AirPrimaryInstance(AbilityInstance):
             print "Air Shot collided with another player!"
             
 class AirGustOfWindInstance(AbilityInstance):
+    power_cost = 10
     knockback_strength = 150
     acceleration_factor = 2
     hit_radius = 50
@@ -353,6 +365,7 @@ class AirGustOfWindInstance(AbilityInstance):
         self.expire()
         
 class AirWindWhiskInstance(AbilityInstance):
+    power_cost = 10
     teleport_distance = 100
     
     # increasing move_samples increases collision detection accuracy (no jumping over stuff etc)
@@ -389,6 +402,7 @@ class AirWindWhiskInstance(AbilityInstance):
         self.expire()
         
 class AirLightningBoltInstance(AbilityInstance):
+    power_cost = 10
     damage_dealt = 10
     range = 100
     
@@ -432,6 +446,7 @@ class AirLightningBoltInstance(AbilityInstance):
         AbilityInstance.expire(self)
         
 class WaterPrimaryInstance(AbilityInstance):
+    power_cost = 10
     velocity = 100
     projectile_radius = 10
     duration = 20
@@ -462,6 +477,7 @@ class WaterPrimaryInstance(AbilityInstance):
             #@todo: apply damage etc
 
 class WaterWaterGushInstance(AbilityInstance):  
+    power_cost = 10
     teleport_distance = 100
     
     # increasing move_samples increases collision detection accuracy (no jumping over stuff etc)
@@ -504,6 +520,7 @@ class WaterWaterGushInstance(AbilityInstance):
         self.expire()      
         
 class WaterTidalWaveInstance(AbilityInstance):
+    power_cost = 10
     hit_radius = 60
     hit_angle = math.pi / 2
     damage_dealt = 10
@@ -530,6 +547,7 @@ class WaterTidalWaveInstance(AbilityInstance):
         self.expire()
         
 class WaterIceBurstInstance(AbilityInstance):
+    power_cost = 10
     invulnerable_duration = 2
     shard_damage = 10
     shard_radius = 30
