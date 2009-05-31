@@ -360,6 +360,10 @@ class PlayerNode(MobileGameNode):
         
     
     def on_ability_used(self, player, index, ability_instance):
+        
+        #@todo: remove this... this is just here for an easy way to test the UI StatusBars
+        player.apply_damage(20)
+        
         if player.element.type == "earth":
             if index == 1:
                 # Earth : Primary

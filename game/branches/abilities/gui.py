@@ -1,6 +1,6 @@
+from __future__ import division
 import ogre.renderer.OGRE as ogre
 from gamestate.event import Event
-
 
 class Element(object):
     def __init__(self, overlay_name, bounding_rectangle):
@@ -40,7 +40,31 @@ class Button(Element, IClickable):
         
     def update(self, dt):
         Element.update(self, dt)
+
+class StatusBar(Element):
+    def __init__(self, overlay_name, bounding_rectangle, max_value):
+        Element.__init__(self, overlay_name, bounding_rectangle)
+        self.value = max_value
+        self.max_value = max_value
+        self.name = ""
+        self.type = "StatusBar"
+        self.container = ogre.OverlayManager.getSingleton().getOverlayElement("UI/StatusBars")
+        self.on_value_changed(self.max_value)
+    
+    def on_value_changed(self, new_value):
+        print "updating status bar, newval: %.2f" %new_value
+        self.value = new_value
+        if self.value > self.max_value:
+            self.value = self.max_value
+        if self.value < 0:
+            self.value = 0
         
+        # update the visual element
+        bar_total_width = self.container.getWidth()
+        full_proportion = self.value / self.max_value
+        bar_width = bar_total_width * full_proportion
+        self.overlay.setWidth(bar_width)
+
 class AbilityCooldownDisplay(Element):
     def __init__(self, overlay_name, bounding_rectangle, ability_index, cooldown_time):
         Element.__init__(self, overlay_name, bounding_rectangle)
@@ -55,12 +79,10 @@ class AbilityCooldownDisplay(Element):
     def on_ability_used(self, player, index, ability):
         if index == self.ability_index:
             self.begin_cooldown()
-        print "beginning cooldown"
         
     def update(self, dt):
         Element.update(self, dt)
         if self.time_till_enable > 0:
-            print "updating"
             self.time_till_enable -= dt
             if self.time_till_enable < 0:
                 self.end_cooldown()
@@ -76,11 +98,9 @@ class AbilityCooldownDisplay(Element):
     
     def end_cooldown(self):
         # update display
-        print "ending cooldown"
         self.text_area.hide()
         
     def set_player_listener(self, player):
-        print "setting player listener"
         player.ability_used += self.on_ability_used
         
 class FPSCounter():

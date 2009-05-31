@@ -112,9 +112,17 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
         # Setup UI
         ui_elements = self.createUIelements(self.player)
         for element in ui_elements:
-            print str(element.cooldown_time)
             self.gui_elements.append(element)
-            if element.type == "AbilityCooldownDisplay":
+            
+            if element.type == "StatusBar":
+                if element.name == "Health":
+                    print "adding health listener"
+                    self.player.health_changed += element.on_value_changed
+                elif element.name == "Power":
+                    print "adding Power listener"
+                    self.player.power_changed += element.on_value_changed
+            
+            elif element.type == "AbilityCooldownDisplay":
                 element.set_player_listener(self.player)
         
         # Add stationary NPC ninja...
@@ -147,6 +155,24 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
         self.cameraNode.pitch(ogre.Degree(-45))
         
     def createUIelements(self, player):
+        # Set up health and power bars
+        health_bar_rect = ogre.Rectangle()
+        health_bar_rect.left = self.viewport.actualWidth / 2 - 128
+        health_bar_rect.top = self.viewport.actualHeight - 84
+        health_bar_rect.right = health_bar_rect.left + 256
+        health_bar_rect.bottom = health_bar_rect.top + 10
+        health_bar = gui.StatusBar("UI/StatusBars/Health", health_bar_rect, player.max_health)
+        health_bar.name = "Health"
+        
+        power_bar_rect = ogre.Rectangle()
+        power_bar_rect.left = health_bar_rect.left
+        power_bar_rect.top = health_bar_rect.bottom
+        power_bar_rect.right = health_bar_rect.right
+        power_bar_rect.bottom = power_bar_rect.top + 10
+        power_bar = gui.StatusBar("UI/StatusBars/Power", power_bar_rect, player.max_power)
+        power_bar.name = "Power"
+        
+        # Set up ability cooldown displays
         if player.element.type == "fire":
             ability1_cooldown = 5
             ability2_cooldown = 5
@@ -197,7 +223,12 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
         ability4_cdd_rect.bottom = ability4_cdd_rect.top + 64
         ability4_cooldown_display = gui.AbilityCooldownDisplay("UI/AbilityBar/Ability4", ability4_cdd_rect, 4, ability4_cooldown)
         
-        return (ability1_cooldown_display, ability2_cooldown_display, ability3_cooldown_display, ability4_cooldown_display)
+        return (health_bar,
+                power_bar,
+                ability1_cooldown_display, 
+                ability2_cooldown_display, 
+                ability3_cooldown_display, 
+                ability4_cooldown_display)
         
     def setupOverlay(self):
         pOver = ogre.OverlayManager.getSingleton().getByName("UI")

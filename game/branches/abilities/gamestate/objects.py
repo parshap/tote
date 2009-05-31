@@ -280,9 +280,12 @@ class Player(MobileObject):
     def __init__(self, world):
         MobileObject.__init__(self, world)
         self.move_speed = 100
-        self.power = 100
-        self.health = 100
+        self._health = 100
+        self._power = 100
+        self.max_power = 100
+        self.max_health = 100
         self.dead = False
+        self.died = Event()
         self.bounding_shape = collision.BoundingCircle(6)
         self.type = "player"
         
@@ -305,9 +308,43 @@ class Player(MobileObject):
         self.ability_used = Event()
         self.ability_instance_created = Event()
         
+        self.health_changed = Event()
+        self.power_changed = Event()
+        
+    def _get_health(self):
+        return self._health
+    def _set_health(self, value):
+        if value <= 0:
+            self._health = 0
+            if not self.dead:
+                self.dead = True
+                print "player died"
+                self.died()
+        elif value > self.max_health:
+            self._health = self.max_health
+        else:
+            self._health = value
+        print "throwing health changed event"
+        self.health_changed(self._health)   
+    
+    health = property(_get_health, _set_health) 
+        
+    def _get_power(self):
+        return self._power
+    def _set_power(self, value):
+        if value < 0:
+            self._power = 0
+        elif value > self.max_power:
+            self._power = self.max_power
+        else:
+            self._power = value
+        self.power_changed(self._power)
+    
+    power = property(_get_power, _set_power)
+        
     def apply_damage(self, amount):
-        if not self.invulnerable:
-            self.health -= amount
+        if not self.is_invulnerable:
+            self.health = self.health - amount
             if self.health <= 0:
                 self.dead = True
         
