@@ -49,7 +49,8 @@ class AbilityCooldownDisplay(Element):
         self.time_till_enable = 0
         self.ability_index = ability_index
         self.text_area = self.overlay.getChild(overlay_name+"/Cooldown")
-        print "should be true: " + str(self.text_area is not None)
+        #self.cooldown_overlay = self.overlay.getChild(overlay_name+"/CooldownOverlay")
+        #print "should be true: " + str(self.cooldown_overlay is not None)
         
     def on_ability_used(self, player, index, ability):
         if index == self.ability_index:
@@ -59,27 +60,54 @@ class AbilityCooldownDisplay(Element):
     def update(self, dt):
         Element.update(self, dt)
         if self.time_till_enable > 0:
+            print "updating"
             self.time_till_enable -= dt
             if self.time_till_enable < 0:
                 self.end_cooldown()
             display_caption = "%d" %(self.time_till_enable + 1)
-            self.overlay.setCaption(display_caption)
+            self.text_area.setCaption(display_caption)
             
     def begin_cooldown(self):
         # udpate display
+        self.text_area.show()
         
         # set cooldown time
         self.time_till_enable = self.cooldown_time
     
     def end_cooldown(self):
         # update display
-        self.overlay.setCaption("")
+        print "ending cooldown"
+        self.text_area.hide()
         
     def set_player_listener(self, player):
         print "setting player listener"
         player.ability_used += self.on_ability_used
         
+class FPSCounter():
+    def __init__(self, overlay_name):
+        self.textArea = ogre.OverlayManager.getSingleton().getOverlayElement(overlay_name)
+        self.time_passed = 0
+        self.frames_passed = 0
+        self.target_window = 1
         
+    def update(self, dt, df=1):
+        """
+        Update normally takes the amount of time since the last frame.
+        The use of df allows for flexibility if update is not called
+        every frame.
+        """
+        self.time_passed += dt
+        self.frames_passed += df
+        if(self.time_passed >= .1):
+            fps = int(df/dt)
+            self.time_passed = 0
+            self.frames_passed = 0
+            self.target_window += 1
+            if(self.target_window == 6):
+                self.target_window = 1
+                ogre.OverlayManager.getSingleton().getOverlayElement("UI/FPS/Meter").setCaption(str(fps))
+            else:
+                ogre.OverlayManager.getSingleton().getOverlayElement("UI/FPS/Meter"+str(self.target_window)).setCaption(str(fps))
         
         
         

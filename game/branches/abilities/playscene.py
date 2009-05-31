@@ -41,45 +41,10 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
         self.nodes = []
         
         # Create an empty list of UI elements.
-        self.gui_elements = []
-        
-        
+        self.gui_elements = [] 
         
         # Set up the overlay UI.
         self.setupOverlay()
-        
-        # Create UI Elements      
-        ability1_cdd_rect = ogre.Rectangle()
-        ability1_cdd_rect.left = self.viewport.actualWidth / 2 - 128
-        ability1_cdd_rect.top = self.viewport.actualHeight - 64
-        ability1_cdd_rect.right = ability1_cdd_rect.left + 64
-        ability1_cdd_rect.bottom = ability1_cdd_rect.top + 64
-        ability1_cooldown_display = gui.AbilityCooldownDisplay("UI/AbilityBar/Ability1", ability1_cdd_rect, 1, 5)
-        self.gui_elements.append(ability1_cooldown_display)
-        
-        ability2_cdd_rect = ogre.Rectangle()
-        ability2_cdd_rect.left = ability1_cdd_rect.right
-        ability2_cdd_rect.top = ability1_cdd_rect.top
-        ability2_cdd_rect.right = ability2_cdd_rect.left + 64
-        ability2_cdd_rect.bottom = ability2_cdd_rect.top + 64
-        ability2_cooldown_display = gui.AbilityCooldownDisplay("UI/AbilityBar/Ability2", ability2_cdd_rect, 2, 5)
-        self.gui_elements.append(ability2_cooldown_display)
-        
-        ability3_cdd_rect = ogre.Rectangle()
-        ability3_cdd_rect.left = ability2_cdd_rect.right
-        ability3_cdd_rect.top = ability2_cdd_rect.top
-        ability3_cdd_rect.right = ability3_cdd_rect.left + 64
-        ability3_cdd_rect.bottom = ability3_cdd_rect.top + 64
-        ability3_cooldown_display = gui.AbilityCooldownDisplay("UI/AbilityBar/Ability3", ability3_cdd_rect, 3, 5)
-        self.gui_elements.append(ability3_cooldown_display)
-        
-        ability4_cdd_rect = ogre.Rectangle()
-        ability4_cdd_rect.left = ability3_cdd_rect.right
-        ability4_cdd_rect.top = ability3_cdd_rect.top
-        ability4_cdd_rect.right = ability4_cdd_rect.left + 64
-        ability4_cdd_rect.bottom = ability4_cdd_rect.top + 64
-        ability4_cooldown_display = gui.AbilityCooldownDisplay("UI/AbilityBar/Ability4", ability4_cdd_rect, 4, 5)
-        self.gui_elements.append(ability4_cooldown_display)
         
         # Set up the scene.
         self.setupScene()
@@ -143,8 +108,12 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
         # Add a player to the world and set it as our active player.
         self.player = gamestate.objects.Player(self.world)
         self.world.add_object(self.player)
-        for element in self.gui_elements:
-            print "element type: " + element.type
+        
+        # Setup UI
+        ui_elements = self.createUIelements(self.player)
+        for element in ui_elements:
+            print str(element.cooldown_time)
+            self.gui_elements.append(element)
             if element.type == "AbilityCooldownDisplay":
                 element.set_player_listener(self.player)
         
@@ -176,6 +145,59 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
         # Setup camera node
         self.cameraNode.position = (0, 100, 100)
         self.cameraNode.pitch(ogre.Degree(-45))
+        
+    def createUIelements(self, player):
+        if player.element.type == "fire":
+            ability1_cooldown = 5
+            ability2_cooldown = 5
+            ability3_cooldown = 5
+            ability4_cooldown = 5
+        elif player.element.type == "earth":
+            ability1_cooldown = 5
+            ability2_cooldown = 5
+            ability3_cooldown = 5
+            ability4_cooldown = 5
+        elif player.element.type == "air":
+            ability1_cooldown = 4
+            ability2_cooldown = 1
+            ability3_cooldown = 3
+            ability4_cooldown = 6
+        elif player.element.type == "water":
+            ability1_cooldown = 5
+            ability2_cooldown = 5
+            ability3_cooldown = 5
+            ability4_cooldown = 5
+        
+        # Create UI Elements      
+        ability1_cdd_rect = ogre.Rectangle()
+        ability1_cdd_rect.left = self.viewport.actualWidth / 2 - 128
+        ability1_cdd_rect.top = self.viewport.actualHeight - 64
+        ability1_cdd_rect.right = ability1_cdd_rect.left + 64
+        ability1_cdd_rect.bottom = ability1_cdd_rect.top + 64
+        ability1_cooldown_display = gui.AbilityCooldownDisplay("UI/AbilityBar/Ability1", ability1_cdd_rect, 1, ability1_cooldown)
+        
+        ability2_cdd_rect = ogre.Rectangle()
+        ability2_cdd_rect.left = ability1_cdd_rect.right
+        ability2_cdd_rect.top = ability1_cdd_rect.top
+        ability2_cdd_rect.right = ability2_cdd_rect.left + 64
+        ability2_cdd_rect.bottom = ability2_cdd_rect.top + 64
+        ability2_cooldown_display = gui.AbilityCooldownDisplay("UI/AbilityBar/Ability2", ability2_cdd_rect, 2, ability2_cooldown)
+        
+        ability3_cdd_rect = ogre.Rectangle()
+        ability3_cdd_rect.left = ability2_cdd_rect.right
+        ability3_cdd_rect.top = ability2_cdd_rect.top
+        ability3_cdd_rect.right = ability3_cdd_rect.left + 64
+        ability3_cdd_rect.bottom = ability3_cdd_rect.top + 64
+        ability3_cooldown_display = gui.AbilityCooldownDisplay("UI/AbilityBar/Ability3", ability3_cdd_rect, 3, ability3_cooldown)
+        
+        ability4_cdd_rect = ogre.Rectangle()
+        ability4_cdd_rect.left = ability3_cdd_rect.right
+        ability4_cdd_rect.top = ability3_cdd_rect.top
+        ability4_cdd_rect.right = ability4_cdd_rect.left + 64
+        ability4_cdd_rect.bottom = ability4_cdd_rect.top + 64
+        ability4_cooldown_display = gui.AbilityCooldownDisplay("UI/AbilityBar/Ability4", ability4_cdd_rect, 4, ability4_cooldown)
+        
+        return (ability1_cooldown_display, ability2_cooldown_display, ability3_cooldown_display, ability4_cooldown_display)
         
     def setupOverlay(self):
         pOver = ogre.OverlayManager.getSingleton().getByName("UI")
