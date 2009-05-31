@@ -162,7 +162,7 @@ UI
     }
     
     container Panel(UI/FPS)
-        {
+    {
             metrics_mode pixels
             left 10
             top 10

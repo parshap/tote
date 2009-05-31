@@ -43,25 +43,46 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
         # Create an empty list of UI elements.
         self.gui_elements = []
         
-        # Set up the scene.
-        self.setupScene()
+        
         
         # Set up the overlay UI.
         self.setupOverlay()
         
-        # Create UI elements to interact with.
-        def click_handler(element, mouse_button):
-            element.hide()
-            print "clicked"
-        vp = self.viewport
-        rect = ogre.Rectangle()
-        rect.left = vp.actualWidth/2 - 128
-        rect.top = vp.actualHeight - 64
-        rect.right = rect.left + 64
-        rect.bottom = rect.top + 64
-        ability_1 = gui.Button("UI/AbilityBar/Ability1", rect)
-        ability_1.clicked += click_handler
-        self.gui_elements.append(ability_1)
+        # Create UI Elements      
+        ability1_cdd_rect = ogre.Rectangle()
+        ability1_cdd_rect.left = self.viewport.actualWidth / 2 - 128
+        ability1_cdd_rect.top = self.viewport.actualHeight - 64
+        ability1_cdd_rect.right = ability1_cdd_rect.left + 64
+        ability1_cdd_rect.bottom = ability1_cdd_rect.top + 64
+        ability1_cooldown_display = gui.AbilityCooldownDisplay("UI/AbilityBar/Ability1", ability1_cdd_rect, 1, 5)
+        self.gui_elements.append(ability1_cooldown_display)
+        
+        ability2_cdd_rect = ogre.Rectangle()
+        ability2_cdd_rect.left = ability1_cdd_rect.right
+        ability2_cdd_rect.top = ability1_cdd_rect.top
+        ability2_cdd_rect.right = ability2_cdd_rect.left + 64
+        ability2_cdd_rect.bottom = ability2_cdd_rect.top + 64
+        ability2_cooldown_display = gui.AbilityCooldownDisplay("UI/AbilityBar/Ability2", ability2_cdd_rect, 2, 5)
+        self.gui_elements.append(ability2_cooldown_display)
+        
+        ability3_cdd_rect = ogre.Rectangle()
+        ability3_cdd_rect.left = ability2_cdd_rect.right
+        ability3_cdd_rect.top = ability2_cdd_rect.top
+        ability3_cdd_rect.right = ability3_cdd_rect.left + 64
+        ability3_cdd_rect.bottom = ability3_cdd_rect.top + 64
+        ability3_cooldown_display = gui.AbilityCooldownDisplay("UI/AbilityBar/Ability3", ability3_cdd_rect, 3, 5)
+        self.gui_elements.append(ability3_cooldown_display)
+        
+        ability4_cdd_rect = ogre.Rectangle()
+        ability4_cdd_rect.left = ability3_cdd_rect.right
+        ability4_cdd_rect.top = ability3_cdd_rect.top
+        ability4_cdd_rect.right = ability4_cdd_rect.left + 64
+        ability4_cdd_rect.bottom = ability4_cdd_rect.top + 64
+        ability4_cooldown_display = gui.AbilityCooldownDisplay("UI/AbilityBar/Ability4", ability4_cdd_rect, 4, 5)
+        self.gui_elements.append(ability4_cooldown_display)
+        
+        # Set up the scene.
+        self.setupScene()
         
         # Create the inputManager using the supplied renderWindow
         windowHnd = self.renderWindow.getCustomAttributeInt("WINDOW")
@@ -122,6 +143,10 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
         # Add a player to the world and set it as our active player.
         self.player = gamestate.objects.Player(self.world)
         self.world.add_object(self.player)
+        for element in self.gui_elements:
+            print "element type: " + element.type
+            if element.type == "AbilityCooldownDisplay":
+                element.set_player_listener(self.player)
         
         # Add stationary NPC ninja...
         npc = gamestate.objects.Player(self.world)
@@ -171,6 +196,9 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
         # Capture any buffered events (and fire any callbacks).
         self.inputHandler.capture()
         
+        # Update our UI Elements
+        self.updateUI(dt)
+        
         # Update the game state world.
         self.world.update(dt)
         
@@ -185,6 +213,9 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
         
         return True
         
+    def updateUI(self, dt):
+        for element in self.gui_elements:
+            element.update(dt)
         
     def setup_level_boundaries(self, filepath):
         """
