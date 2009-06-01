@@ -284,6 +284,8 @@ class Player(MobileObject):
         self._power = 100
         self.max_power = 100
         self.max_health = 100
+        self.health_regen = 1
+        self.power_regen = 10
         self.dead = False
         self.died = Event()
         self.bounding_shape = collision.BoundingCircle(6)
@@ -315,18 +317,17 @@ class Player(MobileObject):
     def _get_health(self):
         return self._health
     def _set_health(self, value):
-        if value <= 0:
-            self._health = 0
-            if not self.dead:
+        if value < 0:
+            value = 0
+        elif value > self.max_health:
+            value = self.max_health
+        if value != self.health:
+            self._health = value
+            self.health_changed(self._health)   
+            if value <= 0 and not self.dead:
                 self.dead = True
                 print "player died"
                 self.died()
-        elif value > self.max_health:
-            self._health = self.max_health
-        else:
-            self._health = value
-        print "throwing health changed event"
-        self.health_changed(self._health)   
     
     health = property(_get_health, _set_health) 
         
@@ -334,12 +335,12 @@ class Player(MobileObject):
         return self._power
     def _set_power(self, value):
         if value < 0:
-            self._power = 0
+            value = 0
         elif value > self.max_power:
-            self._power = self.max_power
-        else:
+            value = self.max_power
+        if value != self.power:
             self._power = value
-        self.power_changed(self._power)
+            self.power_changed(self._power)
     
     power = property(_get_power, _set_power)
         
@@ -382,6 +383,9 @@ class Player(MobileObject):
     rotation = property(MobileObject._get_rotation, _set_rotation)
 
     def update(self, dt):
+        # Regen health & power.
+        self.health += self.health_regen * dt
+        self.power += self.power_regen * dt
         if self.is_charging:
             # If the player is charging then force movement.
             self.is_moving = True
