@@ -71,19 +71,19 @@ class InputHandler(OIS.MouseListener, OIS.KeyListener):
             self.player.use_ability(1)
         
         # Inject mouse press to UI elements.
-        for element in self.scene.gui_elements:
-            if isinstance(element, gui.IClickable):
-                element.inject_mouse_press(id,
-                    event.get_state().X.abs, event.get_state().Y.abs)
+#        for element in self.scene.gui_elements:
+#            if isinstance(element, gui.IClickable):
+#                element.inject_mouse_press(id,
+#                    event.get_state().X.abs, event.get_state().Y.abs)
 
         return True
 
     def mouseReleased(self, event, id):
         # Inject mouse release to UI elements.
-        for element in self.scene.gui_elements:
-            if isinstance(element, gui.IClickable):
-                element.inject_mouse_release(id,
-                    event.get_state().X.abs, event.get_state().Y.abs)
+#        for element in self.scene.gui_elements:
+#            if isinstance(element, gui.IClickable):
+#                element.inject_mouse_release(id,
+#                    event.get_state().X.abs, event.get_state().Y.abs)
 
         return True
 

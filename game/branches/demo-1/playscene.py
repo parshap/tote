@@ -33,7 +33,7 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
         self.sceneManager = sceneManager
         self.camera = self.sceneManager.getCamera("PrimaryCamera")
         self.cameraNode = self.sceneManager.getSceneNode("PrimaryCamera")
-        self.FPSCounter = gui.FPSCounter("UI/FPS/Meter")
+#        self.FPSCounter = gui.FPSCounter("UI/FPS/Meter")
         
         self.viewport = self.camera.getViewport()
         
@@ -41,10 +41,10 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
         self.nodes = []
         
         # Create an empty list of UI elements.
-        self.gui_elements = [] 
+#        self.gui_elements = [] 
         
         # Set up the overlay UI.
-        self.setupOverlay()
+#        self.setupOverlay()
         
         # Set up the scene.
         self.setupScene()
@@ -110,20 +110,20 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
         self.world.add_object(self.player)
         
         # Setup UI
-        ui_elements = self.createUIelements(self.player)
-        for element in ui_elements:
-            self.gui_elements.append(element)
+#        ui_elements = self.createUIelements(self.player)
+#        for element in ui_elements:
+#            self.gui_elements.append(element)
             
-            if element.type == "StatusBar":
-                if element.name == "Health":
-                    print "adding health listener"
-                    self.player.health_changed += element.on_value_changed
-                elif element.name == "Power":
-                    print "adding Power listener"
-                    self.player.power_changed += element.on_value_changed
+#            if element.type == "StatusBar":
+#                if element.name == "Health":
+#                    print "adding health listener"
+#                    self.player.health_changed += element.on_value_changed
+#                elif element.name == "Power":
+#                    print "adding Power listener"
+#                    self.player.power_changed += element.on_value_changed
             
-            elif element.type == "AbilityCooldownDisplay":
-                element.set_player_listener(self.player)
+#            elif element.type == "AbilityCooldownDisplay":
+#                element.set_player_listener(self.player)
         
         # Add stationary NPC ninja...
         npc = gamestate.objects.Player(self.world)
@@ -244,13 +244,13 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
         """
         
         dt = event.timeSinceLastFrame
-        self.FPSCounter.update(dt)
+#        self.FPSCounter.update(dt)
         
         # Capture any buffered events (and fire any callbacks).
         self.inputHandler.capture()
         
         # Update our UI Elements
-        self.updateUI(dt)
+#        self.updateUI(dt)
         
         # Update the game state world.
         self.world.update(dt)
