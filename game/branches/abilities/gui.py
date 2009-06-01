@@ -120,7 +120,7 @@ class Label(Element):
     text = property(_get_text, _set_text)
     
     def _get_opacity(self):
-        """ Gets or sets the label's text caption. """
+        """ Gets or sets the label's opacity. """
         return self._textarea.getColour().a
     def _set_opacity(self, value):
         if value > 1: value = 1
