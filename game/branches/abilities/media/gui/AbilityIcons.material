@@ -66,7 +66,7 @@ material EarthIconAbility1
 		
 			texture_unit
 			{
-				texture fire1.png
+				texture earth1.png
 			}
 		}
 	}
@@ -81,7 +81,7 @@ material EarthIconAbility2
 		
 			texture_unit
 			{
-				texture fire1.png
+				texture earth2.png
 			}
 		}
 	}
@@ -96,7 +96,7 @@ material EarthIconAbility3
 		
 			texture_unit
 			{
-				texture fire1.png
+				texture earth3.png
 			}
 		}
 	}
@@ -111,7 +111,7 @@ material EarthIconAbility4
 		
 			texture_unit
 			{
-				texture fire1.png
+				texture earth1.png
 			}
 		}
 	}
