@@ -40,14 +40,17 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
         # Create an empty list of nodes
         self.nodes = []
         
-        # Create an empty list of UI elements.
+        # Create an empty list of GUI elements.
         self.gui_elements = [] 
         
-        # Set up the overlay UI.
+        # Set up the overlay for the GUI.
         self.setupOverlay()
         
         # Set up the scene.
         self.setupScene()
+        
+        # Set up the GUI.
+        self.setupGUI()
         
         # Create the inputManager using the supplied renderWindow
         windowHnd = self.renderWindow.getCustomAttributeInt("WINDOW")
@@ -109,22 +112,6 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
         self.player = gamestate.objects.Player(self.world)
         self.world.add_object(self.player)
         
-        # Setup UI
-        ui_elements = self.createUIelements(self.player)
-        for element in ui_elements:
-            self.gui_elements.append(element)
-            
-            if element.type == "StatusBar":
-                if element.name == "Health":
-                    print "adding health listener"
-                    self.player.health_changed += element.on_value_changed
-                elif element.name == "Power":
-                    print "adding Power listener"
-                    self.player.power_changed += element.on_value_changed
-            
-            elif element.type == "AbilityCooldownDisplay":
-                element.set_player_listener(self.player)
-        
         # Add stationary NPC ninja...
         npc = gamestate.objects.Player(self.world)
         self.world.add_object(npc)
@@ -134,9 +121,9 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
         # Add boundary lines for map walls.       
         self.setup_level_boundaries("media/levelbounds.bounds")
         
-        # Listen to the player's position change event so we can mvoe the
-        # camera with the player.
+        # Listen to player events.
         self.player.position_changed += self.on_player_position_changed
+        self.player.element_changed += self.on_player_element_changed
 
         # Setup camera
         self.camera.nearClipDistance = 1
@@ -154,14 +141,14 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
         self.cameraNode.position = (0, 100, 100)
         self.cameraNode.pitch(ogre.Degree(-45))
         
-    def createUIelements(self, player):
+    def setupGUI(self):
         # Set up health and power bars
         health_bar_rect = ogre.Rectangle()
         health_bar_rect.left = self.viewport.actualWidth / 2 - 128
         health_bar_rect.top = self.viewport.actualHeight - 84
         health_bar_rect.right = health_bar_rect.left + 256
         health_bar_rect.bottom = health_bar_rect.top + 10
-        health_bar = gui.StatusBar("UI/StatusBars/Health", health_bar_rect, player.max_health)
+        health_bar = gui.StatusBar("UI/StatusBars/Health", health_bar_rect, self.player.max_health)
         health_bar.name = "Health"
         
         power_bar_rect = ogre.Rectangle()
@@ -169,53 +156,52 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
         power_bar_rect.top = health_bar_rect.bottom
         power_bar_rect.right = health_bar_rect.right
         power_bar_rect.bottom = power_bar_rect.top + 10
-        power_bar = gui.StatusBar("UI/StatusBars/Power", power_bar_rect, player.max_power)
+        power_bar = gui.StatusBar("UI/StatusBars/Power", power_bar_rect, self.player.max_power)
         power_bar.name = "Power"
         
-        # Set up ability cooldown displays
+        # Add the gui elements to the element list.
+        self.gui_elements.append(health_bar)
+        self.gui_elements.append(power_bar)
+        
+        # Add listeners to player's health and power changed events.
+        self.player.health_changed += health_bar.on_value_changed
+        self.player.power_changed += power_bar.on_value_changed
+        
+        # Set up the ability bar.
+        self.setupGUIAbilityBar()
+    
+    def setupGUIAbilityBar(self):
+        player = self.player
+        
+        # Set up ability cooldown displays        
+        ability_keys = player.element.ability_keys
+        ability_cooldowns = player.element.ability_cooldowns
+        ability1_cooldown = ability_cooldowns[ability_keys[1]]
+        ability2_cooldown = ability_cooldowns[ability_keys[2]]
+        ability3_cooldown = ability_cooldowns[ability_keys[3]]
+        ability4_cooldown = ability_cooldowns[ability_keys[4]]
+        
+        # Set up ability icons.
         if player.element.type == "fire":
-            ability1_cooldown = 5
-            ability2_cooldown = 5
-            ability3_cooldown = 5
-            ability4_cooldown = 5
-            
-            # set ability icons for fire
+            # Fire
             ability1_icon_mat = "FireIconAbility1"
             ability2_icon_mat = "FireIconAbility2"
             ability3_icon_mat = "FireIconAbility3"
             ability4_icon_mat = "FireIconAbility4"
-            
         elif player.element.type == "earth":
-            ability1_cooldown = 5
-            ability2_cooldown = 5
-            ability3_cooldown = 5
-            ability4_cooldown = 5
-            
-            # set ability icons for earth
+            # Earth
             ability1_icon_mat = "EarthIconAbility1"
             ability2_icon_mat = "EarthIconAbility2"
             ability3_icon_mat = "EarthIconAbility3"
             ability4_icon_mat = "EarthIconAbility4"
-            
         elif player.element.type == "air":
-            ability1_cooldown = 4
-            ability2_cooldown = 1
-            ability3_cooldown = 3
-            ability4_cooldown = 6
-            
-            # set ability icons for air
+            # Air
             ability1_icon_mat = "AirIconAbility1"
             ability2_icon_mat = "AirIconAbility2"
             ability3_icon_mat = "AirIconAbility3"
             ability4_icon_mat = "AirIconAbility4"
-            
         elif player.element.type == "water":
-            ability1_cooldown = 5
-            ability2_cooldown = 5
-            ability3_cooldown = 5
-            ability4_cooldown = 5
-            
-            # set ability icons for water
+            # Water
             ability1_icon_mat = "WaterIconAbility1"
             ability2_icon_mat = "WaterIconAbility2"
             ability3_icon_mat = "WaterIconAbility3"
@@ -254,52 +240,22 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
         ability4_cooldown_display = gui.AbilityCooldownDisplay("UI/AbilityBar/Ability4", ability4_cdd_rect, 4, ability4_cooldown)
         ability4_cooldown_display.overlay.setMaterialName(ability4_icon_mat)
         
-        return (health_bar,
-                power_bar,
-                ability1_cooldown_display, 
-                ability2_cooldown_display, 
-                ability3_cooldown_display, 
-                ability4_cooldown_display)
+        # Add the gui elements to the element list.
+        self.gui_elements.append(ability1_cooldown_display)
+        self.gui_elements.append(ability2_cooldown_display)
+        self.gui_elements.append(ability3_cooldown_display)
+        self.gui_elements.append(ability4_cooldown_display)
+        
+        # Listen to player events (why isn't this the same as how
+        # StatusBar listens to its events?):
+        ability1_cooldown_display.set_player_listener(self.player)
+        ability2_cooldown_display.set_player_listener(self.player)
+        ability3_cooldown_display.set_player_listener(self.player)
+        ability4_cooldown_display.set_player_listener(self.player)
         
     def setupOverlay(self):
         pOver = ogre.OverlayManager.getSingleton().getByName("UI")
         pOver.show()
-
-    def frameStarted(self, event):
-        """ 
-        Called before a frame is displayed, handles events
-        (also those via callback functions, as you need to call capture()
-        on the input objects)
-
-        Returning False here exits the application (render loop stops)
-        """
-        
-        dt = event.timeSinceLastFrame
-        self.FPSCounter.update(dt)
-        
-        # Capture any buffered events (and fire any callbacks).
-        self.inputHandler.capture()
-        
-        # Update our UI Elements
-        self.updateUI(dt)
-        
-        # Update the game state world.
-        self.world.update(dt)
-        
-        # Add time to animations.
-        for node in self.nodes:
-            node.animations_addtime(dt)
-
-        # Neatly close our FrameListener if our renderWindow has been shut down
-        # or we are quitting.
-        if self.renderWindow.isClosed() or self.quit:
-            return False
-        
-        return True
-        
-    def updateUI(self, dt):
-        for element in self.gui_elements:
-            element.update(dt)
         
     def setup_level_boundaries(self, filepath):
         """
@@ -339,11 +295,41 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
                     return node
             
             return False
+
+    def frameStarted(self, event):
+        """ 
+        Called before a frame is displayed, handles events
+        (also those via callback functions, as you need to call capture()
+        on the input objects)
+
+        Returning False here exits the application (render loop stops)
+        """
         
-    ## Game event callbacks    
-    
+        dt = event.timeSinceLastFrame
+        self.FPSCounter.update(dt)
+        
+        # Capture any buffered events (and fire any callbacks).
+        self.inputHandler.capture()
+        
+        # Update our UI Elements
+        for element in self.gui_elements:
+            element.update(dt)
+        
+        # Update the game state world.
+        self.world.update(dt)
+        
+        # Add time to animations.
+        for node in self.nodes:
+            node.animations_addtime(dt)
+
+        # Neatly close our FrameListener if our renderWindow has been shut down
+        # or we are quitting.
+        if self.renderWindow.isClosed() or self.quit:
+            return False
+        
+        return True
+ 
     ## Game event callbacks
-    
     def on_world_object_added(self, gameObject):
         if gameObject.type == "player":
             newPlayerNode = nodes.PlayerNode(self.sceneManager, gameObject, "ninja.mesh")
@@ -353,12 +339,18 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
     def on_player_position_changed(self, mobileObject, position):
         self.cameraNode.position = (position[0], 100, position[1] + 100)
         
+    def on_player_element_changed(self, player):
+        # Remove all current gui.AbilityCooldownDisplay from the current gui.
+        self.gui_elements = [element for element in self.gui_elements
+            if not type(element) is not gui.AbilityCooldownDisplay]
+        # Recreate the ability bar GUI.
+        self.setupGUIAbilityBar()
+        
     def on_static_node_expired(self, static_node):
         print static_node.unique_scene_node_name
         self.sceneManager.destroySceneNode(static_node.unique_scene_node_name)
 
     ## Window event listener callbacks
-
     def windowResized(self, renderWindow):
         self.mouse.getMouseState().width = renderWindow.width
         self.mouse.getMouseState().height = renderWindow.height
