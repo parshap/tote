@@ -1,0 +1,17 @@
+material mat_cooldown_overlay
+{
+	receive_shadows off
+	technique
+	{
+		pass
+		{
+			texture_unit
+			{
+				texture cooldown_overlay.png
+			}
+			scene_blend alpha_blend
+			depth_write off
+		}
+	}
+}
+
