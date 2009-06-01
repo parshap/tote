@@ -3,10 +3,10 @@ import ogre.renderer.OGRE as ogre
 from gamestate.event import Event
 
 class Element(object):
-    def __init__(self, overlay_name, bounding_rectangle):
+    def __init__(self, overlay_name):
         self.name = overlay_name
         self.overlay = ogre.OverlayManager.getSingleton().getOverlayElement(overlay_name)
-        self.bounding_rectangle = bounding_rectangle
+        
         self.updated = Event()
         
     def show(self): self.overlay.show()
@@ -17,6 +17,9 @@ class Element(object):
 
 
 class IClickable(object):
+    def __init__(self, bounding_rectangle):
+        self.bounding_rectangle = bounding_rectangle
+
     def inject_mouse_press(self, button, x, y):
         if self.overlay.isVisible() and self.bounding_rectangle.inside(x, y):
             self.on_click(button)
@@ -31,8 +34,8 @@ class IClickable(object):
 
 class Button(Element, IClickable):
     def __init__(self, overlay_name, bounding_rectangle):
-        Element.__init__(self, overlay_name, bounding_rectangle)
-        IClickable.__init__(self)
+        Element.__init__(self, overlay_name)
+        IClickable.__init__(self, bounding_rectangle)
         self.clicked = Event()
     
     def on_click(self, mouse_button):
@@ -43,7 +46,7 @@ class Button(Element, IClickable):
 
 class StatusBar(Element):
     def __init__(self, overlay_name, bounding_rectangle, max_value):
-        Element.__init__(self, overlay_name, bounding_rectangle)
+        Element.__init__(self, overlay_name)
         self.value = max_value
         self.max_value = max_value
         self.name = ""
@@ -52,7 +55,6 @@ class StatusBar(Element):
         self.on_value_changed(self.max_value)
     
     def on_value_changed(self, new_value):
-        print "updating status bar, newval: %.2f" %new_value
         self.value = new_value
         if self.value > self.max_value:
             self.value = self.max_value
@@ -67,7 +69,7 @@ class StatusBar(Element):
 
 class AbilityCooldownDisplay(Element):
     def __init__(self, overlay_name, bounding_rectangle, ability_index, cooldown_time):
-        Element.__init__(self, overlay_name, bounding_rectangle)
+        Element.__init__(self, overlay_name)
         self.type = "AbilityCooldownDisplay"
         self.cooldown_time = cooldown_time
         self.time_till_enable = 0
@@ -104,14 +106,15 @@ class AbilityCooldownDisplay(Element):
         
     def set_player_listener(self, player):
         player.ability_used += self.on_ability_used
-        
+
+
 class FPSCounter():
     def __init__(self, overlay_name):
         self.textArea = ogre.OverlayManager.getSingleton().getOverlayElement(overlay_name)
         self.time_passed = 0
         self.frames_passed = 0
         self.target_window = 1
-        
+    
     def update(self, dt, df=1):
         """
         Update normally takes the amount of time since the last frame.
@@ -130,6 +133,3 @@ class FPSCounter():
                 ogre.OverlayManager.getSingleton().getOverlayElement("UI/FPS/Meter").setCaption(str(fps))
             else:
                 ogre.OverlayManager.getSingleton().getOverlayElement("UI/FPS/Meter"+str(self.target_window)).setCaption(str(fps))
-        
-        
-        
