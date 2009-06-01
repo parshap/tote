@@ -1,0 +1,42 @@
+
+particle_system IceBurstExplosion
+{
+	quota	500
+	material	PE/lensflare
+	particle_width	5
+	particle_height	5
+	cull_each	false
+	renderer	billboard
+	billboard_type	point
+
+	emitter Point
+	{
+		angle	180
+		colour	0.6 0.6 1 1
+		colour_range_start	0.6 0.6 1 1
+		colour_range_end	0.8 0.8 1 1
+		direction	0 1 0
+		emission_rate	1000
+		position	0 0 0
+		velocity	100
+		velocity_min	100
+		velocity_max	100
+		time_to_live	0.25
+		time_to_live_min	0.25
+		time_to_live_max	0.5
+		duration	0
+		duration_min	0
+		duration_max	0
+		repeat_delay	0
+		repeat_delay_min	0
+		repeat_delay_max	0
+	}
+
+	affector ColourFader
+	{
+		red	0
+		green	0
+		blue	1
+		alpha	0.5
+	}
+}
