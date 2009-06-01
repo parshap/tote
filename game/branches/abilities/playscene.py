@@ -178,21 +178,48 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
             ability2_cooldown = 5
             ability3_cooldown = 5
             ability4_cooldown = 5
+            
+            # set ability icons for fire
+            ability1_icon_mat = "FireIconAbility1"
+            ability2_icon_mat = "FireIconAbility2"
+            ability3_icon_mat = "FireIconAbility3"
+            ability4_icon_mat = "FireIconAbility4"
+            
         elif player.element.type == "earth":
             ability1_cooldown = 5
             ability2_cooldown = 5
             ability3_cooldown = 5
             ability4_cooldown = 5
+            
+            # set ability icons for earth
+            ability1_icon_mat = "EarthIconAbility1"
+            ability2_icon_mat = "EarthIconAbility2"
+            ability3_icon_mat = "EarthIconAbility3"
+            ability4_icon_mat = "EarthIconAbility4"
+            
         elif player.element.type == "air":
             ability1_cooldown = 4
             ability2_cooldown = 1
             ability3_cooldown = 3
             ability4_cooldown = 6
+            
+            # set ability icons for air
+            ability1_icon_mat = "AirIconAbility1"
+            ability2_icon_mat = "AirIconAbility2"
+            ability3_icon_mat = "AirIconAbility3"
+            ability4_icon_mat = "AirIconAbility4"
+            
         elif player.element.type == "water":
             ability1_cooldown = 5
             ability2_cooldown = 5
             ability3_cooldown = 5
             ability4_cooldown = 5
+            
+            # set ability icons for water
+            ability1_icon_mat = "WaterIconAbility1"
+            ability2_icon_mat = "WaterIconAbility2"
+            ability3_icon_mat = "WaterIconAbility3"
+            ability4_icon_mat = "WaterIconAbility4"
         
         # Create UI Elements      
         ability1_cdd_rect = ogre.Rectangle()
@@ -201,6 +228,7 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
         ability1_cdd_rect.right = ability1_cdd_rect.left + 64
         ability1_cdd_rect.bottom = ability1_cdd_rect.top + 64
         ability1_cooldown_display = gui.AbilityCooldownDisplay("UI/AbilityBar/Ability1", ability1_cdd_rect, 1, ability1_cooldown)
+        ability1_cooldown_display.overlay.setMaterialName(ability1_icon_mat)
         
         ability2_cdd_rect = ogre.Rectangle()
         ability2_cdd_rect.left = ability1_cdd_rect.right
@@ -208,6 +236,7 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
         ability2_cdd_rect.right = ability2_cdd_rect.left + 64
         ability2_cdd_rect.bottom = ability2_cdd_rect.top + 64
         ability2_cooldown_display = gui.AbilityCooldownDisplay("UI/AbilityBar/Ability2", ability2_cdd_rect, 2, ability2_cooldown)
+        ability2_cooldown_display.overlay.setMaterialName(ability2_icon_mat)
         
         ability3_cdd_rect = ogre.Rectangle()
         ability3_cdd_rect.left = ability2_cdd_rect.right
@@ -215,6 +244,7 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
         ability3_cdd_rect.right = ability3_cdd_rect.left + 64
         ability3_cdd_rect.bottom = ability3_cdd_rect.top + 64
         ability3_cooldown_display = gui.AbilityCooldownDisplay("UI/AbilityBar/Ability3", ability3_cdd_rect, 3, ability3_cooldown)
+        ability3_cooldown_display.overlay.setMaterialName(ability3_icon_mat)
         
         ability4_cdd_rect = ogre.Rectangle()
         ability4_cdd_rect.left = ability3_cdd_rect.right
@@ -222,6 +252,7 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
         ability4_cdd_rect.right = ability4_cdd_rect.left + 64
         ability4_cdd_rect.bottom = ability4_cdd_rect.top + 64
         ability4_cooldown_display = gui.AbilityCooldownDisplay("UI/AbilityBar/Ability4", ability4_cdd_rect, 4, ability4_cooldown)
+        ability4_cooldown_display.overlay.setMaterialName(ability4_icon_mat)
         
         return (health_bar,
                 power_bar,
