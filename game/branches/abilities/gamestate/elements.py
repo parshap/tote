@@ -22,6 +22,19 @@ class Element(object):
 
 
 class EarthElement(Element):
+    ability_cooldowns = {
+        "Primary": 0,
+        "Hook": 2,
+        "Earthquake": 2,
+        "PowerSwing": 2,
+    }
+    ability_keys = {
+        1: "Primary",
+        2: "Hook",
+        3: "Earthquake",
+        4: "PowerSwing",
+    }
+    
     def __init__(self, player):
         Element.__init__(self, player, "earth")
         
@@ -39,7 +52,8 @@ class EarthElement(Element):
     def use_ability_Primary(self):
         if self.player.is_ongcd():
             return False
-        if self.is_oncooldown(2, self.last_ability_times["Primary"]):
+        if self.is_oncooldown(self.ability_cooldowns["Primary"],
+                              self.last_ability_times["Primary"]):
             return False
         ability = abilities.EarthPrimaryInstance(self.player)
         ability.run()
@@ -49,7 +63,8 @@ class EarthElement(Element):
     def use_ability_Hook(self):
         if self.player.is_ongcd():
             return False
-        if self.is_oncooldown(1, self.last_ability_times["Hook"]):
+        if self.is_oncooldown(self.ability_cooldowns["Hook"],
+                              self.last_ability_times["Hook"]):
             return False
         ability = abilities.EarthHookInstance(self.player)
         ability.run()
@@ -59,27 +74,40 @@ class EarthElement(Element):
     def use_ability_Earthquake(self):
         if self.player.is_ongcd():
             return False
-        if self.is_oncooldown(1, self.last_ability_times["Earthquake"]):
+        if self.is_oncooldown(self.ability_cooldowns["Earthquake"],
+                              self.last_ability_times["Earthquake"]):
             return False
         ability = abilities.EarthEarthquakeInstance(self.player)
         ability.run()
-        print "Used ability: Earthquake"
         self.last_ability_times["Earthquake"] = self.player.world.time
         return ability
     
     def use_ability_PowerSwing(self):
         if self.player.is_ongcd():
             return False
-        if self.is_oncooldown(1, self.last_ability_times["PowerSwing"]):
+        if self.is_oncooldown(self.ability_cooldowns["PowerSwing"],
+                              self.last_ability_times["PowerSwing"]):
             return False
         ability = abilities.EarthPowerSwingInstance(self.player)
         ability.run()
-        print "Used ability: PowerSwing"
         self.last_ability_times["PowerSwing"] = self.player.world.time
         return ability
 
 
 class FireElement(Element):
+    ability_cooldowns = {
+        "Primary": 0,
+        "FlameRush": 2,
+        "LavaSplash": 2,
+        "RingOfFire": 2,
+    }
+    ability_keys = {
+        1: "Primary",
+        2: "FlameRush",
+        3: "LavaSplash",
+        4: "RingOfFire",
+    }
+    
     def __init__(self, player):
         Element.__init__(self, player, "fire")
         
@@ -97,6 +125,9 @@ class FireElement(Element):
     def use_ability_Primary(self):
         if self.player.is_ongcd():
             return False
+        if self.is_oncooldown(self.ability_cooldowns["Primary"],
+                              self.last_ability_times["FlameRush"]):
+            return False
         ability = abilities.FirePrimaryInstance(self.player)
         ability.run()
         self.last_ability_times["Primary"] = self.player.world.time
@@ -105,7 +136,8 @@ class FireElement(Element):
     def use_ability_FlameRush(self):
         if self.player.is_ongcd():
             return False
-        if self.is_oncooldown(2, self.last_ability_times["FlameRush"]):
+        if self.is_oncooldown(self.ability_cooldowns["FlameRush"],
+                              self.last_ability_times["FlameRush"]):
             return False
         ability = abilities.FireFlameRushInstance(self.player)
         ability.run()
@@ -113,10 +145,10 @@ class FireElement(Element):
         return ability
     
     def use_ability_LavaSplash(self):
-        cooldown = 2
         if(self.player.is_ongcd()):
             return False
-        if self.is_oncooldown(cooldown, self.last_ability_times["LavaSplash"]):
+        if self.is_oncooldown(self.ability_cooldowns["LavaSplash"],
+                              self.last_ability_times["LavaSplash"]):
             return False
         ability = abilities.FireLavaSplashInstance(self.player)
         ability.run()
@@ -124,10 +156,10 @@ class FireElement(Element):
         return ability
     
     def use_ability_RingOfFire(self):
-        cooldown = 2
         if(self.player.is_ongcd()):
             return False
-        if self.is_oncooldown(cooldown, self.last_ability_times["RingOfFire"]):
+        if self.is_oncooldown(self.ability_cooldowns["RingOfFire"],
+                              self.last_ability_times["RingOfFire"]):
             return False
         ability = abilities.FireRingOfFireInstance(self.player)
         ability.run()
@@ -135,8 +167,20 @@ class FireElement(Element):
         return ability
 
 
-
 class AirElement(Element):
+    ability_cooldowns = {
+        "Primary": 0,
+        "GustOfWind": 2,
+        "WindWhisk": 2,
+        "LightningBolt": 2,
+    }
+    ability_keys = {
+        1: "Primary",
+        2: "GustOfWind",
+        3: "WindWhisk",
+        4: "LightningBolt",
+    }
+    
     def __init__(self, player):
         Element.__init__(self, player, "air")
         
@@ -154,6 +198,9 @@ class AirElement(Element):
     def use_ability_Primary(self):
         if self.player.is_ongcd():
             return False
+        if self.is_oncooldown(self.ability_cooldowns["Primary"],
+                              self.last_ability_times["Primary"]):
+            return False
         ability = abilities.AirPrimaryInstance(self.player)
         ability.run()
         self.last_ability_times["Primary"] = self.player.world.time
@@ -162,7 +209,8 @@ class AirElement(Element):
     def use_ability_GustOfWind(self):
         if self.player.is_ongcd():
             return False
-        if self.is_oncooldown(2, self.last_ability_times["GustOfWind"]):
+        if self.is_oncooldown(self.ability_cooldowns["GustOfWind"],
+                              self.last_ability_times["GustOfWind"]):
             return False
         ability = abilities.AirGustOfWindInstance(self.player)
         ability.run()
@@ -170,10 +218,10 @@ class AirElement(Element):
         return ability
     
     def use_ability_WindWhisk(self):
-        cooldown = 2
         if(self.player.is_ongcd()):
             return False
-        if self.is_oncooldown(cooldown, self.last_ability_times["WindWhisk"]):
+        if self.is_oncooldown(self.ability_cooldowns["WindWhisk"],
+                              self.last_ability_times["WindWhisk"]):
             return False
         ability = abilities.AirWindWhiskInstance(self.player)
         ability.run()
@@ -181,17 +229,31 @@ class AirElement(Element):
         return ability
     
     def use_ability_LightningBolt(self):
-        cooldown = 2
         if(self.player.is_ongcd()):
             return False
-        if self.is_oncooldown(cooldown, self.last_ability_times["LightningBolt"]):
+        if self.is_oncooldown(self.ability_cooldowns["LightningBolt"],
+                              self.last_ability_times["LightningBolt"]):
             return False
         ability = abilities.AirLightningBoltInstance(self.player)
         ability.run()
         self.last_ability_times["LightningBolt"] = self.player.world.time
         return ability    
-    
+
+
 class WaterElement(Element):
+    ability_cooldowns = {
+        "Primary": 0,
+        "WaterGush": 2,
+        "TidalWave": 2,
+        "IceBurst": 2,
+    }
+    ability_keys = {
+        1: "Primary",
+        2: "WaterGush",
+        3: "TidalWave",
+        4: "IceBurst",
+    }
+    
     def __init__(self, player):
         Element.__init__(self, player, "water")
         
@@ -209,6 +271,9 @@ class WaterElement(Element):
     def use_ability_Primary(self):
         if self.player.is_ongcd():
             return False
+        if self.is_oncooldown(self.ability_cooldowns["Primary"],
+                              self.last_ability_times["Primary"]):
+            return False
         ability = abilities.WaterPrimaryInstance(self.player)
         ability.run()
         self.last_ability_times["Primary"] = self.player.world.time
@@ -217,7 +282,8 @@ class WaterElement(Element):
     def use_ability_WaterGush(self):
         if self.player.is_ongcd():
             return False
-        if self.is_oncooldown(2, self.last_ability_times["WaterGush"]):
+        if self.is_oncooldown(self.ability_cooldowns["WaterGush"],
+                              self.last_ability_times["WaterGush"]):
             return False
         ability = abilities.WaterWaterGushInstance(self.player)
         ability.run()
@@ -225,10 +291,10 @@ class WaterElement(Element):
         return ability
     
     def use_ability_TidalWave(self):
-        cooldown = 2
         if(self.player.is_ongcd()):
             return False
-        if self.is_oncooldown(cooldown, self.last_ability_times["TidalWave"]):
+        if self.is_oncooldown(self.ability_cooldowns["TidalWave"],
+                              self.last_ability_times["TidalWave"]):
             return False
         ability = abilities.WaterTidalWaveInstance(self.player)
         ability.run()
@@ -236,10 +302,10 @@ class WaterElement(Element):
         return ability
     
     def use_ability_IceBurst(self):
-        cooldown = 2
         if(self.player.is_ongcd()):
             return False
-        if self.is_oncooldown(cooldown, self.last_ability_times["IceBurst"]):
+        if self.is_oncooldown(self.ability_cooldowns["IceBurst"],
+                              self.last_ability_times["IceBurst"]):
             return False
         ability = abilities.WaterIceBurstInstance(self.player)
         ability.run()
