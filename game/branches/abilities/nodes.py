@@ -295,6 +295,7 @@ class PlayerNode(MobileGameNode):
         MobileGameNode.__init__(self, sceneManager, player)
         
         self.set_mesh(mesh_name)
+        self.mesh.setMaterialName("Ninja-" + player.element.type)
         
         # Listen to the events we care about.
         player.is_moving_changed += self.on_is_moving_changed
@@ -302,6 +303,7 @@ class PlayerNode(MobileGameNode):
         player.is_hooked_changed += self.on_is_hooked_changed
         player.ability_used += self.on_ability_used
         player.ability_instance_created += self.on_ability_instance_created
+        player.element_changed += self.on_element_changed
         
         # Create a dict of our available animations. The animations are stored
         # as a tuple of the animation state and the speed at which the
@@ -313,6 +315,9 @@ class PlayerNode(MobileGameNode):
         
         # Start the idle animation
         self.animation_start("idle")
+        
+    def on_element_changed(self, player):
+        self.mesh.setMaterialName("Ninja-" + player.element.type)
         
     def on_is_moving_changed(self, gameObject, is_moving):
         # Play running animations when the player 

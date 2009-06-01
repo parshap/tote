@@ -1,0 +1,74 @@
+material Examples/Ninja
+{
+	technique
+	{
+		pass
+		{
+		
+			texture_unit
+			{
+				texture nskingr.jpg
+			}
+		}
+	}
+}
+
+material Ninja-earth
+{
+	technique
+	{
+		pass
+		{
+		
+			texture_unit
+			{
+				texture nskingr-earth.jpg
+			}
+		}
+	}
+}
+
+material Ninja-fire
+{
+	technique
+	{
+		pass
+		{
+		
+			texture_unit
+			{
+				texture nskingr-fire.jpg
+			}
+		}
+	}
+}
+
+material Ninja-water
+{
+	technique
+	{
+		pass
+		{
+		
+			texture_unit
+			{
+				texture nskingr-water.jpg
+			}
+		}
+	}
+}
+
+material Ninja-air
+{
+	technique
+	{
+		pass
+		{
+		
+			texture_unit
+			{
+				texture nskingr-air.jpg
+			}
+		}
+	}
+}
