@@ -343,13 +343,10 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
         
     def on_player_element_changed(self, player):
         # Remove all current gui.AbilityCooldownDisplay from the current gui.
-        print len(self.gui_elements)
         self.gui_elements = [element for element in self.gui_elements
             if type(element) is not gui.AbilityCooldownDisplay]
-        print len(self.gui_elements)
         # Recreate the ability bar GUI.
         self.setupGUIAbilityBar()
-        print len(self.gui_elements)
         
     def on_static_node_expired(self, static_node):
         print static_node.unique_scene_node_name
