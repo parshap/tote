@@ -44,6 +44,7 @@ class Button(Element, IClickable):
     def update(self, dt):
         Element.update(self, dt)
 
+
 class StatusBar(Element):
     def __init__(self, overlay_name, bounding_rectangle, max_value):
         Element.__init__(self, overlay_name)
@@ -67,6 +68,7 @@ class StatusBar(Element):
         bar_width = bar_total_width * full_proportion
         self.overlay.setWidth(bar_width)
 
+
 class AbilityCooldownDisplay(Element):
     def __init__(self, overlay_name, bounding_rectangle, ability_index, cooldown_time):
         Element.__init__(self, overlay_name)
@@ -77,8 +79,6 @@ class AbilityCooldownDisplay(Element):
         self.cooldown_container = self.overlay.getChild(overlay_name+"/CooldownContainer")
         self.text_area = self.cooldown_container.getChild(overlay_name+"/Cooldown")
         self.cooldown_container.hide()
-        print "should be true if found container: " + str(self.cooldown_container is not None)
-        
         
     def on_ability_used(self, player, index, ability):
         if index == self.ability_index:
