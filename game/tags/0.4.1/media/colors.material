@@ -1,0 +1,5 @@
+material red { technique { pass { texture_unit { texture red.png } } } }
+material green { technique { pass { texture_unit { texture green.png } } } }
+material blue { technique { pass { texture_unit { texture blue.png } } } }
+material black { technique { pass { texture_unit { texture black.png } } } }
+material white { technique { pass { texture_unit { texture white.png } } } }
