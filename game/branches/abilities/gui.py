@@ -122,9 +122,9 @@ class Label(Element):
     
 
 class FPSLabel(Label):
-    def __init__(self, overlay_name, update_frequency=1):
+    def __init__(self, overlay_name, update_frequency=.5):
         Label.__init__(self, overlay_name)
-        self.update_frequency = 1
+        self.update_frequency = update_frequency
         self.time_passed = 0
         self.frames_passed = 0
     
