@@ -126,7 +126,7 @@ material AirIconAbility1
 		
 			texture_unit
 			{
-				texture fire1.png
+				texture air1.png
 			}
 		}
 	}
@@ -141,7 +141,7 @@ material AirIconAbility2
 		
 			texture_unit
 			{
-				texture fire1.png
+				texture air2.png
 			}
 		}
 	}
@@ -156,7 +156,7 @@ material AirIconAbility3
 		
 			texture_unit
 			{
-				texture fire1.png
+				texture air3.png
 			}
 		}
 	}
@@ -171,7 +171,7 @@ material AirIconAbility4
 		
 			texture_unit
 			{
-				texture fire1.png
+				texture air4.png
 			}
 		}
 	}
