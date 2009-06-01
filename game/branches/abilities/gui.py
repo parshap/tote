@@ -6,7 +6,6 @@ class Element(object):
     def __init__(self, overlay_name):
         self.name = overlay_name
         self.overlay = ogre.OverlayManager.getSingleton().getOverlayElement(overlay_name)
-        
         self.updated = Event()
         
     def show(self): self.overlay.show()
@@ -120,6 +119,17 @@ class Label(Element):
         self._textarea.setCaption(value)
     text = property(_get_text, _set_text)
     
+    def _get_opacity(self):
+        """ Gets or sets the label's text caption. """
+        return self._textarea.getColour().a
+    def _set_opacity(self, value):
+        if value > 1: value = 1
+        elif value < 0: value = 0
+        c = self._textarea.getColour()
+        c.a = value
+        self._textarea.setColour(c)
+    opacity = property(_get_opacity, _set_opacity)
+    
 
 class FPSLabel(Label):
     def __init__(self, overlay_name, update_frequency=.5):
@@ -127,6 +137,7 @@ class FPSLabel(Label):
         self.update_frequency = update_frequency
         self.time_passed = 0
         self.frames_passed = 0
+        self.opacity = 0.5
     
     def update(self, dt):
         Label.update(self, dt)
