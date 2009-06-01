@@ -9,6 +9,11 @@ KEYBOARD_CONTROLS = {
     "ABILITY_2": OIS.KC_2,
     "ABILITY_3": OIS.KC_3,
     "ABILITY_4": OIS.KC_4,
+    
+    "ELEMENT_EARTH": OIS.KC_F9,
+    "ELEMENT_FIRE": OIS.KC_F10,
+    "ELEMENT_WATER": OIS.KC_F11,
+    "ELEMENT_AIR": OIS.KC_F12,
 }
 
 MOUSE_CONTROLS = {
@@ -97,6 +102,15 @@ class InputHandler(OIS.MouseListener, OIS.KeyListener):
             self.player.use_ability(3)
         if event.key == KEYBOARD_CONTROLS["ABILITY_4"]:
             self.player.use_ability(4)
+            
+        if event.key == KEYBOARD_CONTROLS["ELEMENT_EARTH"]:
+            self.player.change_element("earth")
+        if event.key == KEYBOARD_CONTROLS["ELEMENT_FIRE"]:
+            self.player.change_element("fire")
+        if event.key == KEYBOARD_CONTROLS["ELEMENT_WATER"]:
+            self.player.change_element("water")
+        if event.key == KEYBOARD_CONTROLS["ELEMENT_AIR"]:
+            self.player.change_element("air")
         return True
 
     def keyReleased(self, event):

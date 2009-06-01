@@ -405,6 +405,16 @@ class Player(MobileObject):
 
         for ability in self.active_abilities:
             ability.update(dt)
+     
+    def change_element(self, element_type):
+        if element_type == "earth":
+            self.element = elements.EarthElement(self)
+        elif element_type == "fire":
+            self.element = elements.FireElement(self)
+        elif element_type == "water":
+            self.element = elements.WaterElement(self)
+        elif element_type == "air":
+            self.element = elements.AirElement(self)
         
     def is_ongcd(self):
         """
@@ -436,7 +446,8 @@ class Player(MobileObject):
     def on_ability_expired(self, ability):
         self.active_abilities.remove(ability)
         return False
-        
+
+
 class ProjectileObject(MobileObject):
     def __init__(self, player, projectile_radius, duration):
         MobileObject.__init__(self, player.world)
