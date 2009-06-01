@@ -186,7 +186,7 @@ material WaterIconAbility1
 		
 			texture_unit
 			{
-				texture fire1.png
+				texture water1.png
 			}
 		}
 	}
@@ -201,7 +201,7 @@ material WaterIconAbility2
 		
 			texture_unit
 			{
-				texture fire1.png
+				texture water2.png
 			}
 		}
 	}
@@ -216,7 +216,7 @@ material WaterIconAbility3
 		
 			texture_unit
 			{
-				texture fire1.png
+				texture water3.png
 			}
 		}
 	}
@@ -231,7 +231,7 @@ material WaterIconAbility4
 		
 			texture_unit
 			{
-				texture fire1.png
+				texture water4.png
 			}
 		}
 	}
