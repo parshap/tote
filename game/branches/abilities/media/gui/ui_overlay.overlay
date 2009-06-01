@@ -197,86 +197,23 @@ UI
         }
     }
     
-    container Panel(UI/FPS)
+    container Panel(UI/FPSLabel)
     {
+        metrics_mode pixels
+        left 10
+        top 10
+        width 100
+        height 64
+        
+        element TextArea(UI/FPSLabel/Text)
+        {
             metrics_mode pixels
-            left 10
-            top 10
-            width 640
+            width 100
             height 64
             
-        element TextArea(UI/FPS/Meter)
-        {
-            metrics_mode pixels
-            horz_align center
-            alignment center
-            width 64
-            height 32
-            
             font_name arial
-            char_height 40
-            caption 4
-            colour 1 0 0
-        }
-        
-        element TextArea(UI/FPS/Meter2)
-        {
-            metrics_mode pixels
-            horz_align center
-            alignment center
-            left 64
-            width 64
-            height 32
-            
-            font_name arial
-            char_height 40
-            caption 4
-            colour 1 0 0
-        }
-        
-        element TextArea(UI/FPS/Meter3)
-        {
-            metrics_mode pixels
-            horz_align center
-            alignment center
-            left 128
-            width 64
-            height 32
-            
-            font_name arial
-            char_height 40
-            caption 4
-            colour 1 0 0
-        }
-        
-        element TextArea(UI/FPS/Meter4)
-        {
-            metrics_mode pixels
-            horz_align center
-            alignment center
-            left 192
-            width 64
-            height 32
-            
-            font_name arial
-            char_height 40
-            caption 4
-            colour 1 0 0
-        }
-        
-        element TextArea(UI/FPS/Meter5)
-        {
-            metrics_mode pixels
-            horz_align center
-            alignment center
-            left 256
-            width 64
-            height 32
-            
-            font_name arial
-            char_height 40
-            caption 4
-            colour 1 0 0
+            char_height 30
+            caption 0
+            colour 1 1 1
         }
     }
-}

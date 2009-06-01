@@ -33,7 +33,6 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
         self.sceneManager = sceneManager
         self.camera = self.sceneManager.getCamera("PrimaryCamera")
         self.cameraNode = self.sceneManager.getSceneNode("PrimaryCamera")
-        self.FPSCounter = gui.FPSCounter("UI/FPS/Meter")
         
         self.viewport = self.camera.getViewport()
         
@@ -166,6 +165,10 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
         # Add listeners to player's health and power changed events.
         self.player.health_changed += health_bar.on_value_changed
         self.player.power_changed += power_bar.on_value_changed
+        
+        # Create an FPS label.
+        fpslabel = gui.FPSLabel("UI/FPSLabel")
+        self.gui_elements.append(fpslabel)
         
         # Set up the ability bar.
         self.setupGUIAbilityBar()
@@ -306,7 +309,6 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
         """
         
         dt = event.timeSinceLastFrame
-        self.FPSCounter.update(dt)
         
         # Capture any buffered events (and fire any callbacks).
         self.inputHandler.capture()
