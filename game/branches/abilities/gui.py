@@ -121,7 +121,7 @@ class FPSCounter():
         self.time_passed += dt
         self.frames_passed += df
         if(self.time_passed >= .1):
-            fps = int(df/dt)
+            fps = int(self.frames_passed/self.time_passed)
             self.time_passed = 0
             self.frames_passed = 0
             self.target_window += 1
