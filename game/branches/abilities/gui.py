@@ -108,6 +108,21 @@ class AbilityCooldownDisplay(Element):
         player.ability_used += self.on_ability_used
 
 
+class Label(Element):
+    def __init__(self, overlay_name):
+        Element.__init__(self, overlay_name)
+        self.textarea = self.overlay.getChild(overlay_name + "/Text")
+        self._text = self.textarea.getCaption()
+        
+    def _get_text(self):
+        """ Gets or sets the label's text caption. """
+        return self._text
+    def _set_text(self, value):
+        self.textarea.setCaption(value)
+        self._text = value
+    text = property(_get_text, _set_text)
+
+
 class FPSCounter():
     def __init__(self, overlay_name):
         self.textArea = ogre.OverlayManager.getSingleton().getOverlayElement(overlay_name)
