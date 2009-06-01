@@ -44,16 +44,16 @@ UI
         metrics_mode pixels
         vert_align bottom
         horz_align center
-		left -128
-		top -64
-		width 256
-		height 64
-		
-		material white
-		transparent false
-		
-		container Panel(UI/AbilityBar/Ability1)
-		{
+        left -128
+        top -64
+        width 256
+        height 64
+        
+        material white
+        transparent false
+        
+        container Panel(UI/AbilityBar/Ability1)
+        {
             metrics_mode pixels
             left 0
             width 64
@@ -63,32 +63,32 @@ UI
             transparent false
             container Panel(UI/AbilityBar/Ability1/CooldownContainer)
             {
-	            metrics_mode pixels
-            	left 0
-            	width 64
-            	height 64
-            	
-            	material mat_cooldown_overlay
-	            
-	            element TextArea(UI/AbilityBar/Ability1/Cooldown)
-	            {
-	                metrics_mode pixels
-	                horz_align center
-	                left 0
-	                top 16
-	                alignment center
-	                width 64
-	                height 32
-	                
-	                font_name arial
-	                char_height 40
-	                colour 1 0 0
-	            }
-	    	}
-		}
-		
-		container Panel(UI/AbilityBar/Ability2)
-		{
+                metrics_mode pixels
+                left 0
+                width 64
+                height 64
+                
+                material mat_cooldown_overlay
+                
+                element TextArea(UI/AbilityBar/Ability1/Cooldown)
+                {
+                    metrics_mode pixels
+                    horz_align center
+                    left 0
+                    top 16
+                    alignment center
+                    width 64
+                    height 32
+                    
+                    font_name arial
+                    char_height 40
+                    colour 1 0 0
+                }
+            }
+        }
+        
+        container Panel(UI/AbilityBar/Ability2)
+        {
             metrics_mode pixels
             left 64
             width 64
@@ -99,32 +99,32 @@ UI
             
             container Panel(UI/AbilityBar/Ability2/CooldownContainer)
             {
-	            metrics_mode pixels
-            	left 0
-            	width 64
-            	height 64
-            	
-            	material mat_cooldown_overlay
-            	
-	            element TextArea(UI/AbilityBar/Ability2/Cooldown)
-	            {
-	                metrics_mode pixels
-	                horz_align center
-	                left 0
-	                top 16
-	                alignment center
-	                width 64
-	                height 32
-	                
-	                font_name arial
-	                char_height 40
-	                colour 1 0 0
-	            }
-	    	}
-		}
-		
-		container Panel(UI/AbilityBar/Ability3)
-		{
+                metrics_mode pixels
+                left 0
+                width 64
+                height 64
+                
+                material mat_cooldown_overlay
+                
+                element TextArea(UI/AbilityBar/Ability2/Cooldown)
+                {
+                    metrics_mode pixels
+                    horz_align center
+                    left 0
+                    top 16
+                    alignment center
+                    width 64
+                    height 32
+                    
+                    font_name arial
+                    char_height 40
+                    colour 1 0 0
+                }
+            }
+        }
+        
+        container Panel(UI/AbilityBar/Ability3)
+        {
             metrics_mode pixels
             left 128
             width 64
@@ -136,32 +136,32 @@ UI
             
             container Panel(UI/AbilityBar/Ability3/CooldownContainer)
             {
-	            metrics_mode pixels
-            	left 0
-            	width 64
-            	height 64
-            	
-            	material mat_cooldown_overlay
-            	
-	            element TextArea(UI/AbilityBar/Ability3/Cooldown)
-	            {
-	                metrics_mode pixels
-	                horz_align center
-	                left 0
-	                top 16
-	                alignment center
-	                width 64
-	                height 32
-	                
-	                font_name arial
-	                char_height 40
-	                colour 1 0 0
-	            }
-	        }
-		}
-		
-		container Panel(UI/AbilityBar/Ability4)
-		{
+                metrics_mode pixels
+                left 0
+                width 64
+                height 64
+                
+                material mat_cooldown_overlay
+                
+                element TextArea(UI/AbilityBar/Ability3/Cooldown)
+                {
+                    metrics_mode pixels
+                    horz_align center
+                    left 0
+                    top 16
+                    alignment center
+                    width 64
+                    height 32
+                    
+                    font_name arial
+                    char_height 40
+                    colour 1 0 0
+                }
+            }
+        }
+        
+        container Panel(UI/AbilityBar/Ability4)
+        {
             metrics_mode pixels
             left 192
             width 64
@@ -172,29 +172,29 @@ UI
             
             container Panel(UI/AbilityBar/Ability4/CooldownContainer)
             {
-	            metrics_mode pixels
-            	left 0
-            	width 64
-            	height 64
-            	
-            	material mat_cooldown_overlay
-            	
-	            element TextArea(UI/AbilityBar/Ability4/Cooldown)
-	            {
-	                metrics_mode pixels
-	                horz_align center
-	                left 0
-	                top 16
-	                alignment center
-	                width 64
-	                height 32
-	                
-	                font_name arial
-	                char_height 40
-	                colour 1 0 0
-	            }
-	        }
-		}
+                metrics_mode pixels
+                left 0
+                width 64
+                height 64
+                
+                material mat_cooldown_overlay
+                
+                element TextArea(UI/AbilityBar/Ability4/Cooldown)
+                {
+                    metrics_mode pixels
+                    horz_align center
+                    left 0
+                    top 16
+                    alignment center
+                    width 64
+                    height 32
+                    
+                    font_name arial
+                    char_height 40
+                    colour 1 0 0
+                }
+            }
+        }
     }
     
     container Panel(UI/FPS)
