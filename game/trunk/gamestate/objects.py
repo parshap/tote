@@ -305,7 +305,7 @@ class Player(MobileObject):
         # Create an Element and pass it a reference to this player make it our
         # current active element.
         # @todo: don't hardcode this
-        self.element = elements.EarthElement(self)
+        self.element = elements.WaterElement(self)
         self.element_changed = Event()
         
         self.active_abilities = []
@@ -459,8 +459,7 @@ class Player(MobileObject):
             
             self.ability_instance_created(ability, self.world.time)
         else:
-            # @todo: Notify player of error?
-            pass
+            return False
             
     def on_ability_expired(self, ability):
         self.active_abilities.remove(ability)
