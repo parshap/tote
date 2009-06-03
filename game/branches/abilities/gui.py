@@ -133,6 +133,26 @@ class Label(Element):
         self._textarea.setColour(c)
     opacity = property(_get_opacity, _set_opacity)
     
+    def _get_color(self):
+        """ Gets or sets the label's color as an RGBA tuple. """
+        c = self._textarea.getColour()
+        return (c.r, c.g, c.b, c.a)
+    def _set_color(self, value):
+        c = self._textarea.getColour()
+        if len(value) == 3:
+            r, g, b = value
+            a = None
+        elif len(value) == 4:
+            r, g, b, a = value
+        else:
+            raise Exception("Invalid color value, must be RGB or RGBA tuple.")
+        c.r = r
+        c.g = g
+        c.b = b
+        if a is not None: c.a = a
+        self._textarea.setColour(c)
+    color = property(_get_color, _set_color)
+    
     def update(self, dt):
         Element.update(self, dt)
         if self._opacity_target is not None:
