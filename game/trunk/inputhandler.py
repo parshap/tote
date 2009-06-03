@@ -100,11 +100,11 @@ class InputHandler(OIS.MouseListener, OIS.KeyListener):
             
         if self.scene.player:
             if event.key == KEYBOARD_CONTROLS["ABILITY_2"]:
-                self.scene.player.use_ability(2)
+                self.scene.player.request_ability(2)
             if event.key == KEYBOARD_CONTROLS["ABILITY_3"]:
-                self.scene.player.use_ability(3)
+                self.scene.player.request_ability(3)
             if event.key == KEYBOARD_CONTROLS["ABILITY_4"]:
-                self.scene.player.use_ability(4)
+                self.scene.player.request_ability(4)
         
             
         if event.key == KEYBOARD_CONTROLS["ELEMENT_EARTH"]:

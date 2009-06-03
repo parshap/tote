@@ -315,6 +315,7 @@ class Player(MobileObject):
         
         self.health_changed = Event()
         self.power_changed = Event()
+        self.ability_requested = Event()
         
     def _get_health(self):
         return self._health
@@ -435,6 +436,13 @@ class Player(MobileObject):
         """
         return self.last_ability_time > 0 and \
                self.world.time <= (self.last_ability_time + self.gcd)
+    
+    def request_ability(self, index):
+        """ Requests use of an ability from the server. """
+        if(not self.element.is_requestable(index)):
+            ability_id = str(self.element.ability_ids[index])
+            self.ability_requested(self, ability_id)
+        self.use_ability(index)
         
     def use_ability(self, index):
         """ Uses an ability by index based on the player's current element. """
