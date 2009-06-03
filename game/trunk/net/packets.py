@@ -200,6 +200,20 @@ class ObjectUpdate(Packet):
         return offset + 22
 
 
+class ObjectRemove(Packet):
+    id = 8
+    format = "!H" # object_id
+    
+    def pack(self, packed=""):
+        return Packet.pack(self, struct.pack(ObjectRemove.format,
+            self.object_id)) + packed
+            
+    def unpack(self, packed):
+        offset = Packet.unpack(self, packed)
+        self.object_id = struct.unpack_from(ObjectRemove.format, packed, offset)
+        return offset + 2
+
+
 packets = {
     0: Packet,
     1: JoinRequest,
@@ -209,4 +223,5 @@ packets = {
     5: PlayerUpdate,
     6: ObjectInit,
     7: ObjectUpdate,
+    8: ObjectRemove,
 }
