@@ -442,7 +442,6 @@ class Player(MobileObject):
         if(not self.element.is_requestable(index)):
             ability_id = str(self.element.ability_ids[index])
             self.ability_requested(self, ability_id)
-        self.use_ability(index)
         
     def use_ability(self, index):
         """ Uses an ability by index based on the player's current element. """
