@@ -250,7 +250,6 @@ class AbilityUsed(Packet):
     format = "!H H" # object_id ability_id
     
     def pack(self, packed=""):
-        print "%s %s %s" % (self.object_id, self.ability_id, packed)
         return Packet.pack(self, struct.pack(AbilityUsed.format,
             self.object_id, self.ability_id)) + packed
             
