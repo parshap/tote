@@ -51,6 +51,9 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
         # Set up the GUI.
         self.setupGUI()
         
+        # Show a welcome message.
+        self.message.notice("Tides of the Elements")
+        
         # Set up the input devices.
         self.setupInput()
 
@@ -149,6 +152,10 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
         # Create an FPS label.
         fpslabel = gui.FPSLabel("UI/FPSLabel")
         self.gui_elements.append(fpslabel)
+        
+        # Create the message label.
+        self.message = gui.Message("UI/MessageLabel")
+        self.gui_elements.append(self.message)
         
         # Set up the ability bar.
         self.setupGUIAbilityBar()

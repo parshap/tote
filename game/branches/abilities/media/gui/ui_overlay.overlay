@@ -200,8 +200,8 @@ UI
     container Panel(UI/FPSLabel)
     {
         metrics_mode pixels
-        left 10
-        top 10
+        left 5
+        top 5
         width 100
         height 64
         
@@ -213,7 +213,25 @@ UI
             
             font_name arial
             char_height 30
-            caption 0
             colour 1 1 1
         }
     }
+    
+    container Panel(UI/MessageLabel)
+    {
+        metrics_mode pixels
+        horz_align center
+        vert_align top
+        top 30
+        
+        element TextArea(UI/MessageLabel/Text)
+        {
+            metrics_mode pixels
+            
+            font_name arial
+            alignment center
+            char_height 40
+            colour 1 1 1
+        }
+    }
+}
