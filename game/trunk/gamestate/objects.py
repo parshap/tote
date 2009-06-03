@@ -440,7 +440,7 @@ class Player(MobileObject):
     def request_ability(self, index):
         """ Requests use of an ability from the server. """
         if(not self.element.is_requestable(index)):
-            ability_id = str(self.element.ability_ids[index])
+            ability_id = self.element.ability_ids[index]
             self.ability_requested(self, ability_id)
         
     def use_ability(self, index):
