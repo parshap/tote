@@ -458,8 +458,8 @@ class Player(MobileObject):
             self.ability_used(self, ability_id, ability)
             
             self.ability_instance_created(ability, self.world.time)
-        else:
-            return False
+            return True
+        return False
             
     def on_ability_expired(self, ability):
         self.active_abilities.remove(ability)
