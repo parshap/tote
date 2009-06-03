@@ -415,7 +415,7 @@ class PlayerNode(MobileGameNode):
                 effect_node.particle_effect_start()
         
         elif player.element.type == "air":
-            if ability_id == 401:
+            if ability_id == 301:
                 # Air : Primary
                 
                 # @note: this is why passing the ability_instance to on_ability_used is sloppy
@@ -427,7 +427,7 @@ class PlayerNode(MobileGameNode):
                 projectile_node.set_secondary_particle_system("LavaSplash")
                 projectile_node.particle_effect_start()
                 
-            if ability_id == 402:
+            if ability_id == 302:
                 # Air : Gust of Wind
                 effect_node = StaticEffectNode(self.sceneManager, player.world, 0.5)
                 effect_node.set_particle_system("GustOfWind", (player.position[0],
@@ -437,7 +437,7 @@ class PlayerNode(MobileGameNode):
                
                 effect_node.particle_effect_start()
                 
-            if ability_id == 403:
+            if ability_id == 303:
                 # Air : Wind Whisk
                 effect_node1 = StaticEffectNode(self.sceneManager, player.world, 0.3)
                 effect_node1.set_particle_system("WindWhisk", (ability_instance.player_start_position[0],
@@ -451,7 +451,7 @@ class PlayerNode(MobileGameNode):
                                                                player.position[1]))
                 effect_node2.particle_effect_start()
                 
-            if ability_id == 404:
+            if ability_id == 304:
                 # Air : Lightning Bolt
                 if ability_instance.target is None:
                     # event was launched because ability was used, but there was no target in range
@@ -474,7 +474,7 @@ class PlayerNode(MobileGameNode):
                 effect_node.particle_system.getEmitter(0).setParameter("depth", str(distance))
                 
         elif player.element.type == "water":
-            if ability_id == 301:
+            if ability_id == 401:
                 # Water : Primary
  
                 # @note: this is why passing the ability_instance to on_ability_used is sloppy
@@ -487,7 +487,7 @@ class PlayerNode(MobileGameNode):
                 projectile_node.set_secondary_particle_system("WaterSplash")
                 projectile_node.particle_effect_start()
 
-            elif ability_id == 302:
+            elif ability_id == 402:
                 # Water : Water Gush
                 effect_node = StaticEffectNode(self.sceneManager, player.world, 0.5)
                 # @todo: come up with a particle effect for this ability
@@ -507,14 +507,14 @@ class PlayerNode(MobileGameNode):
                 effect_node.particle_system.getEmitter(0).setParameter("depth", str(distance))
                 
                 pass
-            elif ability_id == 303:
+            elif ability_id == 403:
                 # Water : Tidal Wave
                 effect_node = StaticEffectNode(self.sceneManager, player.world, 1)
                 effect_node.set_particle_system("TidalWave", (player.position[0] + 10 * math.cos(player.rotation), 
                                                               15, 
                                                               player.position[1] + 10 * math.sin(player.rotation)), player.rotation)
                 effect_node.particle_effect_start()
-            elif ability_id == 304:
+            elif ability_id == 404:
                 # Water : Ice Burst                
                 mesh_node = StaticEffectNode(self.sceneManager, player.world, 2)
                 mesh_node.set_mesh("iceblock.mesh", (player.position[0], 0, player.position[1] + 10), 0, 15)
