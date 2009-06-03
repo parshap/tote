@@ -22,9 +22,12 @@ class World(object):
         # Add the object and fire the object_added event.
         if object_id is None:
             self.object_id_pos += 1
-            object.object_id = self.object_id_pos
-        else:
-            object.object_id = object_id
+            object_id = self.object_id_pos
+        while self.objects_hash.has_key(object_id):
+            object_id += 1
+        if object_id > self.object_id_pos:
+            self.object_id_pos = object_id + 1
+        object.object_id = object_id
         self.objects.append(object)
         self.objects_hash[object.object_id] = object
         object.is_active = True
