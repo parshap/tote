@@ -60,7 +60,7 @@ class EarthElement(Element):
         elif ability_id == 104:
             return self.use_ability_PowerSwing()
         else:
-            return false
+            return False
     
     def use_ability_Primary(self):
         if self.player.is_ongcd():
@@ -137,7 +137,7 @@ class FireElement(Element):
         elif ability_id == 204:
             return self.use_ability_RingOfFire()
         else:
-            return false
+            return False
         
     def use_ability_Primary(self):
         if self.player.is_ongcd():
@@ -213,7 +213,7 @@ class AirElement(Element):
         elif ability_id == 304:
             return self.use_ability_LightningBolt()
         else:
-            return false
+            return False
         
     def use_ability_Primary(self):
         if self.player.is_ongcd():
@@ -290,7 +290,7 @@ class WaterElement(Element):
         elif ability_id == 404:
             return self.use_ability_IceBurst()
         else:
-            return false
+            return False
         
     def use_ability_Primary(self):
         if self.player.is_ongcd():
