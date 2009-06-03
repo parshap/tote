@@ -221,14 +221,14 @@ class ServerApplication(object):
         # AbilityRequest
         elif ptype is packets.AbilityRequest:
             # @todo: deny conditions
-            client.player.use_ability(packet.ability_id)
-            used = packets.AbilityUsed()
-            used.object_id = client.player.object_id
-            used.ability_id = packet.ability_id
-            # Send an ObjectUpdate for this player so clients have most recent
-            # data when using the ability.
-            self._send_update(client.player, ignore=client.player, check_time=False)
-            self.server.output_broadcast.put_nowait((used, None))
+            if client.player.use_ability(packet.ability_id):
+                used = packets.AbilityUsed()
+                used.object_id = client.player.object_id
+                used.ability_id = packet.ability_id
+                # Send an ObjectUpdate for this player so clients have most recent
+                # data when using the ability.
+                self._send_update(client.player, ignore=client.player, check_time=False)
+                self.server.output_broadcast.put_nowait((used, None))
     
     def _send_update(self, object, ignore=None, check_time=True):
         # Only send updates for MobileObjects.
