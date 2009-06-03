@@ -266,7 +266,6 @@ class FireRingOfFireInstance(AbilityInstance):
         # if the ability has expired...
         self.duration -= dt
         if self.duration <= 0:
-            self.player.world.remove_object(self.ring_of_fire)
             print "effect destroyed"
             self.expire()
             return
