@@ -223,6 +223,8 @@ class ServerApplication(object):
             # @todo: deny conditions
             client.player.use_ability(packet.ability_id)
             used = packets.AbilityUsed()
+            used.object_id = client.player.object_id
+            used.ability_id = packet.ability_id
             # Send an ObjectUpdate for this player so clients have most recent
             # data when using the ability.
             self._send_update(client.player, ignore=client.player, check_time=False)
