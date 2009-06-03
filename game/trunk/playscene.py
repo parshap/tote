@@ -318,7 +318,7 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
         return True
         
     ## Net event callbacks & helpers
-    def _send_update(self):
+    def _send_update(self, check_time=True):
         """ Sends a PlayerUpdate packet to the server if appropriate. """
         if self.player is None:
             return
@@ -328,7 +328,7 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
             update_time, last_update = self.last_update
             
             # Don't send if we've sent in the last 0.1s.
-            if update_time + 0.05 > self.world.time:
+            if check_time and update_time + 0.05 > self.world.time:
                 return
                 
             # Don't send if info hasn't changed since the last update.
@@ -375,6 +375,7 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
             # camera with the player.
             self.player.position_changed += self.on_player_position_changed
             self.player.element_changed += self.on_player_element_changed
+            # self.player.ability_requested += self.on_player_ability_requested
         
         # ObjectInit
         elif ptype is packets.ObjectInit:
@@ -439,9 +440,19 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
         # Recreate the ability bar GUI.
         self.setupGUIAbilityBar()
         
-    def on_static_node_expired(self, static_node):
-        print static_node.unique_scene_node_name
-        self.sceneManager.destroySceneNode(static_node.unique_scene_node_name)
+    def on_player_ability_requested(self, player, ability_id):
+        ar = packets.AbilityRequest()
+        ar.object_id = player.object_id
+        ar.ability_id = ability_id
+        # Send a PlayerUpdate so the server has the most recent information
+        # about us when using the ability.
+        self._send_update(check_time=False)
+        self.client.output.put_nowait(ar)
+        
+     # Is this being used anywhere? @todo: remove if not, uncomment if exception
+#    def on_static_node_expired(self, static_node):
+#        print static_node.unique_scene_node_name
+#        self.sceneManager.destroySceneNode(static_node.node_name)
 
     ## Window event listener callbacks
     def windowResized(self, renderWindow):
