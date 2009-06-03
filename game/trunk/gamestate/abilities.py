@@ -445,8 +445,8 @@ class AirLightningBoltInstance(AbilityInstance):
         
 class WaterPrimaryInstance(AbilityInstance):
     power_cost = 20
-    velocity = 100
-    projectile_radius = 10
+    speed = 200
+    projectile_radius = 20
     duration = 20
     damage_dealt = 10
     collided = Event()
@@ -461,7 +461,7 @@ class WaterPrimaryInstance(AbilityInstance):
                 
     def run(self):
         AbilityInstance.run(self)
-        self.projectile.move_speed = self.velocity
+        self.projectile.move_speed = self.speed
         self.projectile.is_moving = True
   
     def update(self, dt):
