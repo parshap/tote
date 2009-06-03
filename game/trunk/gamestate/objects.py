@@ -455,7 +455,7 @@ class Player(MobileObject):
             # @todo: find a more elegant way to pass the mobileobject/projectile than passing the entire ability
             # this won't be an easy design issue to fix, but luckily doing it this way will work and be easy to
             # implement and understand (even if it's a tad sloppy)
-            self.ability_used(self, index, ability)
+            self.ability_used(self, ability_id, ability)
             
             self.ability_instance_created(ability, self.world.time)
         else:
