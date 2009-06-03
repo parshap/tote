@@ -401,6 +401,8 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
                                                packet.move_speed * math.sin(packet.rotation))
                     resultant = diff_vector + move_vector
                     angle = math.atan2(resultant.z, resultant.x)
+                    angle = packet.rotation #
+                    object.position = (packet.x, packet.z) #
                     object.move_speed = packet.move_speed
                     object.rotation = angle
                     object.move_direction = 0
