@@ -111,6 +111,9 @@ class Label(Element):
     def __init__(self, overlay_name):
         Element.__init__(self, overlay_name)
         self._textarea = self.overlay.getChild(overlay_name + "/Text")
+        self._opacity_target = None
+        self._opacity_step = 1
+        self._fade_callback = None
         
     def _get_text(self):
         """ Gets or sets the label's text caption. """
@@ -129,6 +132,36 @@ class Label(Element):
         c.a = value
         self._textarea.setColour(c)
     opacity = property(_get_opacity, _set_opacity)
+    
+    def update(self, dt):
+        Element.update(self, dt)
+        if self._opacity_target is not None:
+            if self.opacity != self._opacity_target:
+                newval = self.opacity + (self._opacity_step * dt)
+                if self._opacity_step > 0 and newval > self._opacity_target or \
+                   self._opacity_step < 0 and newval < self._opacity_target:
+                    newval = self._opacity_target
+                    self._opacity_target = None
+                    if self._fade_callback is not None:
+                        self._fade_callback(self)
+                self.opacity = newval
+                
+    def fade(self, start=None, end=None, duration=0.2, callback=None):
+        """
+        Linearly fade the label from the start opacity to the end opacity over
+        duration seconds. The opacity will be set to the start opacity and
+        fading will begin immediately. If no start or end parameters are given
+        the current opacity is used.
+        The callback is called with this label passed as the only parameter
+        when the fading is complete. If fading is interrupted before it is
+        complete, the callback will never be called.
+        """
+        if start is None: start = self.opacity
+        if end is None: end = self.opacity
+        self._opacity_target = end
+        self._opacity_step = (end - start) / duration
+        self.opacity = start
+        self._fade_callback = callback
     
 
 class FPSLabel(Label):
