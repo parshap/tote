@@ -111,6 +111,8 @@ class ServerApplication(object):
         
     def go(self):
         self.world = gamestate.world.World()
+        self.world.object_added += self.on_world_object_added
+        self.world.object_removed += self.on_world_object_removed
         self.scene = gamestate.scenes.TestScene(self.world)
         
         self.server = net.server.GameServer(self.world, self.port)
@@ -174,6 +176,24 @@ class ServerApplication(object):
         extra = 0.01 - dt
         if extra >= 0.001:
             time.sleep(extra)
+            
+    def on_world_object_added(self, object):
+        if object.type == "player":
+            # Sent a ObjectInit for the new player obeject to everyone but the player.
+            init = packets.ObjectInit()
+            init.object_id = object.object_id
+            init.object_type = "player"
+            self.server.output_broadcast.put_nowait((init, object))
+            
+            # Send a ObjectUpdate for the new player object to everyone.
+            update = self._update_from_object(object)
+            self.server.output_broadcast.put_nowait((update, None))
+        
+    def on_world_object_removed(self, object):
+        if object.type == "player":
+            remove = packets.ObjectRemove()
+            remove.object_id = object.object_id
+            self.server.output_broadcast.put_nowait((remove, None))
     
     def process_packet(self, client, packet):
         ptype = type(packet)
@@ -195,16 +215,6 @@ class ServerApplication(object):
             response = packets.JoinResponse()
             response.player_id = player.object_id
             self.server.output.put_nowait((client, response))
-            
-            # Sent a ObjectInit for the new player obeject to everyone but the player.
-            init = packets.ObjectInit()
-            init.object_id = player.object_id
-            init.object_type = "player"
-            self.server.output_broadcast.put_nowait((init, player))
-            
-            # Send a ObjectUpdate for the new player object to everyone.
-            update = self._update_from_object(player)
-            self.server.output_broadcast.put_nowait((update, None))
             
             # Send ObjectUpdate and ObjectInit to the player for each object.
             for object in self.world.objects:
