@@ -221,20 +221,19 @@ class AbilityRequest(Packet):
     accepted.
     
     Required attributes:
-    object_id - the id of the player using the ability
-    ability_id - the id of the ability
+    ability_id - the id of the ability the player is requsting ot use.
     """
     id = 10
-    format = "!H H" # object_id ability_id
+    format = "!H" # ability_id
     
     def pack(self, packed=""):
         return Packet.pack(self, struct.pack(AbilityRequest.format,
-            self.object_id, self.ability_id)) + packed
+            self.ability_id)) + packed
             
     def unpack(self, packed):
         offset = Packet.unpack(self, packed)
-        self.object_id, self.ability_id = struct.unpack_from(AbilityRequest.format, packed, offset)
-        return offset + 4
+        self.ability_id = struct.unpack_from(AbilityRequest.format, packed, offset)
+        return offset + 2
 
 
 class AbilityUsed(Packet):
