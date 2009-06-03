@@ -25,8 +25,6 @@ import gamestate.event
 import ogre.renderer.OGRE as ogre
 
 
-
-
 class Node(object):
     """Node represents a ogre scene node with a position relative to the root scene node."""
     _unique_count = 0
@@ -39,8 +37,8 @@ class Node(object):
     def __init__(self, sceneManager):
         # Create a SceneNode for this Node (attached to RootSceneNode).
         self.sceneManager = sceneManager
-        self.sceneNode = sceneManager.getRootSceneNode().createChildSceneNode()
-        self.unique_scene_node_name = Node._unique("sceneNode")
+        self.node_name = Node._unique("sceneNode")
+        self.sceneNode = sceneManager.getRootSceneNode().createChildSceneNode(self.node_name)
         
         # Node spatial properties
         self.position = (0,0,0)
@@ -202,7 +200,7 @@ class MobileGameNode(GameNode):
     def expire(self, projectileObject):
         # @todo: if our game is really slow, this might be a memory leak
        self.particle_effect_stop()
-       
+
 
 class ProjectileNode(MobileGameNode):
     def __init__(self, sceneManager, projectileObject):
@@ -249,7 +247,6 @@ class ProjectileNode(MobileGameNode):
             raise Exception("Particle system not set!")
     
     
-  
 class StaticEffectNode(Node):
     """ Implementation of Node that represents an object that exists ONLY IN OGRE
     and has no corresponding GameObject. A StaticEffectNode allows itself to be destroyed
@@ -289,7 +286,8 @@ class StaticEffectNode(Node):
         if self.particle_system is not None:
             self.particle_effect_start()
         return False
-    
+
+
 class PlayerNode(MobileGameNode):
     def __init__(self, sceneManager, player, mesh_name):
         MobileGameNode.__init__(self, sceneManager, player)
