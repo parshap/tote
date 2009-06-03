@@ -8,13 +8,13 @@
     <node name="Plane">
       <position x="0.000000" y="0.000000" z="-0.000000"/>
       <quaternion x="0.000000" y="0.000000" z="-0.000000" w="1.000000"/>
-      <scale x="9.125197" y="9.125197" z="9.125197"/>
-      <entity name="Plane" meshFile="Plane.mesh"/>
+      <entity name="Plane" meshFile="lavalevelmesh.mesh"/>
+      <scale x="64" y="1" z="64"/>
     </node>
   </nodes>
   <externals>
     <item type="material">
-      <file name="Scene.material"/>
+      <file name="lavalevel.material"/>
     </item>
   </externals>
   <environment>

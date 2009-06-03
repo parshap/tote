@@ -1,7 +1,7 @@
 from __future__ import division
 
 import ogre.io.OIS as OIS
-import ogre.gui.CEGUI as CEGUI
+import gui
 
 import math
 
@@ -9,6 +9,11 @@ KEYBOARD_CONTROLS = {
     "ABILITY_2": OIS.KC_2,
     "ABILITY_3": OIS.KC_3,
     "ABILITY_4": OIS.KC_4,
+    
+    "ELEMENT_EARTH": OIS.KC_F9,
+    "ELEMENT_FIRE": OIS.KC_F10,
+    "ELEMENT_WATER": OIS.KC_F11,
+    "ELEMENT_AIR": OIS.KC_F12,
 }
 
 MOUSE_CONTROLS = {
@@ -64,35 +69,28 @@ class InputHandler(OIS.MouseListener, OIS.KeyListener):
         self.player.is_moving = mouseState.buttonDown(MOUSE_CONTROLS["MOUSEMOVE"])
 
     def mouseMoved(self, event):
-        state = event.get_state()
-        
-        # Pass the location of the mouse pointer over to CEGUI
-        CEGUI.System.getSingleton().injectMouseMove(state.X.rel, state.Y.rel)
         return True
 
     def mousePressed(self, event, id):
         if id == MOUSE_CONTROLS["ABILITY_1"]:
             self.player.use_ability(1)
         
-        # Handle any CEGUI mouseButton events
-        CEGUI.System.getSingleton().injectMouseButtonDown(self._convertOISToCEGUI(id))
+        # Inject mouse press to UI elements.
+#        for element in self.scene.gui_elements:
+#            if isinstance(element, gui.IClickable):
+#                element.inject_mouse_press(id,
+#                    event.get_state().X.abs, event.get_state().Y.abs)
+
         return True
 
     def mouseReleased(self, event, id):
-        # Handle any CEGUI mouseButton events
-        CEGUI.System.getSingleton().injectMouseButtonUp(self._convertOISToCEGUI(id))
-        return True
+        # Inject mouse release to UI elements.
+#        for element in self.scene.gui_elements:
+#            if isinstance(element, gui.IClickable):
+#                element.inject_mouse_release(id,
+#                    event.get_state().X.abs, event.get_state().Y.abs)
 
-    def _convertOISToCEGUI(self, oisID):
-        """ Converts an OIS mouse button ID to a CEGUI mouse button ID """
-        if oisID == OIS.MB_Left:
-            return CEGUI.LeftButton
-        elif oisID == OIS.MB_Right:
-            return CEGUI.RightButton
-        elif oisID == OIS.MB_Middle:
-            return CEGUI.MiddleButton
-        else:
-            return CEGUI.LeftButton
+        return True
 
     def keyPressed(self, event):
         # Quit the application if we hit the escape button
@@ -104,6 +102,15 @@ class InputHandler(OIS.MouseListener, OIS.KeyListener):
             self.player.use_ability(3)
         if event.key == KEYBOARD_CONTROLS["ABILITY_4"]:
             self.player.use_ability(4)
+            
+        if event.key == KEYBOARD_CONTROLS["ELEMENT_EARTH"]:
+            self.player.change_element("earth")
+        if event.key == KEYBOARD_CONTROLS["ELEMENT_FIRE"]:
+            self.player.change_element("fire")
+        if event.key == KEYBOARD_CONTROLS["ELEMENT_WATER"]:
+            self.player.change_element("water")
+        if event.key == KEYBOARD_CONTROLS["ELEMENT_AIR"]:
+            self.player.change_element("air")
         return True
 
     def keyReleased(self, event):

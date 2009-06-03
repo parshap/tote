@@ -49,11 +49,16 @@ class MobileObject(GameObject):
         
         self._is_moving = False
         self.is_moving_changed = Event()
-        self.move_speed = 100
+        self.move_speed = 0
         self.move_direction = 0
         
         self.position_changed = Event()
         self.collided = Event()
+        
+        self.force_vector = (0, 0)
+        self.force_strength = 0
+        self.force_applied = False
+        self.force_duration = 0
 
     def _get_is_moving(self):
         """ Gets or sets the object's current moving state """
@@ -71,9 +76,39 @@ class MobileObject(GameObject):
         GameObject._set_position(self, value)
         self.position_changed(self, value)
     position = property(GameObject._get_position, _set_position)
+    
+    def apply_force(self, vector, strength, acceleration_factor = 1, duration = False):
+        self.force_vector = CollisionDetector.normalise_vector(vector)
+        self.force_strength = strength
+        self.force_duration = duration
+        self.force_acceleration = acceleration_factor
+        self.force_applied = True
+        
+    def remove_force(self):
+        self.force_applied = False
 
     def update(self, dt):
         GameObject.update(self, dt)
+
+        # if a force is applied to this mobileobject
+        if self.force_applied:
+            # if there is time remaining for the force, or if no duration was set
+            if self.force_duration > 0 or not self.force_duration:
+                # move this object based on the force
+                self._move((self.force_vector[0] * self.force_strength * dt, 
+                            self.force_vector[1] * self.force_strength * dt))
+                # update duration if duration is set
+                if self.force_duration is not False:
+                    self.force_duration -= dt
+                
+                # apply force acceleration
+                self.force_vector = (self.force_vector[0] + self.force_acceleration * self.force_vector[0] * dt,
+                                     self.force_vector[1] + self.force_acceleration * self.force_vector[1] * dt)
+            else:
+                # duration expired
+                print "force expired"
+                self.force_duration = 0
+                self.force_applied = False
 
         if self.is_moving:
             movespd = self.move_speed * dt
@@ -149,6 +184,11 @@ class MobileObject(GameObject):
             # previously collided with objects.
             collided_objects = already_collided
         
+        # Create a BoundingLineSegment that represents the player's move vector
+        # We do this here so that we only have to do it ONCE to check against all
+        # objects in the world.
+        move_segment = collision.BoundingLineSegment(self.position, new_pos)
+        
         # Loop over all objects in the world to test against.
         for object in self.world.objects:
             if self == object:
@@ -164,7 +204,7 @@ class MobileObject(GameObject):
             # objects that may be between our old position and our new
             # position. This result will be True if the ray collides with the
             # object and False if not.
-            rayResult = CollisionDetector.is_between(object.bounding_shape, object.position, self.position, new_pos)
+            rayResult = CollisionDetector.is_between(object.bounding_shape, object.position, move_segment)
             
             # Check if our bounding shape at our new position would overlap
             # with the object's bounding shape. The result will be None if
@@ -181,6 +221,11 @@ class MobileObject(GameObject):
                 # If the object is not passable, then this is a critical error
                 # and we will completely deny the move by returning.
                 if not object.isPassable:
+                    print "DENIED MOVEMENT!!"
+                    
+                    # must collide these two objects to throw the proper events
+                    self.collide(object)
+                    object.collide(self)
                     return
                     
                 # Otherwise add the object to our set of collided objects.
@@ -220,7 +265,7 @@ class MobileObject(GameObject):
 
     def collide(self, object):
         GameObject.collide(self, object)
-        self.collided(self, object)
+        self.collided(object)
 
 
 class Player(MobileObject):
@@ -234,22 +279,79 @@ class Player(MobileObject):
     
     def __init__(self, world):
         MobileObject.__init__(self, world)
-        self.power = 100
-        self.health = 100
+        self.move_speed = 100
+        self._health = 100
+        self._power = 100
+        self.max_power = 100
+        self.max_health = 100
+        self.health_regen = 1
+        self.power_regen = 10
+        self.dead = False
+        self.died = Event()
         self.bounding_shape = collision.BoundingCircle(6)
         self.type = "player"
         
         self._is_charging = False
+        self._is_hooked = False
+        self.hooked_position = (0, 0)
         self.is_charging_changed = Event()
+        self.is_hooked_changed = Event()
+        self.hooked_by_player = None
+        self.is_invulnerable = False
+        self.is_immobilized = False
         
         # Create an Element and pass it a reference to this player make it our
         # current active element.
         # @todo: don't hardcode this
-        self.element = elements.FireElement(self)
+        self.element = elements.EarthElement(self)
+        self.element_changed = Event()
         
         self.active_abilities = []
         self.last_ability_time = 0
         self.ability_used = Event()
+        self.ability_instance_created = Event()
+        
+        self.health_changed = Event()
+        self.power_changed = Event()
+        
+    def _get_health(self):
+        return self._health
+    def _set_health(self, value):
+        if value < 0:
+            value = 0
+        elif value > self.max_health:
+            value = self.max_health
+        if value != self.health:
+            self._health = value
+            self.health_changed(self._health)   
+            if value <= 0 and not self.dead:
+                self.dead = True
+                print "player died"
+                self.died()
+    
+    health = property(_get_health, _set_health) 
+        
+    def _get_power(self):
+        return self._power
+    def _set_power(self, value):
+        if value < 0:
+            value = 0
+        elif value > self.max_power:
+            value = self.max_power
+        if value != self.power:
+            self._power = value
+            self.power_changed(self._power)
+    
+    power = property(_get_power, _set_power)
+        
+    def apply_damage(self, amount):
+        if not self.is_invulnerable:
+            self.health = self.health - amount
+            if self.health <= 0:
+                self.dead = True
+                
+    def use_power(self, amount):
+        self.power = self.power - amount
         
     def _get_is_charging(self):
         """ Gets or sets the object's current charging state """
@@ -259,6 +361,15 @@ class Player(MobileObject):
             self._is_charging = value
             self.is_charging_changed(self, value)
     is_charging = property(_get_is_charging, _set_is_charging)
+    
+    def _get_is_hooked(self):
+            return self._is_hooked
+    def _set_is_hooked(self, value):
+        if value is not self._is_hooked:
+            self._is_hooked = value
+            self.is_hooked_changed(self, value)
+    is_hooked = property(_get_is_hooked, _set_is_hooked)
+    
     
     # We will override the MobileObject.rotation property to redefine the
     # setter used so that we can deny a rotation change while charging.
@@ -272,13 +383,48 @@ class Player(MobileObject):
     rotation = property(MobileObject._get_rotation, _set_rotation)
 
     def update(self, dt):
+        # Regen health & power.
+        self.health += self.health_regen * dt
+        self.power += self.power_regen * dt
         if self.is_charging:
             # If the player is charging then force movement.
             self.is_moving = True
+        if self.is_hooked:
+            if collision.CollisionDetector.check_collision(collision.BoundingCircle(8), self.hooked_by_player.position,
+                                                           self.bounding_shape, self.position):
+                self.is_hooked = False
+                self.hooked_by_player = None
+            else:
+                self.is_moving = False
+                distance = 200 * dt
+                dx = self.hooked_by_player.position[0] - self.position[0]
+                dz = self.hooked_by_player.position[1] - self.position[1]
+                move_direction = math.atan2(dz, dx)              
+                
+                move_vector = (distance * math.cos(move_direction),
+                               distance * math.sin(move_direction))
+                self._move(move_vector)
+        if self.is_immobilized:
+            self.is_moving = False
         MobileObject.update(self, dt)
 
         for ability in self.active_abilities:
             ability.update(dt)
+            
+    def change_element(self, element_type):
+        if self.element.type == element_type:
+            return
+        if element_type == "earth":
+            self.element = elements.EarthElement(self)
+        elif element_type == "fire":
+            self.element = elements.FireElement(self)
+        elif element_type == "water":
+            self.element = elements.WaterElement(self)
+        elif element_type == "air":
+            self.element = elements.AirElement(self)
+        else:
+            return
+        self.element_changed(self)
         
     def is_ongcd(self):
         """
@@ -297,10 +443,45 @@ class Player(MobileObject):
             self.last_ability_time = self.world.time
             self.active_abilities.append(ability)
             ability.expired += self.on_ability_expired
-            self.ability_used(self, index)
+            # @todo: find a more elegant way to pass the mobileobject/projectile than passing the entire ability
+            # this won't be an easy design issue to fix, but luckily doing it this way will work and be easy to
+            # implement and understand (even if it's a tad sloppy)
+            self.ability_used(self, index, ability)
+            
+            self.ability_instance_created(ability, self.world.time)
         else:
             # @todo: Notify player of error?
             pass
             
     def on_ability_expired(self, ability):
         self.active_abilities.remove(ability)
+        return False
+        
+class ProjectileObject(MobileObject):
+    def __init__(self, player, projectile_radius, duration):
+        MobileObject.__init__(self, player.world)
+        self.time_to_live = duration
+        self.owner = player
+        self.bounding_shape = collision.BoundingCircle(projectile_radius)
+        self.duration = duration
+        self.expired = Event()
+        self.type = "projectile"
+        player.world.add_object(self)
+    
+    def update(self, dt):
+        MobileObject.update(self, dt)
+        self.time_to_live -= dt
+        if self.time_to_live <= 0:
+            self.expired(self)
+            
+    def collide(self, object):
+        if object == self.owner:
+            return
+        if object.type == "projectile":
+            return
+        MobileObject.collide(self, object)
+        self.expire()
+        
+    def expire(self):
+        self.expired(self)
+        self.world.remove_object(self)

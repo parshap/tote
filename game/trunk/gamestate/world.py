@@ -11,6 +11,7 @@ class World(object):
     def __init__(self):
         self.objects = []
         self.object_added = Event()
+        self.world_updated = Event()
         self.debug_file = open("world.log", "w")
         self.time = 0
 
@@ -18,8 +19,14 @@ class World(object):
         # Add the object and fire the object_added event.
         self.objects.append(gameObject)
         self.object_added(gameObject)
+    
+    def remove_object(self, gameObject):
+        # Remove the object
+        self.objects.remove(gameObject)
         
     def update(self, dt):
+        self.world_updated(dt)
+        
         self.time += dt
         for gameObject in self.objects:
             gameObject.update(dt)

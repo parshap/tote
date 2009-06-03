@@ -1,0 +1,45 @@
+
+particle_system Earthquake
+{
+	quota	200
+	material	PE/lensflare
+	particle_width	20.37
+	particle_height	3
+	cull_each	false
+	renderer	billboard
+	billboard_type	point
+
+	emitter Ellipsoid
+	{
+		angle	10.31
+		colour	0.3 0.25 0.2 1
+		colour_range_start	0.3 0.25 0.26 1
+		colour_range_end	0.3 0.25 0.26 1
+		direction	0 1 0
+		emission_rate	100
+		position	0 0 0
+		velocity	3
+		velocity_min	3
+		velocity_max	11
+		time_to_live	2
+		time_to_live_min	2
+		time_to_live_max	2
+		duration	0
+		duration_min	0
+		duration_max	0
+		repeat_delay	0
+		repeat_delay_min	0
+		repeat_delay_max	0
+		width	30
+		height	30
+		depth	.1
+	}
+
+	affector ColourFader
+	{
+		red	-0.5
+		green	-0.5
+		blue	-0.5
+		alpha	0
+	}
+}

@@ -1,0 +1,237 @@
+UI
+{
+    zorder 500
+    
+    container Panel(UI/StatusBars)
+    {
+        metrics_mode pixels
+        vert_align bottom
+        horz_align center
+        left -128
+        top -84
+        width 256
+        height 20
+        
+        material black
+        transparent false
+        
+        container Panel(UI/StatusBars/Health)
+        {
+            metrics_mode pixels
+            vert_align top
+            width 180
+            height 10
+            
+            material green
+            transparent false
+        }
+        
+        container Panel(UI/StatusBars/Power)
+        {
+            metrics_mode pixels
+            vert_align top
+            top 10
+            width 256
+            height 10
+            
+            material blue
+            transparent false
+        }
+    }
+    
+    container Panel(UI/AbilityBar)
+    {
+        metrics_mode pixels
+        vert_align bottom
+        horz_align center
+        left -128
+        top -64
+        width 256
+        height 64
+        
+        material white
+        transparent false
+        
+        container Panel(UI/AbilityBar/Ability1)
+        {
+            metrics_mode pixels
+            left 0
+            width 64
+            height 64
+            
+            material Examples/Ninja
+            transparent false
+            container Panel(UI/AbilityBar/Ability1/CooldownContainer)
+            {
+                metrics_mode pixels
+                left 0
+                width 64
+                height 64
+                
+                material mat_cooldown_overlay
+                
+                element TextArea(UI/AbilityBar/Ability1/Cooldown)
+                {
+                    metrics_mode pixels
+                    horz_align center
+                    left 0
+                    top 16
+                    alignment center
+                    width 64
+                    height 32
+                    
+                    font_name arial
+                    char_height 40
+                    colour 1 0 0
+                }
+            }
+        }
+        
+        container Panel(UI/AbilityBar/Ability2)
+        {
+            metrics_mode pixels
+            left 64
+            width 64
+            height 64
+            
+            material Examples/Ninja
+            transparent false
+            
+            container Panel(UI/AbilityBar/Ability2/CooldownContainer)
+            {
+                metrics_mode pixels
+                left 0
+                width 64
+                height 64
+                
+                material mat_cooldown_overlay
+                
+                element TextArea(UI/AbilityBar/Ability2/Cooldown)
+                {
+                    metrics_mode pixels
+                    horz_align center
+                    left 0
+                    top 16
+                    alignment center
+                    width 64
+                    height 32
+                    
+                    font_name arial
+                    char_height 40
+                    colour 1 0 0
+                }
+            }
+        }
+        
+        container Panel(UI/AbilityBar/Ability3)
+        {
+            metrics_mode pixels
+            left 128
+            width 64
+            height 64
+            
+            // material Examples/Ninja
+            transparent false
+            
+            
+            container Panel(UI/AbilityBar/Ability3/CooldownContainer)
+            {
+                metrics_mode pixels
+                left 0
+                width 64
+                height 64
+                
+                material mat_cooldown_overlay
+                
+                element TextArea(UI/AbilityBar/Ability3/Cooldown)
+                {
+                    metrics_mode pixels
+                    horz_align center
+                    left 0
+                    top 16
+                    alignment center
+                    width 64
+                    height 32
+                    
+                    font_name arial
+                    char_height 40
+                    colour 1 0 0
+                }
+            }
+        }
+        
+        container Panel(UI/AbilityBar/Ability4)
+        {
+            metrics_mode pixels
+            left 192
+            width 64
+            height 64
+            
+            // material Examples/Ninja
+            transparent false
+            
+            container Panel(UI/AbilityBar/Ability4/CooldownContainer)
+            {
+                metrics_mode pixels
+                left 0
+                width 64
+                height 64
+                
+                material mat_cooldown_overlay
+                
+                element TextArea(UI/AbilityBar/Ability4/Cooldown)
+                {
+                    metrics_mode pixels
+                    horz_align center
+                    left 0
+                    top 16
+                    alignment center
+                    width 64
+                    height 32
+                    
+                    font_name arial
+                    char_height 40
+                    colour 1 0 0
+                }
+            }
+        }
+    }
+    
+    container Panel(UI/FPSLabel)
+    {
+        metrics_mode pixels
+        left 5
+        top 5
+        width 100
+        height 64
+        
+        element TextArea(UI/FPSLabel/Text)
+        {
+            metrics_mode pixels
+            width 100
+            height 64
+            
+            font_name arial
+            char_height 30
+            colour 1 1 1
+        }
+    }
+    
+    container Panel(UI/MessageLabel)
+    {
+        metrics_mode pixels
+        horz_align center
+        vert_align top
+        top 30
+        
+        element TextArea(UI/MessageLabel/Text)
+        {
+            metrics_mode pixels
+            
+            font_name arial
+            alignment center
+            char_height 40
+            colour 1 1 1
+        }
+    }
+}

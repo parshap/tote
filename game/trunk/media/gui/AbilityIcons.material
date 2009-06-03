@@ -1,0 +1,238 @@
+material FireIconAbility1
+{
+	technique
+	{
+		pass
+		{
+		
+			texture_unit
+			{
+				texture fire1.png
+			}
+		}
+	}
+}
+
+material FireIconAbility2
+{
+	technique
+	{
+		pass
+		{
+		
+			texture_unit
+			{
+				texture fire2.png
+			}
+		}
+	}
+}
+
+material FireIconAbility3
+{
+	technique
+	{
+		pass
+		{
+		
+			texture_unit
+			{
+				texture fire3.png
+			}
+		}
+	}
+}
+
+material FireIconAbility4
+{
+	technique
+	{
+		pass
+		{
+		
+			texture_unit
+			{
+				texture fire4.png
+			}
+		}
+	}
+}
+material EarthIconAbility1
+{
+	technique
+	{
+		pass
+		{
+		
+			texture_unit
+			{
+				texture earth1.png
+			}
+		}
+	}
+}
+
+material EarthIconAbility2
+{
+	technique
+	{
+		pass
+		{
+		
+			texture_unit
+			{
+				texture earth2.png
+			}
+		}
+	}
+}
+
+material EarthIconAbility3
+{
+	technique
+	{
+		pass
+		{
+		
+			texture_unit
+			{
+				texture earth3.png
+			}
+		}
+	}
+}
+
+material EarthIconAbility4
+{
+	technique
+	{
+		pass
+		{
+		
+			texture_unit
+			{
+				texture earth1.png
+			}
+		}
+	}
+}
+
+material AirIconAbility1
+{
+	technique
+	{
+		pass
+		{
+		
+			texture_unit
+			{
+				texture air1.png
+			}
+		}
+	}
+}
+
+material AirIconAbility2
+{
+	technique
+	{
+		pass
+		{
+		
+			texture_unit
+			{
+				texture air2.png
+			}
+		}
+	}
+}
+
+material AirIconAbility3
+{
+	technique
+	{
+		pass
+		{
+		
+			texture_unit
+			{
+				texture air3.png
+			}
+		}
+	}
+}
+
+material AirIconAbility4
+{
+	technique
+	{
+		pass
+		{
+		
+			texture_unit
+			{
+				texture air4.png
+			}
+		}
+	}
+}
+
+material WaterIconAbility1
+{
+	technique
+	{
+		pass
+		{
+		
+			texture_unit
+			{
+				texture water1.png
+			}
+		}
+	}
+}
+
+material WaterIconAbility2
+{
+	technique
+	{
+		pass
+		{
+		
+			texture_unit
+			{
+				texture water2.png
+			}
+		}
+	}
+}
+
+material WaterIconAbility3
+{
+	technique
+	{
+		pass
+		{
+		
+			texture_unit
+			{
+				texture water3.png
+			}
+		}
+	}
+}
+
+material WaterIconAbility4
+{
+	technique
+	{
+		pass
+		{
+		
+			texture_unit
+			{
+				texture water4.png
+			}
+		}
+	}
+}

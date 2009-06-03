@@ -4,13 +4,20 @@ import ogre.renderer.OGRE as ogre
 class BoundingObject(object):
     def __init__(self, type):
         self.type = type
-
+        
+    def setup_AABB(self, top, right, bottom, left):
+        self.aabb_top = top
+        self.aabb_right = right
+        self.aabb_bottom = bottom
+        self.aabb_left = left
 
 class BoundingCircle(BoundingObject):
-    def __init__(self, radius):
+    def __init__(self, radius, is_hollow = False):
         BoundingObject.__init__(self, "circle")
         self.radius = radius
-
+        self.is_hollow = is_hollow
+        
+        self.setup_AABB(-radius, radius, radius, -radius)
 
 class BoundingLineSegment(BoundingObject):
     def __init__(self, point1, point2, normal=None):
@@ -21,7 +28,13 @@ class BoundingLineSegment(BoundingObject):
         if normal is not None:
             self.normal = ogre.Vector3(normal[0], 0, normal[1])
         #@todo: if normal == None, calculate it from p1, p2
-
+        
+        top = min((point1[1], point2[1])) - point1[1]
+        right = max((point1[0], point2[0])) - point1[0]
+        bottom = max((point1[1], point2[1])) - point1[1]
+        left = min((point1[0], point2[0])) - point1[0]
+        
+        self.setup_AABB(top, right, bottom, left)
 
 class BoundingRectangle(BoundingObject):
     def __init__(self, width, height, rotation):
@@ -74,10 +87,12 @@ class BoundingRectangle(BoundingObject):
         # IMPLEMENT THIS AS AN OPTIMIZATION STEP ONLY IF NEEDED
         xCoords = [point1.x, point2.x, point3.x, point4.x]
         zCoords = [point1.z, point2.z, point3.z, point4.z]
-        self.max_x = max(xCoords)
-        self.min_x = min(xCoords)
-        self.max_z = max(zCoords)
-        self.min_z = min(zCoords)
+        right = max(xCoords)
+        left = min(xCoords)
+        bottom = max(zCoords)
+        top = min(zCoords)
+        
+        self.setup_AABB(top, right, bottom, left)
 
 class BoundingCone(BoundingObject):
     def __init__(self, radius, orientation, width):
@@ -85,6 +100,8 @@ class BoundingCone(BoundingObject):
         self.radius = radius
         self.orientation = orientation
         self.width = width
+        
+        self.setup_AABB(-radius, radius, radius, -radius)
 
 
 class UnsupportedShapesException(Exception):
@@ -101,7 +118,30 @@ class CollisionDetector(object):
     SPACING = 0.1
 
     @staticmethod
-    def is_between(shape, position, point1, point2):
+    def check_aabb_collision(shape1, pos1, shape2, pos2):
+        # if the left side of the collider shape is to the right of the right side of the collidee
+        # shape, no aabb collision is possible
+        if shape1.aabb_left + pos1[0] > shape2.aabb_right + pos2[0]:
+            return False
+        # if the top of the collider shape is below the bottom of the collidee shape
+        # no aabb collision is possible
+        if shape1.aabb_top + pos1[1] > shape2.aabb_bottom + pos2[1]:
+            return False
+        # if the right side of the collider shape is to the left of the left side of the collidee shape
+        # no aabb collision is possible
+        if shape1.aabb_right + pos1[0] < shape2.aabb_left + pos2[0]:
+            return False
+        # if the bottom of the collider shape is above the top of the collidee shape
+        # no collision is possible
+        if shape1.aabb_bottom + pos1[1] < shape2.aabb_top + pos2[1]:
+            return False
+        
+        # otherwise, return true
+        return True
+        
+
+    @staticmethod
+    def is_between(shape, position, line):
         """
         Returns True if the given shape at the given position is between the
         two given points (i.e., if it collides with the line segment between
@@ -109,23 +149,28 @@ class CollisionDetector(object):
         Raises an UnsupportedShapesException if the given shape type is not
         supported.
         """
-        line = BoundingLineSegment(point1, point2)
+        
+        # @todo: optimize this function so it no longer lags the game to death
+        # for the meantime, the conditions this function protects against are so rare
+        # they are not worth the performance hit
+        
+        
+        # first check axis-aligned bounding box collision for speed increase
+        if CollisionDetector.check_aabb_collision(shape, position, line, (line.point1.x, line.point1.z)) is False:
+            return False
+        
+        shape_position = ogre.Vector3(position[0], 0, position[1])
         
         # If the line has lenght 0 it cannot possibly collide with anything.
         if(line.vector.x == 0. and line.vector.y == 0.):
             return False;
         
-        # convert tuples to ogre.Vector3
-        position = ogre.Vector3(position[0], 0, position[1])
-        point1 = ogre.Vector3(point1[0], 0, point1[1])
-        point2 = ogre.Vector3(point2[0], 0, point2[1])
-        
         if shape.type == "circle":
-            return CollisionDetector._check_circle_line(shape, position, line, point1) is not False
+            return CollisionDetector._check_circle_line(shape, shape_position, line, line.point1) is not False
         elif shape.type == "linesegment":
-            return CollisionDetector._check_line_line(shape, position, line, point1) is not False
+            return CollisionDetector._check_line_line(shape, shape_position, line, line.point1) is not False
         elif shape.type == "rectangle":
-            #return CollisionDetector._check_line_rect(shape, position, line, point1) is not False
+            return CollisionDetector._check_line_rect(shape, shape_position, line, line.point1) is not False
             return False
             
         raise UnsupportedShapesException(shape, line)
@@ -139,6 +184,10 @@ class CollisionDetector(object):
         the given shapes is not supported.
         """
         
+        # first check axis-aligned bounding box collision for speed increase
+        if CollisionDetector.check_aabb_collision(shape1,position1, shape2, position2) is False:
+            return False
+        
         # convert tuples to ogre.Vector3
         position1 = ogre.Vector3(position1[0], 0, position1[1])
         position2 = ogre.Vector3(position2[0], 0, position2[1])
@@ -146,7 +195,10 @@ class CollisionDetector(object):
         if shape1.type == "circle" and shape2.type == "linesegment":
             return CollisionDetector._check_circle_line(shape1, position1, shape2, position2) is not False
         elif shape1.type == "circle" and shape2.type == "circle":
-            return CollisionDetector._check_circle_circle(shape1, position1, shape2, position2) is not False
+            if not shape1.is_hollow:
+                return CollisionDetector._check_circle_circle(shape1, position1, shape2, position2) is not False
+            else:
+                return CollisionDetector._check_circle_circle_hollow(shape1, position1, shape2, position2) is not False
         elif shape1.type == "circle" and shape2.type == "rectangle":
             return CollisionDetector._check_circle_rect(shape1, position1, shape2, position2) is not False
         elif shape1.type == "cone" and shape2.type == "circle":
@@ -162,13 +214,18 @@ class CollisionDetector(object):
         vector shape1 would have to move from position1 to no longer be
         overlapping with shape2 at position2.
         """
+        
+        # first check axis-aligned bounding box collision for speed increase
+        if CollisionDetector.check_aabb_collision(shape1,position1, shape2, position2) is False:
+            return False
+        
         # convert tuples to ogre.Vector3
         position1 = ogre.Vector3(position1[0], 0, position1[1])
         position2 = ogre.Vector3(position2[0], 0, position2[1])
         old_position1 = ogre.Vector3(old_position1[0], 0, old_position1[1])
         
         if shape1.type == "circle" and shape2.type == "linesegment":
-            return CollisionDetector._resolve_circle_line(shape1, position1, shape2, position2)
+            return CollisionDetector._resolve_circle_line(shape1, position1, old_position1, shape2, position2)
         elif shape1.type == "circle" and shape2.type == "circle":
             return CollisionDetector._resolve_circle_circle(shape1, position1, shape2, position2)
         elif shape1.type == "circle" and shape2.type == "rectangle":
@@ -282,6 +339,41 @@ class CollisionDetector(object):
         
         # Calculate the distance between the center points of the two circles.
         distance = CollisionDetector._get_xz_distance(circle1_position, circle2_position)
+        
+        if distance > circle1.radius + circle2.radius:
+            # If the distance is greater than the sum of the two circles' radii
+            # then the circles are not overlapping and there is no collision.
+            return False
+        else:
+            return True
+        
+    @staticmethod
+    def _check_circle_circle_hollow(circle1, circle1_position, circle2, circle2_position):
+        """
+        NOTE: The difference between hollow collision and non-hollow collision is this will
+        ONLY return true if there are actual point(s) of intersection. This method will
+        return false if one circle is inside the other and not intersecting.
+        
+        Checks if circle1 centered about circle1_position is overlapping with circle2
+        centered about circle2_position. If there is no overlap, False is returned. If
+        there is an overlap, True is returned.
+        """
+        # if one circle is inside the other, then return False
+        if circle1.radius > circle2.radius:
+            larger_circle = circle1
+            larger_circle_position = circle1_position
+            smaller_circle = circle2
+            smaller_circle_position = circle2_position
+        else:
+            larger_circle = circle2
+            larger_circle_position = circle2_position
+            smaller_circle = circle1
+            smaller_circle_position = circle1_position
+            
+        distance = CollisionDetector._get_xz_distance(circle1_position, circle2_position)
+        
+        if larger_circle.radius > distance + smaller_circle.radius:
+            return False
         
         if distance > circle1.radius + circle2.radius:
             # If the distance is greater than the sum of the two circles' radii
@@ -416,62 +508,66 @@ class CollisionDetector(object):
         return False
     
     @staticmethod
-    def _resolve_circle_line(circle, circle_position, line, line_position):
+    def _resolve_circle_line(circle, circle_position_new, circle_position_old, line, line_position):
         """
         Returns the Resolution Translation Vector (RTV) that must be applied to the object that owns
         circle in order to resolve the collision, or False if no collision occurred.
-        
-        NOTE: THE RESOLUTION METHOD IS SLIGHTLY FLAWED, AND IS THE CAUSE OF THE FLICKERING EXPERIENCED
-        WHEN RUNNING AGAINST A WALL. IN ORDER TO RESOLVE THIS COLLISION 100% CORRECTLY, THE ANGLE
-        OF INCIDENCE MUST BE KNOWN. OTHERWISE, THE CURRENT IMPLEMENTATION MAY BE AN ACCEPTABLE
-        APPROXIMATION.
         """
-        # data is tuple of 'u' values which can be used to compute intersection points, or False
-        data = CollisionDetector._check_circle_line(circle, circle_position, line, line_position)
         
-        # no collision if data is False
-        if data is False:
+        # find the distance to the edge from the circle's new position 
+        new_distance_to_edge = CollisionDetector._get_position_on_axis(circle_position_new, line.normal, line.point1)
+        
+        # if we are positive and farther away than radius, then no collision occurred for sure
+        if new_distance_to_edge > circle.radius or new_distance_to_edge < 0:
             return False
-        
-        # if there was a collision, so use the 'u' values to compute the RTV
+        # otherwise
         else:
-            # calculate the endpoints of the line segment
-            point1 = line_position
-            point2 = line_position + line.vector
+            # determine if a collision occurred in the voroni region
+            segment_vector = line.point2 - line.point1
+            segment_vector_length = CollisionDetector._get_position_on_axis(line.point2, segment_vector, line.point1)
+            segment_axis_pos = CollisionDetector._get_position_on_axis(circle_position_new, segment_vector, line.point1)
             
-            # pre-calculate point1-point2 for easy reference
-            p2Minusp1 = ogre.Vector3(point2.x - point1.x, 0, point2.z - point1.z)
-            
-            # now we have two cases: one or two points of intersection. For each case we must calculate the collision point.
-            collisionPoint = None # initialize this here for scope
-            
-            # if there is one collision point
-            if len(data) == 1:
-                u = data[0]
-                collisionPoint = ogre.Vector3(point1.x + u * p2Minusp1.x, 0, point1.z + u * p2Minusp1.z)
-            # else if there are two collision points
-            else:   
-                # we calculate the two collision points (where the circle intersects the segment
-                u1 = data[0]
-                u2 = data[1]
+            # if we are in a voroni region
+            if segment_axis_pos > 0 and segment_axis_pos < segment_vector_length:
+                # a collision must have occurred in this voroni region since we already know
+                # that new_distance_to_edge <= circle.radius
                 
-                intersectionPoint1 = ogre.Vector3(point1.x + u1 * p2Minusp1.x, 0, point1.z + u1 * p2Minusp1.z)
-                intersectionPoint2 = ogre.Vector3(point1.x + u2 * p2Minusp1.x, 0, point1.z + u2 * p2Minusp1.z)
-    
-                # find the point on the segment where the circle collided initially by taking the midpoint of the intersection points
-                collisionPoint = intersectionPoint1.midPoint(intersectionPoint2)
-    
-            # the distance to place the center of the circle from the point of collision
-            distance = circle.radius + CollisionDetector.SPACING
-
-            # translate the circle's position along the segment's normal 'radius' units
-            resolvedPosition = ogre.Vector3(collisionPoint.x + distance * line.normal.x, 0, collisionPoint.z + distance * line.normal.z)
-            
-            # get the relative translation vector to resolve the object's position
-            # this vector is what the collider object must be translated by for the collision to be resolved correctly
-            resolutionVector = (resolvedPosition.x - circle_position.x, resolvedPosition.z - circle_position.z)
-
-            return resolutionVector
+                #calcualte rtv
+                rtv_magnitude = circle.radius - new_distance_to_edge + CollisionDetector.SPACING
+                rtv = rtv_magnitude * line.normal
+                return (rtv.x, rtv.z)
+            # if we are not in a voroni region, we have to check to see if a collision occurred with either corner
+            else:
+                p1_axis_pos = 0
+                p2_axis_pos = CollisionDetector._get_position_on_axis(line.point2, segment_vector, line.point1)
+                
+                dp1 = p1_axis_pos - segment_axis_pos
+                dp2 = p2_axis_pos - segment_axis_pos
+                
+                if dp1 < -circle.radius:
+                    return False
+                if dp2 > p2_axis_pos + circle.radius:
+                    return False
+                
+                if dp1 < dp2:
+                    corner = line.point1
+                else:
+                    corner = line.point2
+                
+                rtv_axis = circle_position_new - corner
+                distance_to_corner = CollisionDetector._get_position_on_axis(circle_position_new, rtv_axis, corner)
+                circle_edge_pos = distance_to_corner - circle.radius
+                
+                if circle_edge_pos <=0:
+                    # corner collision occurred
+                    rtv_axis.normalise()
+                    rtv_magnitude = -circle_edge_pos
+                    rtv_magnitude += CollisionDetector.SPACING
+                    rtv = rtv_axis * rtv_magnitude
+                    # return rtv as tuple
+                    return (rtv.x, rtv.z)
+        return False
+                 
     
     @staticmethod
     def _resolve_circle_circle(circle1, circle1_position, circle2, circle2_position):
@@ -614,3 +710,9 @@ class CollisionDetector(object):
         dx = point2.x - point1.x
         dz = point2.z - point1.z
         return math.sqrt(dx*dx + dz*dz)
+    
+    @staticmethod
+    def normalise_vector(tuple_vector):
+        vector = ogre.Vector3(tuple_vector[0], 0, tuple_vector[1])
+        vector.normalise()
+        return (vector.x, vector.z)
