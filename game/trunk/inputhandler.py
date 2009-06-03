@@ -40,14 +40,13 @@ class InputHandler(OIS.MouseListener, OIS.KeyListener):
     pressed down.
     """
     
-    def __init__(self, mouse, keyboard, scene, player):
+    def __init__(self, mouse, keyboard, scene):
         OIS.MouseListener.__init__(self)
         OIS.KeyListener.__init__(self)
         self.mouse = mouse
         self.keyboard = keyboard
         self.scene = scene
         self.viewport = vp = self.scene.camera.getViewport()
-        self.player = player
         
     def capture(self):
         self.mouse.capture()
@@ -59,21 +58,23 @@ class InputHandler(OIS.MouseListener, OIS.KeyListener):
         # here. This is similar to unbufferd input.
         mouseState = self.mouse.getMouseState()
         
-        if mouseState.buttonDown(MOUSE_CONTROLS["FACE"]):
-            mousex = mouseState.X.abs
-            mousey = mouseState.Y.abs
-            angle = math.atan2(mousey - self.viewport.actualHeight/2,
-                               mousex - self.viewport.actualWidth/2)
-            self.player.rotation = angle
-            
-        self.player.is_moving = mouseState.buttonDown(MOUSE_CONTROLS["MOUSEMOVE"])
+        if self.scene.player:
+            if mouseState.buttonDown(MOUSE_CONTROLS["FACE"]):
+                mousex = mouseState.X.abs
+                mousey = mouseState.Y.abs
+                angle = math.atan2(mousey - self.viewport.actualHeight/2,
+                                   mousex - self.viewport.actualWidth/2)
+                self.scene.player.rotation = angle
+                
+            self.scene.player.is_moving = mouseState.buttonDown(MOUSE_CONTROLS["MOUSEMOVE"])
 
     def mouseMoved(self, event):
         return True
 
     def mousePressed(self, event, id):
-        if id == MOUSE_CONTROLS["ABILITY_1"]:
-            self.player.use_ability(1)
+        if self.scene.player:
+            if id == MOUSE_CONTROLS["ABILITY_1"]:
+                self.scene.player.use_ability(1)
         
         # Inject mouse press to UI elements.
 #        for element in self.scene.gui_elements:
@@ -96,12 +97,15 @@ class InputHandler(OIS.MouseListener, OIS.KeyListener):
         # Quit the application if we hit the escape button
         if event.key == OIS.KC_ESCAPE:
             self.scene.quit = True
-        if event.key == KEYBOARD_CONTROLS["ABILITY_2"]:
-            self.player.use_ability(2)
-        if event.key == KEYBOARD_CONTROLS["ABILITY_3"]:
-            self.player.use_ability(3)
-        if event.key == KEYBOARD_CONTROLS["ABILITY_4"]:
-            self.player.use_ability(4)
+            
+        if self.scene.player:
+            if event.key == KEYBOARD_CONTROLS["ABILITY_2"]:
+                self.scene.player.use_ability(2)
+            if event.key == KEYBOARD_CONTROLS["ABILITY_3"]:
+                self.scene.player.use_ability(3)
+            if event.key == KEYBOARD_CONTROLS["ABILITY_4"]:
+                self.scene.player.use_ability(4)
+        
             
         if event.key == KEYBOARD_CONTROLS["ELEMENT_EARTH"]:
             self.player.change_element("earth")

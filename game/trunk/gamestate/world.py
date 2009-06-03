@@ -10,15 +10,23 @@ class World(object):
     """
     def __init__(self):
         self.objects = []
+        self.objects_hash = { }
+        self.object_id_pos = 0
         self.object_added = Event()
         self.world_updated = Event()
         self.debug_file = open("world.log", "w")
         self.time = 0
 
-    def add_object(self, gameObject):
+    def add_object(self, object, object_id=None):
         # Add the object and fire the object_added event.
-        self.objects.append(gameObject)
-        self.object_added(gameObject)
+        if object_id is None:
+            self.object_id_pos += 1
+            object.object_id = self.object_id_pos
+        else:
+            object.object_id = object_id
+        self.objects.append(object)
+        self.objects_hash[object.object_id] = object
+        self.object_added(object)
     
     def remove_object(self, gameObject):
         # Remove the object

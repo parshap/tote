@@ -1,12 +1,14 @@
 from __future__ import division
-import gc
+import threading, time, math
 
 # Import OGRE-specific (and other UI-Client) external packages and modules.
 import ogre.renderer.OGRE as ogre
 import ogre.io.OIS as OIS
+from twisted.internet import reactor
 
 # Import internal packages and modules modules.
-import gamestate
+import gamestate, net
+from net import packets
 import SceneLoader
 from inputhandler import InputHandler
 import nodes
@@ -14,7 +16,6 @@ import gui
 
 # Import other python modules
 import math
-from xml.dom import minidom, Node
 
 class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
     """
@@ -23,11 +24,13 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
     frameStarted()).
     """
 
-    def __init__(self, sceneManager):
+    def __init__(self, sceneManager, address, port):
         # Initialize the various listener classes we are a subclass from
         ogre.FrameListener.__init__(self)
         ogre.WindowEventListener.__init__(self)
-
+        
+        self.address = address
+        self.port = port
         
         self.renderWindow = ogre.Root.getSingleton().getAutoCreatedWindow()
         self.sceneManager = sceneManager
@@ -48,6 +51,10 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
         # Set up the scene.
         self.setupScene()
         
+        # Init attributes.
+        self.player = None
+        self.last_update = None
+
         # Set up the GUI.
         self.setupGUI()
         
@@ -78,34 +85,38 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
         
     def setupScene(self):
         ## Load the level.
-        # @todo: Remove .scene dependancy and move to external file (format?).
+
+        # Create the world.
+        self.world = gamestate.world.World()
         
-        # Load some data from the .scene file
+        # Load the scene into the Ogre world.
+        # @todo: Remove .scene dependancy and move to external file (format?).
         sceneLoader = SceneLoader.DotSceneLoader("media/testtilescene.scene", self.sceneManager)
         sceneLoader.parseDotScene()
         
-        # Create the world.
-        self.world = gamestate.world.World()
+        # Load the scene into the game state.
+        self.scene = gamestate.scenes.TestScene(self.world)
+        
+        # Create the client and set listeners.
+        self.client = net.client.GameClient(self.world, self.address, self.port)
+        self.client.connected += self.on_client_connected
+        
+        # Start the netclient and connect.
+        self.client_thread = threading.Thread(target=self.client.go)
+        self.client_thread.start()
         
         # Attach a handler to world.object_added
         self.world.object_added += self.on_world_object_added
         
-        # Add a player to the world and set it as our active player.
-        self.player = gamestate.objects.Player(self.world)
-        self.world.add_object(self.player)
+#        # Add a player to the world and set it as our active player.
+#        self.player = gamestate.objects.Player(self.world)
+#        self.world.add_object(self.player)
         
-        # Add stationary NPC ninja...
-        npc = gamestate.objects.Player(self.world)
-        self.world.add_object(npc)
-        npc.position = (-500, 0)
-        npc.isPassable = False
-        
-        # Add boundary lines for map walls.       
-        self.setup_level_boundaries("media/levelbounds.bounds")
-        
-        # Listen to player events.
-        self.player.position_changed += self.on_player_position_changed
-        self.player.element_changed += self.on_player_element_changed
+#        # Add stationary NPC ninja...
+#        npc = gamestate.objects.Player(self.world)
+#        self.world.add_object(npc)
+#        npc.position = (-500, 0)
+#        npc.isPassable = False
 
         # Setup camera
         self.camera.nearClipDistance = 1
@@ -124,6 +135,16 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
         self.cameraNode.pitch(ogre.Degree(-45))
         
     def setupGUI(self):
+        # Create an FPS label.
+        fpslabel = gui.FPSLabel("UI/FPSLabel")
+        self.gui_elements.append(fpslabel)
+        
+        # Create the message label.
+        self.message = gui.Message("UI/MessageLabel")
+        self.gui_elements.append(self.message)
+        
+    def setupGUIPlayer(self):
+        """ Sets up player-related GUI that requires a player before setting up. """
         # Set up health and power bars
         health_bar_rect = ogre.Rectangle()
         health_bar_rect.left = self.viewport.actualWidth / 2 - 128
@@ -149,16 +170,9 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
         self.player.health_changed += health_bar.on_value_changed
         self.player.power_changed += power_bar.on_value_changed
         
-        # Create an FPS label.
-        fpslabel = gui.FPSLabel("UI/FPSLabel")
-        self.gui_elements.append(fpslabel)
-        
-        # Create the message label.
-        self.message = gui.Message("UI/MessageLabel")
-        self.gui_elements.append(self.message)
-        
         # Set up the ability bar.
         self.setupGUIAbilityBar()
+        
     
     def setupGUIAbilityBar(self):
         player = self.player
@@ -266,49 +280,9 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
             raise
 
         # Use an InputHandler object to handle the callback functions.
-        self.inputHandler = InputHandler(mouse=self.mouse, keyboard=self.keyboard,
-                                         scene=self, player=self.player)
+        self.inputHandler = InputHandler(self.mouse, self.keyboard, self)
         self.mouse.setEventCallback(self.inputHandler)
         self.keyboard.setEventCallback(self.inputHandler)
-        
-    def setup_level_boundaries(self, filepath):
-        """
-        Takes an xml-style file that specifies all of the level's static boundinglinesegments, and creates those
-        bounds in the world.
-        """
-        xml_data = minidom.parse(filepath)
-        docRoot = xml_data.getElementsByTagName('segments')[0].childNodes
-        for segmentNode in docRoot:
-            if segmentNode.nodeType == Node.ELEMENT_NODE and segmentNode.nodeName == 'segment':
-                point1_data = self.getXMLNode(segmentNode, "point1").attributes
-                point2_data = self.getXMLNode(segmentNode, "point2").attributes
-                normal_data = self.getXMLNode(segmentNode, "normal").attributes
-                
-                point1 = (float(point1_data["x"].nodeValue),  -float(point1_data["z"].nodeValue))
-                point2 = (float(point2_data["x"].nodeValue),  -float(point2_data["z"].nodeValue))
-                normal = (float(normal_data["x"].nodeValue),  float(normal_data["z"].nodeValue))
-                
-                boundary_wall = gamestate.objects.GameObject(self.world)
-                boundary_wall.isPassable = False
-                boundary_wall.position = point1
-                
-                boundary_wall.bounding_shape = gamestate.collision.BoundingLineSegment(point1, point2, normal)
-                
-                self.world.add_object(boundary_wall)
-                
-    def getXMLNode(self, base, name):
-        """
-        This function basically doubles as both a test for element 
-        existence and a getter for that element node... used with setup_level_boundaries()
-        """
-        if base.hasChildNodes:
-            baseChildNodes = base.childNodes
-            
-            for node in baseChildNodes:
-                if node.nodeType == Node.ELEMENT_NODE and node.nodeName == name:
-                    return node
-            
-            return False
 
     def frameStarted(self, event):
         """ 
@@ -321,6 +295,11 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
         
         dt = event.timeSinceLastFrame
         
+        # Get buffered input from server and process it.
+        while not self.client.input.empty():
+            packet = self.client.input.get_nowait()
+            self.process_packet(packet)
+
         # Capture any buffered events (and fire any callbacks).
         self.inputHandler.capture()
         
@@ -330,6 +309,12 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
         
         # Update the game state world.
         self.world.update(dt)
+        
+        # Send an PlayerUpdate packet to the server if appropriate.
+        self._send_update()
+        
+        # Send buffered output to server.
+        reactor.callFromThread(self.client.send)
         
         # Add time to animations.
         for node in self.nodes:
@@ -341,7 +326,106 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
             return False
         
         return True
- 
+        
+    ## Net event callbacks & helpers
+    def _send_update(self):
+        """ Sends a PlayerUpdate packet to the server if appropriate. """
+        if self.player is None:
+            return
+
+        update = self._get_update()
+        if self.last_update is not None:
+            update_time, last_update = self.last_update
+            
+            # Don't send if we've sent in the last 0.1s.
+            if update_time + 0.05 > self.world.time:
+                return
+                
+            # Don't send if info hasn't changed since the last update.
+            if last_update.x == update.x and last_update.z == update.z and \
+                last_update.rotation == update.rotation and \
+                last_update.move_speed == update.move_speed and \
+                last_update.move_direction == update.move_direction:
+                return
+        
+        print "Sending player update to server."
+        self.client.output.put_nowait(update)
+        self.last_update = (self.world.time, update)
+    
+    def _get_update(self):
+        """ Returns a PlayerUpdate packet based on the current player state. """
+        update = packets.PlayerUpdate()
+        update.x, update.z = self.player.position
+        update.rotation = self.player.rotation
+        if self.player.is_moving:
+            update.move_speed = self.player.move_speed
+            update.move_direction = self.player.move_direction
+        else:
+            update.move_speed = 0
+            update.move_direction = 0
+        return update
+        
+    
+    def process_packet(self, packet):
+        ptype = type(packet)
+        print "Processing packet=%s: %s from server." % (packet.id, ptype.__name__)
+        
+        # JoinResponse
+        if ptype is packets.JoinResponse:
+            # @todo: handle deny
+            # Add a player to the world and set it as our active player.
+            print "Creating player in world with id=%s." % packet.player_id
+            self.player = gamestate.objects.Player(self.world)
+            self.world.add_object(self.player, packet.player_id)
+            
+            # Set up the player's GUI.
+            self.setupGUIPlayer()
+            
+            # Listen to the player's position change event so we can mvoe the
+            # camera with the player.
+            self.player.position_changed += self.on_player_position_changed
+            self.player.element_changed += self.on_player_element_changed
+        
+        # ObjectInit
+        elif ptype is packets.ObjectInit:
+            if packet.object_type == "player":
+                object = gamestate.objects.Player(self.world)
+            else:
+                raise Exception("Invalid object_type")
+            # @todo: implement name, owner_id, ttl
+
+            self.world.add_object(object, packet.object_id)
+        
+        # ObjectUpdate
+        elif ptype is packets.ObjectUpdate:
+            if not self.world.objects_hash.has_key(packet.object_id):
+                return
+            object = self.world.objects_hash[packet.object_id]
+            print "Updating object id=%s." % object.object_id
+            object.rotation = packet.rotation
+            try:
+                if packet.move_speed > 0:
+                    diff_vector = ogre.Vector3(packet.x - object.position[0], 0, packet.z - object.position[1])
+                    move_vector = ogre.Vector3(packet.move_speed * math.cos(packet.rotation), 0,
+                                               packet.move_speed * math.sin(packet.rotation))
+                    resultant = diff_vector + move_vector
+                    angle = math.atan2(resultant.z, resultant.x)
+                    object.move_speed = packet.move_speed
+                    object.rotation = angle
+                    object.move_direction = 0
+                    object.is_moving = True
+                else:
+                    object.position = (packet.x, packet.z)
+                    object.is_moving = False
+            except:
+                object.position = (packet.x, packet.z)
+    
+    def on_client_connected(self):
+        packet = packets.JoinRequest()
+        # @todo: Get player_name from somewhere.
+        packet.player_name = "Player1"
+        self.client.output.put_nowait(packet)
+        
     ## Game event callbacks
     def on_world_object_added(self, gameObject):
         if gameObject.type == "player":
