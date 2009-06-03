@@ -19,8 +19,11 @@ class ServerProtocol(protocol.Protocol):
 
     def connectionLost(self, reason):
         self.factory.clients.remove(self)
+        if self.player is not None and self.player.is_active:
+            self.player.world.remove_object(self.player)
+            self.player = None
         print "Lost connection #%s client=%s from %s." % \
-            (len(self.factory.clients), self.client_id, self.transport.getPeer())
+            (len(self.factory.clients)+1, self.client_id, self.transport.getPeer())
 
     def dataReceived(self, data):
         self.buffer += data
