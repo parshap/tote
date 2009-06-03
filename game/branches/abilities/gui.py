@@ -153,18 +153,30 @@ class Label(Element):
         self._textarea.setColour(c)
     color = property(_get_color, _set_color)
     
+    def _get_is_fading(self):
+        """ Gets whether or not the label is currently fading. """
+        return self._opacity_target is not None and \
+               self.opacity != self._opacity_target
+    is_fading = property(_get_is_fading)
+    
+    def _get_is_visible(self):
+        """ Gets whether or not the label is currently visible. """
+        return self.opacity > 0 and self.overlay.isVisible() and self._textarea.isVisible()
+    is_visible = property(_get_is_visible)
+    
     def update(self, dt):
         Element.update(self, dt)
-        if self._opacity_target is not None:
-            if self.opacity != self._opacity_target:
-                newval = self.opacity + (self._opacity_step * dt)
-                if self._opacity_step > 0 and newval > self._opacity_target or \
-                   self._opacity_step < 0 and newval < self._opacity_target:
-                    newval = self._opacity_target
-                    self._opacity_target = None
-                    if self._fade_callback is not None:
-                        self._fade_callback(self)
-                self.opacity = newval
+        if self._opacity_target is not None and \
+           self.opacity != self._opacity_target:
+            newval = self.opacity + (self._opacity_step * dt)
+            if self._opacity_step > 0 and newval > self._opacity_target or \
+               self._opacity_step < 0 and newval < self._opacity_target:
+                newval = self._opacity_target
+                self._opacity_target = None
+                if self._fade_callback is not None:
+                    self._fade_callback(self)
+            self.opacity = newval
+    
                 
     def fade(self, start=None, end=None, duration=0.2, callback=None):
         """
@@ -179,7 +191,9 @@ class Label(Element):
         if start is None: start = self.opacity
         if end is None: end = self.opacity
         self._opacity_target = end
-        self._opacity_step = (end - start) / duration
+        self._opacity_step = (end - start)
+        if duration != 0:
+            self._opacity_step /= duration
         self.opacity = start
         self._fade_callback = callback
     
@@ -201,3 +215,57 @@ class FPSLabel(Label):
             self.text = "%d" % fps
             self.time_passed = 0
             self.frames_passed = 0
+
+
+class Message(Label):
+    def __init__(self, overlay_name):
+        Label.__init__(self, overlay_name)
+        self._show_time = 0
+    
+    def _set_text(self, value):
+        raise Exception("Setting text directly is not supported in Message.")
+    text = property(Label._get_text, _set_text)
+    
+    def update(self, dt):
+        Label.update(self, dt)
+        if not self.is_fading and self.is_visible:
+            self._show_time -= dt
+            if self._show_time <= 0:
+                self.fade(end=0, duration=self._fade_duration)
+    
+    def show(self, text, color, fade_duration=.5, show_duration=None):
+        """
+        Temporarily displays the text.
+        
+        Parameters:
+        text - The text to display.
+        color - The color to display the text.
+        fade_duration - The duration for the fade in and fade out. Default is
+            0.5.
+        show_duration - The duration to display the text for after fade in is
+            complete before starting fade out. Default is a duration calculated
+            based on the length of the text string with a minimum display of 1
+            second and maximum display fo 5 seconds.
+        """
+        if show_duration is None: show_duration = min(max(len(text) * .05, 1), 5)
+        Label._set_text(self, text)
+        self.color = color
+        self.fade(start=0, end=1, duration=fade_duration)
+        self._show_time = show_duration
+        self._fade_duration = fade_duration
+    
+    def error(self, text):
+        # Used for game errors (e.g., not enough power)
+        self.show(text, (.8, .1, .1))
+        
+    def notice(self, text):
+        # Used for game notices (e.g., player won the game, you died)
+        self.show(text, (.9, .9, .6))
+
+    def success(self, text):
+        # Used for game success messages (e.g., you killed a player)
+        self.show(text, (.1, .8, .1))
+        
+    def system(self, text):
+        # Used for system messages (e.g., connected to server, player joined)
+        self.show(text, (1, 1, 1))
