@@ -19,7 +19,7 @@ UI
         {
             metrics_mode pixels
             vert_align top
-            width 180
+            width 256
             height 10
             
             material green
@@ -59,7 +59,7 @@ UI
             width 64
             height 64
             
-            material Examples/Ninja
+            material EarthIconAbility1
             transparent false
             container Panel(UI/AbilityBar/Ability1/CooldownContainer)
             {
@@ -94,7 +94,7 @@ UI
             width 64
             height 64
             
-            material Examples/Ninja
+            material EarthIconAbility1
             transparent false
             
             container Panel(UI/AbilityBar/Ability2/CooldownContainer)
@@ -130,7 +130,7 @@ UI
             width 64
             height 64
             
-            // material Examples/Ninja
+            material EarthIconAbility1
             transparent false
             
             
@@ -167,7 +167,7 @@ UI
             width 64
             height 64
             
-            // material Examples/Ninja
+            material EarthIconAbility1
             transparent false
             
             container Panel(UI/AbilityBar/Ability4/CooldownContainer)
