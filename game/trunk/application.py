@@ -204,7 +204,7 @@ class ServerApplication(object):
                 init.object_id = object.object_id
                 init.object_type = "player"
                 self.server.output.put_nowait((client, init))
-                update = self._update_from_object(object)
+                update = self._get_update(object)
                 self.server.output.put_nowait((client, update))
   
         # PlayerUpdate
