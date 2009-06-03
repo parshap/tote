@@ -44,10 +44,10 @@ class GameClient(protocol.ClientFactory):
         self.addr = addr
         self.port = port
         self.connected = Event()
-
-    def startFactory(self):
         self.input = Queue()
         self.output = Queue()
+
+    def startFactory(self):
         pass
         
     def stopFactory(self):
