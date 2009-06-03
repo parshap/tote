@@ -413,6 +413,7 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
         
         # AbilityUsed
         elif ptype is packets.AbilityUsed:
+            print "Using ability id=%s on player_id=%s" % (packet.object_id, packet.ability_id)
             player = self.world.objects_hash[packet.object_id]
             player.use_ability(packet.ability_id)
     
