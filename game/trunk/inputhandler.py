@@ -74,7 +74,7 @@ class InputHandler(OIS.MouseListener, OIS.KeyListener):
     def mousePressed(self, event, id):
         if self.scene.player:
             if id == MOUSE_CONTROLS["ABILITY_1"]:
-                self.scene.player.use_ability(1)
+                self.scene.player.request_ability(1)
         
         # Inject mouse press to UI elements.
 #        for element in self.scene.gui_elements:
