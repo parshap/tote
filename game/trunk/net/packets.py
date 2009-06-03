@@ -214,6 +214,52 @@ class ObjectRemove(Packet):
         return offset + 2
 
 
+class AbilityRequest(Packet):
+    """
+    This is a packet sent from the client to the server to request to use an
+    ability. The server will sen dout an AbilityUsed packet if the request is
+    accepted.
+    
+    Required attributes:
+    object_id - the id of the player using the ability
+    ability_id - the id of the ability
+    """
+    id = 10
+    format = "!H H" # object_id ability_id
+    
+    def pack(self, packed=""):
+        return Packet.pack(self, struct.pack(AbilityRequest.format,
+            self.object_id, self.ability_id)) + packed
+            
+    def unpack(self, packed):
+        offset = Packet.unpack(self, packed)
+        self.object_id, self.ability_id = struct.unpack_from(AbilityRequest.format, packed, offset)
+        return offset + 4
+
+
+class AbilityUsed(Packet):
+    """
+    This is a packet sent from the server to all clients when a player uses an
+    ability. This is genreally a response to an AbilityRequest packet from a
+    client.
+    
+    Required attributes:
+    object_id - the id of the player using the ability
+    ability_id - the id of the ability
+    """
+    id = 11
+    format = "!H H" # object_id ability_id
+    
+    def pack(self, packed=""):
+        return Packet.pack(self, struct.pack(AbilityRequest.format,
+            self.object_id, self.ability_id)) + packed
+            
+    def unpack(self, packed):
+        offset = Packet.unpack(self, packed)
+        self.object_id, self.ability_id = struct.unpack_from(AbilityRequest.format, packed, offset)
+        return offset + 4
+
+
 packets = {
     0: Packet,
     1: JoinRequest,
@@ -224,4 +270,6 @@ packets = {
     6: ObjectInit,
     7: ObjectUpdate,
     8: ObjectRemove,
+    10: AbilityRequest
+    11: AbilityUsed
 }
