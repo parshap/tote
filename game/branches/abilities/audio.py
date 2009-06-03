@@ -9,35 +9,38 @@ class SoundPlayer:
     Step 1: Make sure the sound resource is loaded
     Step 2: Call play() and pass it <soundname>.<extension> NO DIR PATHS
     """
-    def __init__(self):
-        self.soundManager = OgreAL.SoundManager()
+    def __init__(self, soundManager):
+        self.soundManager = soundManager
         self.active_sounds = { }
         self.sound_id = 0 # for unique IDs
+        print "creating soundplayer"
+    
+    def get_unique_id(self, name):
+        self.sound_id += 1
+        return name + str(self.sound_id)   
         
-    def play(self, sound_name):
+    def play(self, sound_name, looping = False, streaming = False):
         """
         Plays the soundfile soundname.
         """
-        self.sound_id += 1
-        print str(self.sound_id)
-        unique_name = sound_name + "%d"%self.sound_id
+        unique_name = self.get_unique_id(sound_name)
         sound = self.soundManager.createSound(unique_name, 
                                               sound_name, 
-                                              False, 
-                                              False)
+                                              looping, 
+                                              streaming)
         self.active_sounds[unique_name] = sound
-        print "playing sound: " + unique_name
-        sound.play()
-        self.destroy_inactive_sounds()
         
-    def destroy_inactive_sounds(self):
+        sound.play()
+    
+    def update(self, dt):
         remove_list = []
         for key in self.active_sounds:
-            if not self.active_sounds[key].isPlaying():
+            sound = self.active_sounds[key]
+            if sound.isStopped():
+                print "removing " + key
                 remove_list.append(key)
-        for item_to_remove in remove_list:
-            self.soundManager.destroySound(item_to_remove)
-            del self.active_sounds[item_to_remove]
-        
+        for key in remove_list:
+            self.soundManager.destroySound(key)
+            del self.active_sounds[key]
     
        

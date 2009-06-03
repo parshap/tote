@@ -2,12 +2,15 @@ from __future__ import division
 
 # Import OGRE-specific (and other UI-Client) external packages and modules.
 import ogre.renderer.OGRE as ogre
+import ogre.sound.OgreAL._ogreal_ as OgreAL
 
 # Import other external packages and modules.
 import sys
 
 # Import internal packages and modules modules.
 from playscene import PlayScene
+from audio import SoundPlayer
+
 
 
 class Application(object):
@@ -59,7 +62,7 @@ class Application(object):
 
     def setupScene(self):
         self.sceneManager = self.root.createSceneManager(ogre.ST_GENERIC, "PrimarySceneManager")
-        
+        self.soundPlayer = SoundPlayer(OgreAL.SoundManager())
         # Create the camera and attach it to a scene node.
         camera = self.sceneManager.createCamera("PrimaryCamera")
         cameraNode = self.sceneManager.getRootSceneNode().createChildSceneNode('PrimaryCamera')
@@ -70,7 +73,7 @@ class Application(object):
         vp.backGroundColor = (0, 0, 0)
 
     def createFrameListener(self):
-        self.playScene = PlayScene(self.sceneManager)
+        self.playScene = PlayScene(self.sceneManager, self.soundPlayer)
         self.root.addFrameListener(self.playScene)
 
     def startRenderLoop(self):

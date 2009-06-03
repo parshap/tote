@@ -4,6 +4,7 @@ import ogre.io.OIS as OIS
 import gui
 
 import math
+from audio import SoundPlayer
 
 KEYBOARD_CONTROLS = {
     "ABILITY_2": OIS.KC_2,

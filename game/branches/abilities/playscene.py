@@ -9,6 +9,7 @@ import ogre.io.OIS as OIS
 import gamestate
 import SceneLoader
 from inputhandler import InputHandler
+from audio import SoundPlayer
 import nodes
 import gui
 
@@ -23,7 +24,7 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
     frameStarted()).
     """
 
-    def __init__(self, sceneManager):
+    def __init__(self, sceneManager, soundPlayer):
         # Initialize the various listener classes we are a subclass from
         ogre.FrameListener.__init__(self)
         ogre.WindowEventListener.__init__(self)
@@ -31,6 +32,7 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
         
         self.renderWindow = ogre.Root.getSingleton().getAutoCreatedWindow()
         self.sceneManager = sceneManager
+        self.soundPlayer = soundPlayer
         self.camera = self.sceneManager.getCamera("PrimaryCamera")
         self.cameraNode = self.sceneManager.getSceneNode("PrimaryCamera")
         
@@ -53,6 +55,9 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
         
         # Show a welcome message.
         self.message.notice("Tides of the Elements")
+        
+        # Begin game music
+        self.soundPlayer.play("Dispatches+Of+Humanity.wav", True)
         
         # Set up the input devices.
         self.setupInput()
@@ -331,6 +336,8 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
         # Update the game state world.
         self.world.update(dt)
         
+        self.soundPlayer.update(dt)
+        
         # Add time to animations.
         for node in self.nodes:
             node.animations_addtime(dt)
@@ -345,7 +352,7 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
     ## Game event callbacks
     def on_world_object_added(self, gameObject):
         if gameObject.type == "player":
-            newPlayerNode = nodes.PlayerNode(self.sceneManager, gameObject, "ninja.mesh")
+            newPlayerNode = nodes.PlayerNode(self.sceneManager, self.soundPlayer, gameObject, "ninja.mesh")
             newPlayerNode.set_scale(.1)
             self.nodes.append(newPlayerNode)
         
