@@ -232,7 +232,7 @@ class AbilityRequest(Packet):
             
     def unpack(self, packed):
         offset = Packet.unpack(self, packed)
-        self.ability_id = struct.unpack_from(AbilityRequest.format, packed, offset)
+        self.ability_id, = struct.unpack_from(AbilityRequest.format, packed, offset)
         return offset + 2
 
 
@@ -250,6 +250,7 @@ class AbilityUsed(Packet):
     format = "!H H" # object_id ability_id
     
     def pack(self, packed=""):
+        print "%s %s %s" % (self.object_id, self.ability_id, packed)
         return Packet.pack(self, struct.pack(AbilityUsed.format,
             self.object_id, self.ability_id)) + packed
             
