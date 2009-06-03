@@ -145,29 +145,7 @@ class ServerApplication(object):
         
         # Send necessary ObjectUpdate packets.
         for object in self.world.objects:
-            # Only send updates for MobileObjects.
-            if not isinstance(object, gamestate.objects.MobileObject):
-                continue
-
-            if self.last_update_time.has_key(object):
-                update_time, updates = self.last_update_time[object]
-                
-                # Only send if update threshold has expired.
-                if update_time + 0.05 > self.world.time:
-                    continue
-                    
-                # Only send if position/rotation/speed/direction has changed.
-                last_position = updates[0]
-                if object.position == last_position:
-                    #print "Skipping id=%s because (%.2f, %.2f) == (%.2f, %.2f)" % \
-                    #    (object.object_id, last_position[0], last_position[1], object.position[0], object.position[1])
-                    # @todo: implement other attributes than position.
-                    continue
-            
-            print "Broadcasting update for object id=%s." % object.object_id
-            update = self._update_from_object(object)
-            self.server.output_broadcast.put_nowait((update, object))
-            self.last_update_time[object] = (self.world.time, (object.position,))
+            self._send_update(object, ignore=object)
         
         # Send buffered output to clients.
         reactor.callFromThread(self.server.send)
@@ -176,7 +154,8 @@ class ServerApplication(object):
         extra = 0.01 - dt
         if extra >= 0.001:
             time.sleep(extra)
-            
+
+    ## World event handlers
     def on_world_object_added(self, object):
         if object.type == "player":
             # Sent a ObjectInit for the new player obeject to everyone but the player.
@@ -184,10 +163,8 @@ class ServerApplication(object):
             init.object_id = object.object_id
             init.object_type = "player"
             self.server.output_broadcast.put_nowait((init, object))
-            
             # Send a ObjectUpdate for the new player object to everyone.
-            update = self._update_from_object(object)
-            self.server.output_broadcast.put_nowait((update, None))
+            self._send_update(object)
         
     def on_world_object_removed(self, object):
         if object.type == "player":
@@ -195,6 +172,7 @@ class ServerApplication(object):
             remove.object_id = object.object_id
             self.server.output_broadcast.put_nowait((remove, None))
     
+    ## Network event handlers & helpers
     def process_packet(self, client, packet):
         ptype = type(packet)
         print "Processing packet=%s: %s from client=%s." % (packet.id, ptype.__name__, client.client_id)
@@ -239,8 +217,43 @@ class ServerApplication(object):
                 client.player.move_direction = packet.move_direction
             else:
                 client.player.is_moving = False
+        
+        # AbilityRequest
+        elif ptype is packets.AbilityRequest:
+            # @todo: deny conditions
+            client.player.use_ability(packet.ability_id)
+            used = packets.AbilityUsed()
+            # Send an ObjectUpdate for this player so clients have most recent
+            # data when using the ability.
+            self._send_update(client.player, ignore=client.player, check_time=False)
+            self.server.output_broadcast.put_nowait((used, None))
     
-    def _update_from_object(self, object):
+    def _send_update(self, object, ignore=None, check_time=True):
+        # Only send updates for MobileObjects.
+        if not isinstance(object, gamestate.objects.MobileObject):
+            return
+
+        if self.last_update_time.has_key(object):
+            update_time, updates = self.last_update_time[object]
+            
+            # Only send if update threshold has expired.
+            if check_time and update_time + 0.05 > self.world.time:
+                return
+                
+            # Only send if position/rotation/speed/direction has changed.
+            last_position = updates[0]
+            if object.position == last_position:
+                #print "Skipping id=%s because (%.2f, %.2f) == (%.2f, %.2f)" % \
+                #    (object.object_id, last_position[0], last_position[1], object.position[0], object.position[1])
+                # @todo: implement other attributes than position.
+                return
+        
+        print "Broadcasting update for object id=%s." % object.object_id
+        update = self._get_update(object)
+        self.server.output_broadcast.put_nowait((update, ignore))
+        self.last_update_time[object] = (self.world.time, (object.position,))
+
+    def _get_update(self, object):
         """ Helper method to create an ObjectUpdate packet from a game object. """
         update = packets.ObjectUpdate()
         update.object_id = object.object_id
