@@ -359,21 +359,21 @@ class PlayerNode(MobileGameNode):
         projectile_node.set_particle_system("DustEruption")
         projectile_node.particle_effect_start() 
     
-    def on_ability_used(self, player, index, ability_instance):
+    def on_ability_used(self, player, ability_id, ability_instance):
         if player.element.type == "earth":
-            if index == 1:
+            if ability_id == 101:
                 # Earth : Primary
                 # Play the animation with weight 100 so that it basically overrides
                 # any other animations currently playing.
                 # @todo: use an actual solution instead of weight hack.
                 self.animation_playonce("ability_1", 100)
             
-            elif index == 2:
+            elif ability_id == 102:
                 # Earth : Hook
                 # handled elsewhere
                 pass
             
-            elif index == 3:
+            elif ability_id == 103:
                 # Earth : Earthquake
                 # Play the particle animation
                 effect_node = StaticEffectNode(self.sceneManager, player.world, 2) 
@@ -382,23 +382,23 @@ class PlayerNode(MobileGameNode):
                                                                player.position[1]))
                 effect_node.particle_effect_start()
             
-            elif index == 4:
+            elif ability_id == 104:
                 # Earth : Power Swing
                 # Play the animation
                 self.animation_playonce("ability_1", 100)
 
         elif player.element.type == "fire":
-            if index == 1:
+            if ability_id == 201:
                 # Fire : Primary
                 # Play the animation with weight 100 so that it basically overrides
                 # any other animations currently playing.
                 # @todo: use an actual solution instead of weight hack.
                 self.animation_playonce("ability_1", 100)
-            elif index == 2:
+            elif ability_id == 202:
                 # Fire :  Flame Rush
                 # note: this is handle elsewhere
                 pass
-            elif index == 3:
+            elif ability_id == 203:
                 # Fire : Lava Splash
                 effect_node = StaticEffectNode(self.sceneManager, player.world, 2)
                 effect_node.set_particle_system("LavaSplash", (player.position[0],
@@ -406,7 +406,7 @@ class PlayerNode(MobileGameNode):
                                                                player.position[1]))
                 effect_node.particle_effect_start()
             
-            elif index == 4:
+            elif ability_id == 204:
                 # Fire : Ring of Fire
                 effect_node = StaticEffectNode(self.sceneManager, player.world, 3)
                 effect_node.set_particle_system("RingOfFire", (player.position[0],
@@ -415,7 +415,7 @@ class PlayerNode(MobileGameNode):
                 effect_node.particle_effect_start()
         
         elif player.element.type == "air":
-            if index == 1:
+            if ability_id == 401:
                 # Air : Primary
                 
                 # @note: this is why passing the ability_instance to on_ability_used is sloppy
@@ -427,7 +427,7 @@ class PlayerNode(MobileGameNode):
                 projectile_node.set_secondary_particle_system("LavaSplash")
                 projectile_node.particle_effect_start()
                 
-            if index == 2:
+            if ability_id == 402:
                 # Air : Gust of Wind
                 effect_node = StaticEffectNode(self.sceneManager, player.world, 0.5)
                 effect_node.set_particle_system("GustOfWind", (player.position[0],
@@ -437,7 +437,7 @@ class PlayerNode(MobileGameNode):
                
                 effect_node.particle_effect_start()
                 
-            if index == 3:
+            if ability_id == 403:
                 # Air : Wind Whisk
                 effect_node1 = StaticEffectNode(self.sceneManager, player.world, 0.3)
                 effect_node1.set_particle_system("WindWhisk", (ability_instance.player_start_position[0],
@@ -451,7 +451,7 @@ class PlayerNode(MobileGameNode):
                                                                player.position[1]))
                 effect_node2.particle_effect_start()
                 
-            if index == 4:
+            if ability_id == 404:
                 # Air : Lightning Bolt
                 if ability_instance.target is None:
                     # event was launched because ability was used, but there was no target in range
@@ -474,7 +474,7 @@ class PlayerNode(MobileGameNode):
                 effect_node.particle_system.getEmitter(0).setParameter("depth", str(distance))
                 
         elif player.element.type == "water":
-            if index == 1:
+            if ability_id == 301:
                 # Water : Primary
  
                 # @note: this is why passing the ability_instance to on_ability_used is sloppy
@@ -487,7 +487,7 @@ class PlayerNode(MobileGameNode):
                 projectile_node.set_secondary_particle_system("WaterSplash")
                 projectile_node.particle_effect_start()
 
-            elif index == 2:
+            elif ability_id == 302:
                 # Water : Water Gush
                 effect_node = StaticEffectNode(self.sceneManager, player.world, 0.5)
                 # @todo: come up with a particle effect for this ability
@@ -507,14 +507,14 @@ class PlayerNode(MobileGameNode):
                 effect_node.particle_system.getEmitter(0).setParameter("depth", str(distance))
                 
                 pass
-            elif index == 3:
+            elif ability_id == 303:
                 # Water : Tidal Wave
                 effect_node = StaticEffectNode(self.sceneManager, player.world, 1)
                 effect_node.set_particle_system("TidalWave", (player.position[0] + 10 * math.cos(player.rotation), 
                                                               15, 
                                                               player.position[1] + 10 * math.sin(player.rotation)), player.rotation)
                 effect_node.particle_effect_start()
-            elif index == 4:
+            elif ability_id == 304:
                 # Water : Ice Burst                
                 mesh_node = StaticEffectNode(self.sceneManager, player.world, 2)
                 mesh_node.set_mesh("iceblock.mesh", (player.position[0], 0, player.position[1] + 10), 0, 15)
