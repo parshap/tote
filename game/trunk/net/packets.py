@@ -270,6 +270,6 @@ packets = {
     6: ObjectInit,
     7: ObjectUpdate,
     8: ObjectRemove,
-    10: AbilityRequest
-    11: AbilityUsed
+    10: AbilityRequest,
+    11: AbilityUsed,
 }
