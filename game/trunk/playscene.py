@@ -40,7 +40,7 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
         self.viewport = self.camera.getViewport()
         
         # Create an empty list of nodes
-        self.nodes = []
+        self.nodes = { }
         
         # Create an empty list of GUI elements.
         self.gui_elements = [] 
@@ -105,18 +105,9 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
         self.client_thread = threading.Thread(target=self.client.go)
         self.client_thread.start()
         
-        # Attach a handler to world.object_added
+        # Attach a handler to world.object_added and removed
         self.world.object_added += self.on_world_object_added
-        
-#        # Add a player to the world and set it as our active player.
-#        self.player = gamestate.objects.Player(self.world)
-#        self.world.add_object(self.player)
-        
-#        # Add stationary NPC ninja...
-#        npc = gamestate.objects.Player(self.world)
-#        self.world.add_object(npc)
-#        npc.position = (-500, 0)
-#        npc.isPassable = False
+        self.world.object_removed += self.on_world_object_removed
 
         # Setup camera
         self.camera.nearClipDistance = 1
@@ -172,7 +163,6 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
         
         # Set up the ability bar.
         self.setupGUIAbilityBar()
-        
     
     def setupGUIAbilityBar(self):
         player = self.player
@@ -317,8 +307,8 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
         reactor.callFromThread(self.client.send)
         
         # Add time to animations.
-        for node in self.nodes:
-            node.animations_addtime(dt)
+        for object in self.nodes:
+            self.nodes[object].animations_addtime(dt)
 
         # Neatly close our FrameListener if our renderWindow has been shut down
         # or we are quitting.
@@ -427,11 +417,17 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
         self.client.output.put_nowait(packet)
         
     ## Game event callbacks
-    def on_world_object_added(self, gameObject):
-        if gameObject.type == "player":
-            newPlayerNode = nodes.PlayerNode(self.sceneManager, gameObject, "ninja.mesh")
-            newPlayerNode.set_scale(.1)
-            self.nodes.append(newPlayerNode)
+    def on_world_object_added(self, object):
+        if object.type == "player":
+            node = nodes.PlayerNode(self.sceneManager, object, "ninja.mesh")
+            node.set_scale(.1)
+            self.nodes[object] = node
+            
+    def on_world_object_removed(self, object):
+        if object.type == "player":
+            node = self.nodes[object]
+            node.getParent().removeAndDestroyChild(node.node_name)
+            del self.nodes[object]
         
     def on_player_position_changed(self, mobileObject, position):
         self.cameraNode.position = (position[0], 100, position[1] + 100)
