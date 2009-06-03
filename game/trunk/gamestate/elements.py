@@ -8,7 +8,7 @@ class Element(object):
         self.type = type
         self.last_ability_times = defaultdict(int)
         
-    def use_ability(self, index):
+    def use_ability(self, ability_id):
         """
         This method is intended to be overridden by deriving classes that
         define the element's ability usage.
@@ -49,16 +49,18 @@ class EarthElement(Element):
     def __init__(self, player):
         Element.__init__(self, player, "earth")
         
-    def use_ability(self, index):
+    def use_ability(self, ability_id):
         """ Use an ability by index. """
-        if index == 1:
+        if ability_id == 101:
             return self.use_ability_Primary()
-        elif index == 2:
+        elif ability_id == 102:
             return self.use_ability_Hook()
-        elif index == 3:
+        elif ability_id == 103:
             return self.use_ability_Earthquake()
-        elif index == 4:
+        elif ability_id == 104:
             return self.use_ability_PowerSwing()
+        else:
+            return false
     
     def use_ability_Primary(self):
         if self.player.is_ongcd():
@@ -124,16 +126,18 @@ class FireElement(Element):
     def __init__(self, player):
         Element.__init__(self, player, "fire")
         
-    def use_ability(self, index):
+    def use_ability(self, ability_id):
         """ Use an ability by index. """
-        if index == 1:
+        if ability_id == 201:
             return self.use_ability_Primary()
-        elif index == 2:
+        elif ability_id == 202:
             return self.use_ability_FlameRush()
-        elif index == 3:
+        elif ability_id == 203:
             return self.use_ability_LavaSplash()
-        elif index == 4:
+        elif ability_id == 204:
             return self.use_ability_RingOfFire()
+        else:
+            return false
         
     def use_ability_Primary(self):
         if self.player.is_ongcd():
@@ -198,16 +202,18 @@ class AirElement(Element):
     def __init__(self, player):
         Element.__init__(self, player, "air")
         
-    def use_ability(self, index):
+    def use_ability(self, ability_id):
         """ Use an ability by index. """
-        if index == 1:
+        if ability_id == 301:
             return self.use_ability_Primary()
-        elif index == 2:
+        elif ability_id == 302:
             return self.use_ability_GustOfWind()
-        elif index == 3:
+        elif ability_id == 303:
             return self.use_ability_WindWhisk()
-        elif index == 4:
+        elif ability_id == 304:
             return self.use_ability_LightningBolt()
+        else:
+            return false
         
     def use_ability_Primary(self):
         if self.player.is_ongcd():
@@ -273,16 +279,18 @@ class WaterElement(Element):
     def __init__(self, player):
         Element.__init__(self, player, "water")
         
-    def use_ability(self, index):
+    def use_ability(self, ability_id):
         """ Use an ability by index. """
-        if index == 1:
+        if ability_id == 401:
             return self.use_ability_Primary()
-        elif index == 2:
+        elif ability_id == 402:
             return self.use_ability_WaterGush()
-        elif index == 3:
+        elif ability_id == 403:
             return self.use_ability_TidalWave()
-        elif index == 4:
+        elif ability_id == 404:
             return self.use_ability_IceBurst()
+        else:
+            return false
         
     def use_ability_Primary(self):
         if self.player.is_ongcd():

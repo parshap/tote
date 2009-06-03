@@ -443,10 +443,10 @@ class Player(MobileObject):
             ability_id = self.element.ability_ids[index]
             self.ability_requested(self, ability_id)
         
-    def use_ability(self, index):
+    def use_ability(self, ability_id):
         """ Uses an ability by index based on the player's current element. """
         # Try to use the ability.
-        ability = self.element.use_ability(index)
+        ability = self.element.use_ability(ability_id)
         if ability is not False:
             # Ability use was successful - do some updates.
             self.last_ability_time = self.world.time
