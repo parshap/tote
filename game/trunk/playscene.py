@@ -375,7 +375,7 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
             # camera with the player.
             self.player.position_changed += self.on_player_position_changed
             self.player.element_changed += self.on_player_element_changed
-            # self.player.ability_requested += self.on_player_ability_requested
+            self.player.ability_requested += self.on_player_ability_requested
         
         # ObjectInit
         elif ptype is packets.ObjectInit:
