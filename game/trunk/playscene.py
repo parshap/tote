@@ -410,6 +410,11 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
                     object.is_moving = False
             except:
                 object.position = (packet.x, packet.z)
+        
+        # AbilityUsed
+        elif ptype is packets.AbilityUsed:
+            player = self.world.objects_hash[packet.object_id]
+            player.use_ability(packet.ability_id)
     
     def on_client_connected(self):
         packet = packets.JoinRequest()
