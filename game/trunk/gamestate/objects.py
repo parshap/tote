@@ -16,6 +16,7 @@ class GameObject(object):
         self.isPassable = True
         self.bounding_shape = None
         self.type = ""
+        self.is_active = False
 
     def _get_rotation(self):
         """ Gets or sets the object's current orientation angle in radians. """
@@ -470,12 +471,18 @@ class ProjectileObject(MobileObject):
         player.world.add_object(self)
     
     def update(self, dt):
+        # @todo fix double call bug and remove is_active
+        if not self.is_active:
+            return
         MobileObject.update(self, dt)
         self.time_to_live -= dt
         if self.time_to_live <= 0:
-            self.expired(self)
+            self.expire()
             
     def collide(self, object):
+        # @todo fix double call bug and remove is_active
+        if not self.is_active:
+            return
         if object == self.owner:
             return
         if object.type == "projectile":

@@ -13,6 +13,7 @@ class World(object):
         self.objects_hash = { }
         self.object_id_pos = 0
         self.object_added = Event()
+        self.object_removed = Event()
         self.world_updated = Event()
         self.debug_file = open("world.log", "w")
         self.time = 0
@@ -26,11 +27,15 @@ class World(object):
             object.object_id = object_id
         self.objects.append(object)
         self.objects_hash[object.object_id] = object
+        object.is_active = True
         self.object_added(object)
     
-    def remove_object(self, gameObject):
+    def remove_object(self, object):
         # Remove the object
-        self.objects.remove(gameObject)
+        self.objects.remove(object)
+        del self.objects_hash[object.object_id]
+        object.is_active = False
+        self.object_removed(object)
         
     def update(self, dt):
         self.world_updated(dt)
