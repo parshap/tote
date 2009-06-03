@@ -51,28 +51,8 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
         # Set up the GUI.
         self.setupGUI()
         
-        # Create the inputManager using the supplied renderWindow
-        windowHnd = self.renderWindow.getCustomAttributeInt("WINDOW")
-        paramList = [("WINDOW", str(windowHnd)), \
-                     ("w32_mouse", "DISCL_FOREGROUND"), \
-                     ("w32_mouse", "DISCL_NONEXCLUSIVE"), \
-                     ("w32_keyboard", "DISCL_FOREGROUND"), \
-                     ("w32_keyboard", "DISCL_NONEXCLUSIVE"),]
-                     # @todo: add mac/linux parameters
-        self.inputManager = OIS.createPythonInputSystem(paramList)
-
-        # Attempt to get the mouse/keyboard input device objects.
-        try:
-            self.mouse = self.inputManager.createInputObjectMouse(OIS.OISMouse, True)
-            self.keyboard = self.inputManager.createInputObjectKeyboard(OIS.OISKeyboard, True)
-        except Exception: # Unable to obtain mouse/keyboard input
-            raise
-
-        # Use an InputHandler object to handle the callback functions.
-        self.inputHandler = InputHandler(mouse=self.mouse, keyboard=self.keyboard,
-                                         scene=self, player=self.player)
-        self.mouse.setEventCallback(self.inputHandler)
-        self.keyboard.setEventCallback(self.inputHandler)
+        # Set up the input devices.
+        self.setupInput()
 
         # Set up initial window size.
         self.windowResized(self.renderWindow)
@@ -259,6 +239,30 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
     def setupOverlay(self):
         pOver = ogre.OverlayManager.getSingleton().getByName("UI")
         pOver.show()
+        
+    def setupInput(self):
+        # Create the inputManager using the supplied renderWindow
+        windowHnd = self.renderWindow.getCustomAttributeInt("WINDOW")
+        paramList = [("WINDOW", str(windowHnd)), \
+                     ("w32_mouse", "DISCL_FOREGROUND"), \
+                     ("w32_mouse", "DISCL_NONEXCLUSIVE"), \
+                     ("w32_keyboard", "DISCL_FOREGROUND"), \
+                     ("w32_keyboard", "DISCL_NONEXCLUSIVE"),]
+                     # @todo: add mac/linux parameters
+        self.inputManager = OIS.createPythonInputSystem(paramList)
+
+        # Attempt to get the mouse/keyboard input device objects.
+        try:
+            self.mouse = self.inputManager.createInputObjectMouse(OIS.OISMouse, True)
+            self.keyboard = self.inputManager.createInputObjectKeyboard(OIS.OISKeyboard, True)
+        except Exception: # Unable to obtain mouse/keyboard input
+            raise
+
+        # Use an InputHandler object to handle the callback functions.
+        self.inputHandler = InputHandler(mouse=self.mouse, keyboard=self.keyboard,
+                                         scene=self, player=self.player)
+        self.mouse.setEventCallback(self.inputHandler)
+        self.keyboard.setEventCallback(self.inputHandler)
         
     def setup_level_boundaries(self, filepath):
         """
