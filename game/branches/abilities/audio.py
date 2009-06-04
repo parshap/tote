@@ -44,7 +44,7 @@ def load_source(name, path):
     else:
         print "Unable to load " + path + ", check path."
         
-def set_background_music(path):
+def set_background_music(path, looping = True):
     """
     Sets the background music to the file specified by "path"
     Once background music has been set, you can play it by calling AudioPlayer.play_background_music()
@@ -57,7 +57,7 @@ def set_background_music(path):
     global _bg_music_source
     global _bg_music_player
     
-    _bg_music_source = media.load(path, None, True)
+    _bg_music_source = media.load(path, None, looping)
     _bg_music_player = media.Player()
     _bg_music_player.queue(_bg_music_source)
     _bg_music_player.pause()
@@ -67,7 +67,7 @@ def test(player):
     player.pause()
     print "EOS"
     
-def play_background_music(volume = 0.5, looping = True):
+def play_background_music(volume = 0.5):
     """
     Plays the background music track.
     """
