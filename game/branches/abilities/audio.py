@@ -39,7 +39,7 @@ def load_source(name, path):
     global _sources
     
     # Use pyglet.media to load the Source
-    source = media.load(path)
+    source = media.load(path, None, False)
     
     if source is not None:
         # Convert our source to a static source to allow for 
@@ -49,7 +49,7 @@ def load_source(name, path):
     else:
         print "Unable to load " + path + ", check path."
         
-def set_background_music(path, looping = True):
+def set_background_music(path):
     """
     Sets the background music to the file specified by "path"
     Once background music has been set, you can play it by calling AudioPlayer.play_background_music()
@@ -62,8 +62,9 @@ def set_background_music(path, looping = True):
     global _bg_music_source
     global _bg_music_player
     
-    _bg_music_source = media.load(path, None, looping)
+    _bg_music_source = media.load(path, None, True)
     _bg_music_player = media.Player()
+    _bg_music_player.eos_action = media.Player.EOS_LOOP
     _bg_music_player.queue(_bg_music_source)
     _bg_music_player.pause()
     print "set music"
