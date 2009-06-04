@@ -1,4 +1,4 @@
-from pyglet import media
+import pyglet.media as media
 
 
 """
