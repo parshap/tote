@@ -1,6 +1,4 @@
 from pyglet import media
-from pyglet import clock
-import time
 
 
 """
