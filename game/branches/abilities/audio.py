@@ -8,13 +8,17 @@ It currently only supports .wav media files.
 _sources = { }
 _bg_music_player = None
 _bg_music_source = None
+
+_bg_music_volume = 1.0
+_sound_volume = 1.0
     
-def play_sound(name):
+def play_sound(name, volume = 1.0):
     """
     Plays the sound with the registered name once.
     """ 
     
     global _sources
+    global _sound_volume
     
     # Get the StaticSource from our source dict
     source = _sources[name]
@@ -22,6 +26,7 @@ def play_sound(name):
         # Create a ManagedPlayer to play the sound by calling source.play()
         # Upon completion of playing, the ManagedPlayer will destroy it
         player = source.play()
+        player.volume = volume * _sound_volume
         
     else:
         print "Source " + name + " could not be found!"
@@ -73,9 +78,10 @@ def play_background_music(volume = 0.5):
     """
     
     global _bg_music_player
+    global _bg_music_volume
     
     if _bg_music_player is not None:
-        _bg_music_player.volume = volume
+        _bg_music_player.volume = volume * _bg_music_volume
         _bg_music_player.play()
     else:
         print "No background music source loaded!"
