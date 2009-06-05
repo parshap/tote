@@ -52,9 +52,9 @@ class StatusBar(Element):
         self.name = ""
         self.type = "StatusBar"
         self.container = ogre.OverlayManager.getSingleton().getOverlayElement("UI/StatusBars")
-        self.on_value_changed(self.max_value)
+        self.on_value_changed(None, self.max_value)
     
-    def on_value_changed(self, new_value):
+    def on_value_changed(self, player, new_value):
         self.value = new_value
         if self.value > self.max_value:
             self.value = self.max_value

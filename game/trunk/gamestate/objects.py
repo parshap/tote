@@ -278,7 +278,7 @@ class Player(MobileObject):
     position based on velocity) on every update() (once per frame).
     """
     gcd = 1.0
-    regen_frequency = 5.0
+    regen_frequency = 2
     
     def __init__(self, world):
         MobileObject.__init__(self, world)
@@ -332,7 +332,7 @@ class Player(MobileObject):
                 self.dead = True
                 print "player died"
                 self.died()
-            self.health_changed(self._health)
+            self.health_changed(self, self._health)
     
     health = property(_get_health, _set_health) 
         
@@ -345,7 +345,7 @@ class Player(MobileObject):
             value = self.max_power
         if value != self.power:
             self._power = value
-            self.power_changed(self._power)
+            self.power_changed(self, self._power)
     
     power = property(_get_power, _set_power)
         
@@ -387,10 +387,11 @@ class Player(MobileObject):
 
     def update(self, dt):
         # Regen health & power.
-        if self.world.time > self.regen_last_time + self.regen_frequency:
-            self.health += self.health_regen * (self.world.time - self.regen_last_time)
-            self.power += self.power_regen * (self.world.time - self.regen_last_time)
-            self.regen_last_time = self.world.time
+        if self.world.is_master:
+            if self.world.time > self.regen_last_time + self.regen_frequency:
+                self.health += self.health_regen * (self.world.time - self.regen_last_time)
+                self.power += self.power_regen * (self.world.time - self.regen_last_time)
+                self.regen_last_time = self.world.time
         
         if self.is_charging:
             # If the player is charging then force movement.
