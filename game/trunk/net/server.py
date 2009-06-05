@@ -19,6 +19,7 @@ class ServerProtocol(protocol.Protocol):
 
     def connectionLost(self, reason):
         self.factory.clients.remove(self)
+        self.factory.client_disconnected(self)
         if self.player is not None and self.player.is_active:
             self.player.world.remove_object(self.player)
             self.player = None
@@ -49,6 +50,7 @@ class GameServer(protocol.ServerFactory):
         self.world = world
         self.port = port
         self.client_connected = Event()
+        self.client_disconnected = Event()
         self.input = Queue()
         self.output = Queue()
         self.output_broadcast = Queue()
