@@ -1,6 +1,6 @@
 from __future__ import division
 import ogre.renderer.OGRE as ogre
-from gamestate.event import Event
+from event import Event
 
 class Element(object):
     def __init__(self, overlay_name):

@@ -21,6 +21,7 @@ moving the mesh in the 3d-world to objcet the player moving in the game-world).
 from __future__ import division
 import math
 import gamestate.abilities
+from event import Event
 import ogre.renderer.OGRE as ogre
 
 
