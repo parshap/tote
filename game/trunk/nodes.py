@@ -21,7 +21,6 @@ moving the mesh in the 3d-world to objcet the player moving in the game-world).
 from __future__ import division
 import math
 import gamestate.abilities
-import gamestate.event
 import ogre.renderer.OGRE as ogre
 
 
@@ -48,6 +47,9 @@ class Node(object):
         # Node renderables
         self.mesh = None
         self.particle_system = None
+        
+    def destroy(self):
+        self.sceneNode.getParentSceneNode().removeAndDestroyChild(self.node_name)
         
     # spatial properties
     def set_position(self, position_offset):
@@ -158,7 +160,8 @@ class Node(object):
 class GameNode(Node):
     """GameNode represents a Node that is attached to a gameObject."""
     def __init__(self, sceneManager, gameObject):
-        Node.__init__(self, sceneManager)  
+        Node.__init__(self, sceneManager)
+        self.object = gameObject
         
         # Initialize the position and rotation to the GameObject's current values.
         self.sceneNode.position = (gameObject.position[0], 0, gameObject.position[1])
@@ -166,6 +169,11 @@ class GameNode(Node):
         
         # Listen to the events we care about.
         gameObject.rotation_changed += self.on_rotation_changed
+        
+    def destroy(self):
+        Node.destroy(self)
+        # Stop listening to events.
+        self.object.rotation_changed -= self.on_rotation_changed
     
     ## Game state event listeners
     def on_rotation_changed(self, gameObject, rotation):
@@ -184,6 +192,14 @@ class MobileGameNode(GameNode):
         mobileObject.position_changed += self.on_position_changed
         if mobileObject.type == "projectile":
             mobileObject.expired += self.on_expired
+            
+    def destroy(self):
+        GameNode.destroy(self)
+        # Stop listening to events.
+        self.object.position_changed -= self.on_position_changed
+        if self.object.type == "projectile":
+            self.object.expired -= self.on_expired
+        
 
     ## Game state event listeners
     def on_position_changed(self, mobileObject, position):
@@ -208,7 +224,13 @@ class ProjectileNode(MobileGameNode):
         
         self.secondary_particle_system = None
         projectileObject.collided += self.on_collided
-        projectileObject.expired -= self.on_expired
+        projectileObject.expired += self.on_expired
+        
+    def destroy(self):
+        MobileGameNode.destroy(self)
+        # Stop listening to events.
+        self.object.collided -= self.on_collided
+        self.object.expired -= self.on_expired
     
     def set_secondary_particle_system(self, system_name, position_offset = (0,0,0), rotation = 0, scale = 1):
         self.secondary_particle_system = self.sceneManager.createParticleSystem(Node._unique("PE%s" % system_name), system_name)
@@ -260,10 +282,15 @@ class StaticEffectNode(Node):
         self.triggered = False
         self.triggerable = triggerable
         self.world = world
-        if time_to_live:
+        if time_to_live is not False:
             world.world_updated += self.on_world_updated
-            
-        self.static_node_expired = gamestate.event.Event()
+        self.static_node_expired = Event()
+        
+    def destroy(self):
+        StaticEffectNode.destroy(self)
+        # Stop listening to events.
+        if self.time_to_live is not False:
+            self.world.world_updated -= self.on_world_updated
     
     def on_world_updated(self, dt):
         if not self.triggerable or self.triggered:
@@ -302,6 +329,10 @@ class PlayerNode(MobileGameNode):
         player.ability_used += self.on_ability_used
         player.ability_instance_created += self.on_ability_instance_created
         player.element_changed += self.on_element_changed
+        player.is_dead_changed += self.on_is_dead_changed
+        
+        # Hide the player if they are dead.
+        self.sceneNode.setVisible(not player.is_dead)
         
         # Create a dict of our available animations. The animations are stored
         # as a tuple of the animation state and the speed at which the
@@ -313,6 +344,20 @@ class PlayerNode(MobileGameNode):
         
         # Start the idle animation
         self.animation_start("idle")
+        
+    def destroy(self):
+        # Stop listening to events!
+        self.object.is_moving_changed -= self.on_is_moving_changed
+        self.object.is_charging_changed -= self.on_is_charging_changed
+        self.object.is_hooked_changed -= self.on_is_hooked_changed
+        self.object.ability_used -= self.on_ability_used
+        self.object.ability_instance_created -= self.on_ability_instance_created
+        self.object.element_changed -= self.on_element_changed
+        self.object.is_dead_changed -= self.on_is_dead_changed
+        
+    def on_is_dead_changed(self, player):
+        # Hide the player if they are dead.
+        self.sceneNode.setVisible(not player.is_dead)
         
     def on_element_changed(self, player):
         self.mesh.setMaterialName("Ninja-" + player.element.type)
