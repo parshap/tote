@@ -444,7 +444,10 @@ class Player(MobileObject):
             self.ability_requested(self, ability_id)
         
     def use_ability(self, ability_id):
-        """ Uses an ability by index based on the player's current element. """
+        """
+        Attempts to use an ability by ability_id. Returns True if sucessful,
+        False otherwise.
+        """
         # Try to use the ability.
         ability = self.element.use_ability(ability_id)
         if ability is not False:
