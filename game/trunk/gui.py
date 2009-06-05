@@ -79,8 +79,8 @@ class AbilityCooldownDisplay(Element):
         self.text_area = self.cooldown_container.getChild(overlay_name+"/Cooldown")
         self.cooldown_container.hide()
         
-    def on_ability_used(self, player, index, ability):
-        if index == self.ability_index:
+    def on_ability_used(self, player, ability_id, ability):
+        if player.element.ability_indexes[ability_id] == self.ability_index:
             self.begin_cooldown()
         
     def update(self, dt):
