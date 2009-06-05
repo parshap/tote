@@ -189,10 +189,10 @@ class ObjectUpdate(Packet):
     """
     id = 7
     format = "!H ff f f f B" # object_id position rotation move_speed move_direction flags
-    _flags_mask_is_dead = 0b1 << 0
+    _flags_mask_is_dead = 1 << 0
     
     def pack(self, packed=""):
-        flags = 0b0
+        flags = 0
         if self.is_dead: flags |= self._flags_mask_is_dead
         return Packet.pack(self, struct.pack(ObjectUpdate.format,
             self.object_id, self.x, self.z, self.rotation,
