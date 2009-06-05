@@ -45,21 +45,21 @@ class Scheduler(object):
     """ A generic class for scheduling events to occur in the future. """
     def __init__(self, delay):
         """
-        Schedule the on_fire event to be fired delay time units in the future.
+        Schedule the fired event to be fired delay time units in the future.
         The addtime(time) method must be called to add time units to the
         internal clock.
         """
         self._delay = delay
         self._clock = 0
-        self.on_fire = Event()
+        self.fired = Event()
         self.is_fired = False
 
     def addtime(self, time):
         """
         Add time to the Scheduler's internal clock. If the internal clock
-        exceeds the delay the on_fire event will fire.
+        exceeds the delay the fired event will fire.
         """
         self._clock += time
         if self._clock >= self._delay:
             self.is_fired = True
-            self.on_fire()
+            self.fired()
