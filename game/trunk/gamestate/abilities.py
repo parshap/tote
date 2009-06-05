@@ -18,19 +18,8 @@ class AbilityInstance(object):
 
     def run(self):
         self.is_active = True
-        
-    def master(self):
-        """
-        This method should run on the master world only to perform game state
-        updates (generally due to a "hit").
-        """
-        self.player.use_power(self.power_cost)
-        
-    def hit(self):
-        """
-        This method should run when the ability "hits"... e.g., collides.
-        """
-        pass
+        if self.player.world.is_master:
+            self.player.use_power(self.power_cost)
 
     def update(self, dt):
         pass
@@ -57,13 +46,11 @@ class EarthPrimaryInstance(AbilityInstance):
             self.player.rotation, self.hit_angle)
         colliders = self.player.world.get_colliders(bounding_shape,
             self.player.position, [self.player], objects.Player)
-        self.hit()
         if self.player.world.is_master:
             self.master(colliders)
         self.expire()
         
     def master(self, colliders):
-        AbilityInstance.master(self)
         print "Earth Primary ability collided with %s players." % (len(colliders))
         for player in colliders:
             player.apply_damage(self.damage)
@@ -85,8 +72,8 @@ class EarthHookInstance(AbilityInstance):
         AbilityInstance.run(self)
         
         #make the projectile's projectileobject
-        self.hook_projectile = objects.ProjectileObject(self.player, self.projectile_radius,
-                                                        self.projectile_duration)
+        self.hook_projectile = objects.ProjectileObject(self.player,
+            self.projectile_radius, self.projectile_duration)
         self.hook_projectile.position = self.start_position
         self.hook_projectile.bounding_shape = collision.BoundingCircle(self.projectile_radius)
         self.hook_projectile.rotation = self.start_rotation
