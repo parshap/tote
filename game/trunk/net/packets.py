@@ -198,9 +198,38 @@ class ObjectUpdate(Packet):
         self.object_id, self.x, self.z, self.rotation, self.move_speed, self.move_direction = \
             struct.unpack_from(ObjectUpdate.format, packed, offset)
         return offset + 22
+        
+
+class ObjectStatusUpdate(Packet):
+    """
+    This is a packet generally sent from the server to client(s) when the
+    status (power or health) of another object needs to be updated.
+    
+    Required attributes:
+    object_id, health, power
+    """
+    id = 9
+    format = "!H f f" # object_id health power
+    
+    def pack(self, packed=""):
+        return Packet.pack(self, struct.pack(ObjectStatusUpdate.format,
+            self.object_id, self.health, self.power)) + packed
+            
+    def unpack(self, packed):
+        offset = Packet.unpack(self, packed)
+        self.object_id, self.health, self.power = struct.unpack_from(
+            ObjectStatusUpdate.format, packed, offset)
+        return offset + 10
 
 
 class ObjectRemove(Packet):
+    """
+    This is a packet generally sent from the server to client(s) when an object
+    should be removed from the game world.
+    
+    Required attributes:
+    object_id
+    """
     id = 8
     format = "!H" # object_id
     
@@ -269,6 +298,7 @@ packets = {
     6: ObjectInit,
     7: ObjectUpdate,
     8: ObjectRemove,
+    9: ObjectStatusUpdate,
     10: AbilityRequest,
     11: AbilityUsed,
 }
