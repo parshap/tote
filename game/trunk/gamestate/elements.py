@@ -45,6 +45,12 @@ class EarthElement(Element):
         3: 103,
         4: 104,    
     }
+    ability_indexes = {
+        101: 1,
+        102: 2,
+        103: 3,
+        104: 4,
+    }
     
     def __init__(self, player):
         Element.__init__(self, player, "earth")
@@ -121,6 +127,12 @@ class FireElement(Element):
         2: 202,
         3: 203,
         4: 204,    
+    }
+    ability_indexes = {
+        201: 1,
+        202: 2,
+        203: 3,
+        204: 4,
     }
     
     def __init__(self, player):
@@ -199,6 +211,12 @@ class AirElement(Element):
         3: 303,
         4: 304,    
     }
+    ability_indexes = {
+        301: 1,
+        302: 2,
+        303: 3,
+        304: 4,
+    }
     def __init__(self, player):
         Element.__init__(self, player, "air")
         
@@ -274,6 +292,12 @@ class WaterElement(Element):
         2: 402,
         3: 403,
         4: 404,    
+    }
+    ability_indexes = {
+        401: 1,
+        402: 2,
+        403: 3,
+        404: 4,
     }
     
     def __init__(self, player):
