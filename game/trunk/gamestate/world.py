@@ -18,16 +18,22 @@ class World(object):
         self.world_updated = Event()
         self.debug_file = open("world.log", "w")
         self.time = 0
+        
+    def generate_id(self):
+        self.object_id_pos += 1
+        object_id = self.object_id_pos
+        while self.objects_hash.has_key(object_id):
+            object_id += 1
+        if object_id >= self.object_id_pos:
+            self.object_id_pos = object_id + 1
+        return object_id
 
     def add_object(self, object, object_id=None):
         # Add the object and fire the object_added event.
+        if object.object_id is not None and object_id is None:
+            object_id = object.object_id
         if object_id is None:
-            self.object_id_pos += 1
-            object_id = self.object_id_pos
-        while self.objects_hash.has_key(object_id):
-            object_id += 1
-        if object_id > self.object_id_pos:
-            self.object_id_pos = object_id + 1
+            object_id = self.generate_id()
         object.object_id = object_id
         self.objects.append(object)
         self.objects_hash[object.object_id] = object
