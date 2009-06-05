@@ -101,7 +101,7 @@ class ServerApplication(object):
         self.server_thread = threading.Thread(target=self.server.go)
         self.server_thread.start()
         
-        self.last_update_time = { }
+        self.last_updates = { }
         
         # A set of players who's status updates need to be sent out.
         self.status_updates = set()
@@ -158,18 +158,24 @@ class ServerApplication(object):
             self.server.output_broadcast.put_nowait((init, object))
             # Send a ObjectUpdate for the new player object to everyone.
             self._send_update(object)
-            # Listen to events.
-            object.health_changed += self.on_player_status_changed
-            object.power_changed += self.on_player_status_changed
-    
-    def on_player_status_changed(self, player, value):
-        self.status_updates.add(player)
-        
+
     def on_world_object_removed(self, object):
         if object.type == "player":
             remove = packets.ObjectRemove()
             remove.object_id = object.object_id
             self.server.output_broadcast.put_nowait((remove, None))
+            
+    def on_player_status_changed(self, player, value):
+        self.status_updates.add(player)
+    
+    def on_player_is_dead_changed(self, player):
+        self._send_update(player, check_time=False)
+        if player.is_dead:
+            print "*****removing player"
+            self.world.remove_object(player)
+        else:
+            print "*****adding player"
+            self.world.add_object(player)
     
     ## Network event handlers & helpers
     def process_packet(self, client, packet):
@@ -181,9 +187,12 @@ class ServerApplication(object):
             # @todo: deny conditions
             # Create the player in the world.
             player = gamestate.objects.Player(self.world)
-            player.position = (-20, -20)
-            player.rotation = 1.5707963267948966
-            self.world.add_object(player)
+            player.object_id = self.world.generate_id()
+            player.is_dead = True
+            # Listen to events.
+            player.health_changed += self.on_player_status_changed
+            player.power_changed += self.on_player_status_changed
+            player.is_dead_changed += self.on_player_is_dead_changed
             client.player = player
             print "Creating player in world with id=%s for client id=%s." % \
                 (player.object_id, client.client_id)
@@ -205,6 +214,18 @@ class ServerApplication(object):
                 self.server.output.put_nowait((client, init))
                 update = self._get_update(object)
                 self.server.output.put_nowait((client, update))
+        
+        # SpawnRequest
+        elif ptype is packets.SpawnRequest:
+            # @todo: deny conditions
+            client.player.change_element(packet.element_type)
+            client.player.position = self.scene.generate_spawn_position()
+            client.player.rotation = 1.5707963267948966
+            client.player.is_dead = False
+            self._send_update(client.player, check_time=False)
+            response = packets.SpawnResponse()
+            response.element_type = packet.element_type
+            self.server.output.put_nowait((client, response))
   
         # PlayerUpdate
         elif ptype is packets.PlayerUpdate:
@@ -229,30 +250,32 @@ class ServerApplication(object):
                 self._send_update(client.player, ignore=client.player, check_time=False)
                 self.server.output_broadcast.put_nowait((used, None))
     
-    def _send_update(self, object, ignore=None, check_time=True):
+    def _send_update(self, object, ignore=None, check_time=True, check_data=True):
         # Only send updates for MobileObjects.
         if not isinstance(object, gamestate.objects.MobileObject):
             return
+        
+        update = self._get_update(object)
 
-        if self.last_update_time.has_key(object):
-            update_time, updates = self.last_update_time[object]
+        if self.last_updates.has_key(object):
+            last_update_time, last_update = self.last_updates[object]
             
             # Only send if update threshold has expired.
-            if check_time and update_time + 0.05 > self.world.time:
+            if check_time and last_update_time + 0.05 > self.world.time:
                 return
-                
-            # Only send if position/rotation/speed/direction has changed.
-            last_position = updates[0]
-            if object.position == last_position:
-                #print "Skipping id=%s because (%.2f, %.2f) == (%.2f, %.2f)" % \
-                #    (object.object_id, last_position[0], last_position[1], object.position[0], object.position[1])
-                # @todo: implement other attributes than position.
+            
+            # Only send if there is new information to be sent.
+            if check_data and update.object_id == last_update.object_id and \
+                update.x == last_update.x and update.z == last_update.z and \
+                update.rotation == last_update.rotation and \
+                update.move_speed == last_update.move_speed and \
+                update.move_direction == last_update.move_direction and \
+                update.is_dead == last_update.is_dead:
                 return
         
         print "Broadcasting update for object id=%s." % object.object_id
-        update = self._get_update(object)
         self.server.output_broadcast.put_nowait((update, ignore))
-        self.last_update_time[object] = (self.world.time, (object.position,))
+        self.last_updates[object] = (self.world.time, update)
 
     def _get_update(self, object):
         """ Helper method to create an ObjectUpdate packet from a game object. """
@@ -271,4 +294,8 @@ class ServerApplication(object):
         except:
             update.move_speed = 0
             update.move_direction = 0
+        if object.type == "player":
+            update.is_dead = object.is_dead
+        else:
+            update.is_dead = False
         return update

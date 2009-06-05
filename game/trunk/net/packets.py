@@ -95,21 +95,24 @@ class SpawnRequest(Packet):
 
 class SpawnResponse(Packet):
     """
+    Sent from the server to a client to let it know they are spawning in the
+    world.
     Required attributes:
-    x, z
+    element_type
     """
     id = 4
-    format = "!ff"
+    format = "!B"
     
     def pack(self, packed=""):
         return Packet.pack(self, struct.pack(SpawnResponse.format,
-            self.x, self.z)) + \
+            element_types[self.element_type])) + \
             packed
-    
+
     def unpack(self, packed):
         offset = Packet.unpack(self, packed)
-        self.x, self.z = struct.unpack_from(SpawnResponse.format, packed, offset)
-        return offset + 8
+        etype, = struct.unpack_from(SpawnResponse.format, packed, offset)
+        self.element_type = element_types[etype]
+        return offset + 1
 
 
 class PlayerUpdate(Packet):
@@ -182,22 +185,27 @@ class ObjectUpdate(Packet):
     these packets constantly to update the client's game state.
     
     Required attributes:
-    object_id, x, z, rotation, move_speed, move_direction
+    object_id, x, z, rotation, move_speed, move_direction, is_dead
     """
     id = 7
-    format = "!H ff f f f" # object_id position rotation move_speed move_direction
+    format = "!H ff f f f B" # object_id position rotation move_speed move_direction flags
+    _flags_mask_is_dead = 0b1 << 0
     
     def pack(self, packed=""):
+        flags = 0b0
+        if self.is_dead: flags |= self._flags_mask_is_dead
         return Packet.pack(self, struct.pack(ObjectUpdate.format,
             self.object_id, self.x, self.z, self.rotation,
-            self.move_speed, self.move_direction)) + \
+            self.move_speed, self.move_direction, flags)) + \
             packed
     
     def unpack(self, packed):
         offset = Packet.unpack(self, packed)
-        self.object_id, self.x, self.z, self.rotation, self.move_speed, self.move_direction = \
+        self.object_id, self.x, self.z, self.rotation, self.move_speed, \
+            self.move_direction, flags = \
             struct.unpack_from(ObjectUpdate.format, packed, offset)
-        return offset + 22
+        self.is_dead = (flags & self._flags_mask_is_dead) == self._flags_mask_is_dead
+        return offset + 23
         
 
 class ObjectStatusUpdate(Packet):
@@ -239,7 +247,7 @@ class ObjectRemove(Packet):
             
     def unpack(self, packed):
         offset = Packet.unpack(self, packed)
-        self.object_id = struct.unpack_from(ObjectRemove.format, packed, offset)
+        self.object_id, = struct.unpack_from(ObjectRemove.format, packed, offset)
         return offset + 2
 
 

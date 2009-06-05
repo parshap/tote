@@ -290,8 +290,8 @@ class Player(MobileObject):
         self.health_regen = 1
         self.power_regen = 10
         self.regen_last_time = 0
-        self.dead = False
-        self.died = Event()
+        self._is_dead = False
+        self.is_dead_changed = Event()
         self.bounding_shape = collision.BoundingCircle(6)
         self.type = "player"
         
@@ -328,13 +328,19 @@ class Player(MobileObject):
             value = self.max_health
         if value != self.health:
             self._health = value
-            if value <= 0 and not self.dead:
-                self.dead = True
-                print "player died"
-                self.died()
+            if self.world.is_master:
+                if value <= 0 and not self.is_dead:
+                    self.is_dead = True
             self.health_changed(self, self._health)
-    
     health = property(_get_health, _set_health) 
+    
+    def _get_is_dead(self):
+        return self._is_dead
+    def _set_is_dead(self, value):
+        if value != self.is_dead:
+            self._is_dead = value
+            self.is_dead_changed(self)
+    is_dead = property(_get_is_dead, _set_is_dead)
         
     def _get_power(self):
         return self._power
@@ -387,7 +393,7 @@ class Player(MobileObject):
 
     def update(self, dt):
         # Regen health & power.
-        if self.world.is_master:
+        if self.world.is_master and not self.is_dead:
             if self.world.time > self.regen_last_time + self.regen_frequency:
                 self.health += self.health_regen * (self.world.time - self.regen_last_time)
                 self.power += self.power_regen * (self.world.time - self.regen_last_time)
@@ -431,6 +437,7 @@ class Player(MobileObject):
             self.element = elements.AirElement(self)
         else:
             return
+        print "element changed to %s" % element_type
         self.element_changed(self)
         
     def is_ongcd(self):

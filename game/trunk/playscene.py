@@ -366,16 +366,26 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
             # Add a player to the world and set it as our active player.
             print "Creating player in world with id=%s." % packet.player_id
             self.player = gamestate.objects.Player(self.world)
-            self.world.add_object(self.player, packet.player_id)
-            
-            # Set up the player's GUI.
-            self.setupGUIPlayer()
+            self.player.object_id = packet.player_id
+            self.player.is_dead = True
             
             # Listen to the player's position change event so we can mvoe the
             # camera with the player.
             self.player.position_changed += self.on_player_position_changed
             self.player.element_changed += self.on_player_element_changed
             self.player.ability_requested += self.on_player_ability_requested
+            self.player.is_dead_changed += self.on_player_is_dead_changed
+            
+            request = packets.SpawnRequest()
+            request.element_type = "earth"
+            self.client.output.put_nowait(request)
+            
+        # SpawnResponse
+        if ptype is packets.SpawnResponse:
+            self.player.is_dead = False
+            self.player.change_element(packet.element_type)
+            self.world.add_object(self.player, self.player.object_id)
+            self.setupGUIPlayer()
         
         # ObjectInit
         elif ptype is packets.ObjectInit:
@@ -412,12 +422,24 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
                     object.is_moving = False
             except:
                 object.position = (packet.x, packet.z)
+            if object.type == "player":
+                if object.is_dead:
+                    print 'setting player to dead'
+                object.is_dead = packet.is_dead
         
         # ObjectStatusUpdate
         elif ptype is packets.ObjectStatusUpdate:
+            if self.world.objects_hash.has_key(packet.object_id):
+                object = self.world.objects_hash[packet.object_id]
+                object.health = packet.health
+                object.power = packet.power
+            else:
+                print "Ignoring ObjectStatusUpdate because player is not in world."
+        
+        # ObjectRemove
+        elif ptype is packets.ObjectRemove:
             object = self.world.objects_hash[packet.object_id]
-            object.health = packet.health
-            object.power = packet.power
+            self.world.remove_object(object)
         
         # AbilityUsed
         elif ptype is packets.AbilityUsed:
@@ -440,9 +462,10 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
             
     def on_world_object_removed(self, object):
         if object.type == "player":
-            node = self.nodes[object]
-            node.getParent().removeAndDestroyChild(node.node_name)
-            del self.nodes[object]
+            print "deleting node for player id=%s" % object.object_id
+            if self.nodes.has_key(object):
+                self.nodes[object].destroy()
+                del self.nodes[object]
         
     def on_player_position_changed(self, mobileObject, position):
         self.cameraNode.position = (position[0], 100, position[1] + 100)
@@ -462,6 +485,14 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
         # about us when using the ability.
         self._send_update(check_time=False)
         self.client.output.put_nowait(ar)
+        
+    def on_player_is_dead_changed(self, player):
+        if self.player.is_dead:
+            print "** sending request... "
+            request = packets.SpawnRequest()
+            request.element_type = "earth"
+            self.client.output.put_nowait(request)
+        
         
      # Is this being used anywhere? @todo: remove if not, uncomment if exception
 #    def on_static_node_expired(self, static_node):
