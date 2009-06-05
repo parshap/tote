@@ -8,7 +8,8 @@ class World(object):
     This class represents the game world, including the map and all objects
     contained within it.
     """
-    def __init__(self):
+    def __init__(self, master=False):
+        self.master = master
         self.objects = []
         self.objects_hash = { }
         self.object_id_pos = 0
