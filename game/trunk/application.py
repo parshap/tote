@@ -95,9 +95,10 @@ class ServerApplication(object):
         self.world = gamestate.world.World(master=True)
         self.world.object_added += self.on_world_object_added
         self.world.object_removed += self.on_world_object_removed
-        self.scene = gamestate.scenes.TestScene(self.world)
         
         self.server = net.server.GameServer(self.world, self.port)
+        self.server.client_connected += self.on_client_connected
+        self.server.client_disconnected += self.on_client_disconnected
         self.server_thread = threading.Thread(target=self.server.go)
         self.server_thread.start()
         
@@ -105,6 +106,8 @@ class ServerApplication(object):
         
         # A set of players who's status updates need to be sent out.
         self.status_updates = set()
+        
+        self.scene = gamestate.scenes.TestScene(self.world)
         
         self.run = True
         
@@ -178,6 +181,14 @@ class ServerApplication(object):
             self.world.add_object(player)
     
     ## Network event handlers & helpers
+    def on_client_connected(self, client):
+        pass
+    
+    def on_client_disconnected(self, client):
+        if client.player is not None:
+            self.world.remove_object(client.player)
+            client.player = None
+
     def process_packet(self, client, packet):
         ptype = type(packet)
         print "Processing packet=%s: %s from client=%s." % (packet.id, ptype.__name__, client.client_id)
