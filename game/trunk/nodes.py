@@ -347,6 +347,7 @@ class PlayerNode(MobileGameNode):
         self.animation_start("idle")
         
     def destroy(self):
+        MobileGameNode.destroy(self)
         # Stop listening to events!
         self.object.is_moving_changed -= self.on_is_moving_changed
         self.object.is_charging_changed -= self.on_is_charging_changed
