@@ -3,6 +3,8 @@
 class Event:
     def __init__(self):
         self.handlers = set()
+        self._to_remove = []
+        self._is_firing = False
 
     def handle(self, handler):
         self.handlers.add(handler)
@@ -10,18 +12,25 @@ class Event:
 
     def unhandle(self, handler):
         try:
-            self.handlers.remove(handler)
-        except:
+            if not self._is_firing:
+                self.handlers.remove(handler)
+            else:
+                self._to_remove.append(handler)
+        except TypeError:
             raise ValueError("Handler is not handling this event, so cannot unhandle it.")
         return self
 
     def fire(self, *args, **kargs):
-        to_remove = []
+        self._is_firing = True
         for handler in self.handlers:
+            if handler in self._to_remove:
+                continue
             if handler(*args, **kargs) is False:
-                to_remove.append(handler)
-        for handler in to_remove:
+                self._to_remove.append(handler)
+        self._is_firing = False
+        for handler in self._to_remove:
             self.unhandle(handler)
+        self._to_remove = []
 
     def getHandlerCount(self):
         return len(self.handlers)
