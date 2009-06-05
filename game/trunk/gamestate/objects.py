@@ -305,7 +305,7 @@ class Player(MobileObject):
         # Create an Element and pass it a reference to this player make it our
         # current active element.
         # @todo: don't hardcode this
-        self.element = elements.WaterElement(self)
+        self.element = elements.EarthElement(self)
         self.element_changed = Event()
         
         self.active_abilities = []
@@ -326,11 +326,11 @@ class Player(MobileObject):
             value = self.max_health
         if value != self.health:
             self._health = value
-            self.health_changed(self._health)   
             if value <= 0 and not self.dead:
                 self.dead = True
                 print "player died"
                 self.died()
+            self.health_changed(self._health)
     
     health = property(_get_health, _set_health) 
         
@@ -350,8 +350,6 @@ class Player(MobileObject):
     def apply_damage(self, amount):
         if not self.is_invulnerable:
             self.health = self.health - amount
-            if self.health <= 0:
-                self.dead = True
                 
     def use_power(self, amount):
         self.power = self.power - amount
