@@ -92,7 +92,7 @@ class ServerApplication(object):
         self.port = port
         
     def go(self):
-        self.world = gamestate.world.World()
+        self.world = gamestate.world.World(master=True)
         self.world.object_added += self.on_world_object_added
         self.world.object_removed += self.on_world_object_removed
         self.scene = gamestate.scenes.TestScene(self.world)
