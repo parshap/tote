@@ -103,6 +103,9 @@ class ServerApplication(object):
         
         self.last_update_time = { }
         
+        # A set of players who's status updates need to be sent out.
+        self.status_updates = set()
+        
         self.run = True
         
         last = time.clock()
@@ -128,6 +131,14 @@ class ServerApplication(object):
         # Send necessary ObjectUpdate packets.
         for object in self.world.objects:
             self._send_update(object, ignore=object)
+            
+        # Send necessary ObjectStatusUpdate packets.
+        for object in self.status_updates:
+            update = packets.ObjectStatusUpdate()
+            update.object_id = object.object_id
+            update.health, update.power = object.health, object.power
+            self.server.output_broadcast.put_nowait((update, None))
+        self.status_updates.clear()
         
         # Send buffered output to clients.
         reactor.callFromThread(self.server.send)
@@ -147,6 +158,12 @@ class ServerApplication(object):
             self.server.output_broadcast.put_nowait((init, object))
             # Send a ObjectUpdate for the new player object to everyone.
             self._send_update(object)
+            # Listen to events.
+            object.health_changed += self.on_player_status_changed
+            object.power_changed += self.on_player_status_changed
+    
+    def on_player_status_changed(self, player, value):
+        self.status_updates.add(player)
         
     def on_world_object_removed(self, object):
         if object.type == "player":
