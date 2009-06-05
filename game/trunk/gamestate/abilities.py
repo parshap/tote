@@ -97,29 +97,87 @@ class EarthHookInstance(AbilityInstance):
 
 class EarthEarthquakeInstance(AbilityInstance):
     power_cost = 50
+    damage_per_tick = 5
+    duration = 2
+    tick_time = .5
+    radius = 50
+    slow_speed_multiplier = .5
+    slow_time = 1.5
+    
+    
     def __init__(self, player):
         AbilityInstance.__init__(self, player)
         self.type = "EarthEarthQuakeInstance"
-        self.hitRadius = 30
+        self.position = self.player.position
+        self.bounding_circle = collision.BoundingCircle(self.radius)
+        self.time_lived = 0
+        self.ticks_done = 0
+        self.slowed_players = []
         
     def run(self):
         AbilityInstance.run(self)
-        
-        # get a list of players that were hit by the earthquake
-        self.bounding_circle = collision.BoundingCircle(self.hitRadius)
-        
-        colliders = self.player.world.get_colliders(self.bounding_circle, self.player.position,
-                                                    [self.player], objects.Player)
-        
-        # apply effects
-        for player in colliders:
-            # @todo: apply slow effects, etc
-            print "Earthquake collided with another player!"
             
-        self.expire()
+    def update(self, dt):
+        AbilityInstance.update(self, dt)
+        self.update_slowed_players(dt)        
+        # if the ability has expired...
+        self.time_lived += dt
+        if self.time_lived >= self.duration:
+            if len(self.slowed_players) == 0:
+                print "Earthquake effect destroyed"
+                self.expire()
+            return
+        #otherwise each teach
+        if self.time_lived >= self.ticks_done * self.tick_time:
+            self.ticks_done += 1
+            # get a list of players that were hit by the earthquake
+            colliders = self.player.world.get_colliders(self.bounding_circle, self.position,
+                                                        [self.player], objects.Player)
+            
+            # apply effects
+            for player in colliders:
+                if not self.player_already_slowed(player):
+                    player.move_speed *= self.slow_speed_multiplier
+                player.apply_damage(self.damage_per_tick)
+                print "Earthquake collided with another player!"
+                
+                slow_scheduler = self.EarthQuakeScheduler(player, self.slow_time)
+                slow_scheduler.fired += self.on_fired
+                self.slowed_players.append(slow_scheduler)
+                
+    class EarthQuakeScheduler(Scheduler):
+        def __init__(self, player, delay):
+            Scheduler.__init__(self, delay)
+            self.player = player
+        
+        def addtime(self, time):
+            self._clock += time
+            if self._clock >= self._delay:
+                self.is_fired = True
+                self.fired(self)
+            
+    def on_fired(self, slow_scheduler):
+        player = slow_scheduler.player
+        self.slowed_players.remove(slow_scheduler)
+        if not self.player_already_slowed(player):
+            player.move_speed /= self.slow_speed_multiplier
+            print "Run speed returned to normal."
+            
+    def player_already_slowed(self, player):
+        still_in_list = False
+        for scheduler in self.slowed_players:
+            still_in_list = still_in_list or scheduler.player == player
+        return still_in_list
+        
+    
+    def update_slowed_players(self, dt):
+        for scheduler in self.slowed_players:
+            scheduler.addtime(dt)
+        
         
 class EarthPowerSwingInstance(AbilityInstance):
     power_cost = 30
+    damage = 50
     def __init__(self, player):
         AbilityInstance.__init__(self, player)
         self.type = "EarthPowerSwingInstance"
@@ -135,13 +193,19 @@ class EarthPowerSwingInstance(AbilityInstance):
         colliders = self.player.world.get_colliders(
             bounding_shape, self.player.position,
             [self.player], objects.Player)
-        print "Earth Power Swing ability collided with %s players." % (len(colliders))
+        if self.player.world.is_master:
+            self.master(colliders)
         self.expire()
         
-        
+    def master(self, colliders):
+        print "Earth Power Swing ability collided with %s players." % (len(colliders))
+        for player in colliders:
+            player.apply_damage(self.damage)
 
+        
 class FirePrimaryInstance(AbilityInstance):
     power_cost = 20
+    damage = 18
     def __init__(self, player):
         AbilityInstance.__init__(self, player)
         self.type = "FirePrimaryInstance"
@@ -154,21 +218,27 @@ class FirePrimaryInstance(AbilityInstance):
         colliders = self.player.world.get_colliders(
             bounding_shape, self.player.position,
             [self.player], objects.Player)
-        print "Fire Primary ability collided with %s game objects." % (len(colliders))
+        if self.player.world.is_master:
+            self.master(colliders)
         self.expire()
-
+    
+    def master(self, colliders):
+        print "Fire Primary ability collided with %s game objects." % (len(colliders))
+        for player in colliders:
+            player.apply_damage(self.damage)
+        
 
 class FireFlameRushInstance(AbilityInstance):
     power_cost = 30
     charge_speed_multiplier = 3
-    damage_dealt = 1 
+    damage = 35 
     duration = .5
     radius = 12
 
     def __init__(self, player):
         AbilityInstance.__init__(self, player)
         self.scheduler = Scheduler(self.duration)
-        self.scheduler.on_fire += self.expire
+        self.scheduler.fired += self.expire
         self.type = "FireFlameRushInstance"
         self.collided = Event()
         
@@ -182,7 +252,7 @@ class FireFlameRushInstance(AbilityInstance):
     def on_player_collided(self, object):
         if not self.is_active:
             return False
-        if not object.isPassable:
+        if not object.isPassable or object.type == "player":
             self.collided(self.player)
             # create the bounding circle to check collision against
             bounding_circle = collision.BoundingCircle(self.radius) 
@@ -192,12 +262,15 @@ class FireFlameRushInstance(AbilityInstance):
                                                         [self.player], objects.Player)
             
             # for each player, apply effects
-            for player in colliders:
-                # @todo: apply damage
-                print "Flame Rush collided with some other object!"
+            if self.player.world.is_master:
+                    self.master(colliders)
                 
             self.expire()
             return False
+    def master(self, colliders):
+         for player in colliders:
+            player.apply_damage(self.damage)
+            print "Flame Rush collided with some other object!"
 
     def update(self, dt):
         AbilityInstance.update(self, dt)
@@ -210,7 +283,7 @@ class FireFlameRushInstance(AbilityInstance):
         
 class FireLavaSplashInstance(AbilityInstance):
     power_cost = 30
-    damage_dealt = 1
+    damage = 20
     radius = 30
         
     def __init__(self, player):
@@ -227,22 +300,20 @@ class FireLavaSplashInstance(AbilityInstance):
                                                     [self.player], objects.Player)
         
         # for each player, apply effects
-        for player in colliders:
-            # @todo: apply damage
-            print "Lava Splash collided with another player!"
+        if self.player.world.is_master:
+            self.master(colliders)
                 
         # end the effect
         self.expire()
-            
-    def update(self, dt):
-        AbilityInstance.update(self, dt)
     
-    def expire(self):
-        AbilityInstance.expire(self)
+    def master(self, colliders):
+        for player in colliders:
+            player.apply_damage(self.damage)
+            print "Lava Splash collided with another player!"
         
 class FireRingOfFireInstance(AbilityInstance):
     power_cost = 50
-    damage_per_tick = 10
+    damage_per_tick = 30
     duration = 3
     radius = 96
     ring_thickness = 8
@@ -287,7 +358,11 @@ class FireRingOfFireInstance(AbilityInstance):
             colliders.append(collider)
         for collider in outer_colliders:
             colliders.append(collider)
-        
+            
+        if self.player.world.is_master:
+            self.master(colliders)
+     
+    def master(self, colliders):   
         for collider in colliders:
             # if this player has already been hit
             if self.last_player_hit_times.has_key(collider):
@@ -297,14 +372,15 @@ class FireRingOfFireInstance(AbilityInstance):
                 # check to see if the player was hit long ago enough to hit him again
                 dt = self.player.world.time - self.last_player_hit_times[collider]
                 if dt >= self.tick_time:
-                    print "Another player was hit by Ring of Fire!"
+                    print "A player was hit by Ring of Fire again!"
                     self.last_player_hit_times[collider] = self.player.world.time
-                    # @todo: apply damage etc etc etc
+                    collider.apply_damage(self.damage_per_tick)
+                    
             # if the player has not already been hit
             else:
                 self.last_player_hit_times[collider] = self.player.world.time
-                print "Another player was hit by Ring of Fire!"
-                # @todo: : apply damage etc etc etc
+                print "A new player was hit by Ring of Fire!"
+                collider.apply_damage(self.damage_per_tick)
     
 class AirPrimaryInstance(AbilityInstance):
     power_cost = 20
@@ -407,7 +483,7 @@ class AirWindWhiskInstance(AbilityInstance):
         
 class AirLightningBoltInstance(AbilityInstance):
     power_cost = 50
-    damage_dealt = 10
+    damage = 10
     range = 100
     
     def __init__(self, player):
@@ -454,7 +530,7 @@ class WaterPrimaryInstance(AbilityInstance):
     speed = 200
     projectile_radius = 20
     duration = 20
-    damage_dealt = 10
+    damage = 10
     collided = Event()
     
     def __init__(self, player):
@@ -479,6 +555,7 @@ class WaterPrimaryInstance(AbilityInstance):
         if object_collided_with.type == "player":
             print "Ice Shot collided with another player!"
             #@todo: apply damage etc
+
 
 class WaterWaterGushInstance(AbilityInstance):  
     power_cost = 30
@@ -527,7 +604,7 @@ class WaterTidalWaveInstance(AbilityInstance):
     power_cost = 30
     hit_radius = 60
     hit_angle = math.pi / 2
-    damage_dealt = 10
+    damage = 10
     
     def __init__(self, player):
         AbilityInstance.__init__(self, player)
