@@ -9,7 +9,7 @@ class World(object):
     contained within it.
     """
     def __init__(self, master=False):
-        self.master = master
+        self.is_master = master
         self.objects = []
         self.objects_hash = { }
         self.object_id_pos = 0
