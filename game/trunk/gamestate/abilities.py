@@ -133,14 +133,11 @@ class EarthEarthquakeInstance(AbilityInstance):
             # get a list of players that were hit by the earthquake
             colliders = self.player.world.get_colliders(self.bounding_circle, self.position,
                                                         [self.player], objects.Player)
-            
+            self.master(colliders)
             # apply effects
             for player in colliders:
                 if not self.player_already_slowed(player):
                     player.move_speed *= self.slow_speed_multiplier
-                player.apply_damage(self.damage_per_tick)
-                print "Earthquake collided with another player!"
-                
                 slow_scheduler = self.EarthQuakeScheduler(player, self.slow_time)
                 slow_scheduler.fired += self.on_fired
                 self.slowed_players.append(slow_scheduler)
@@ -169,11 +166,14 @@ class EarthEarthquakeInstance(AbilityInstance):
             still_in_list = still_in_list or scheduler.player == player
         return still_in_list
         
-    
     def update_slowed_players(self, dt):
         for scheduler in self.slowed_players:
             scheduler.addtime(dt)
         
+    def master(self, colliders):
+        print "Earthquake collided with another player!"
+        for player in colliders:
+            player.apply_damage(self.damage_per_tick)
         
 class EarthPowerSwingInstance(AbilityInstance):
     power_cost = 30
