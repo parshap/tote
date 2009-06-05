@@ -413,6 +413,12 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
             except:
                 object.position = (packet.x, packet.z)
         
+        # ObjectStatusUpdate
+        elif ptype is packets.ObjectStatusUpdate:
+            object = self.world.objects_hash[packet.object_id]
+            object.health = packet.health
+            object.power = packet.power
+        
         # AbilityUsed
         elif ptype is packets.AbilityUsed:
             print "Using ability id=%s on player_id=%s" % (packet.object_id, packet.ability_id)
