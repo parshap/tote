@@ -307,8 +307,8 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
         reactor.callFromThread(self.client.send)
         
         # Add time to animations.
-        for object in self.nodes:
-            self.nodes[object].animations_addtime(dt)
+        for object_id in self.nodes:
+            self.nodes[object_id].animations_addtime(dt)
 
         # Neatly close our FrameListener if our renderWindow has been shut down
         # or we are quitting.
@@ -456,16 +456,26 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
     ## Game event callbacks
     def on_world_object_added(self, object):
         if object.type == "player":
+            if self.nodes.has_key(object.object_id):
+                # We already have a node for this game object, but it may be
+                # represented by another object in memory.
+                node = self.nodes[object.object_id]
+                if node.object == object:
+                    # If it's the same object, we don't need a new node.
+                    if node.corpse is not None:
+                        node.corpse.destroy()
+                        node.corpse = None
+                    return
+                # Otherwise, destroy the current node and create a new one.
+                node.destroy()
             node = nodes.PlayerNode(self.sceneManager, object, "ninja.mesh")
             node.set_scale(.1)
-            self.nodes[object] = node
+            node.rotation -= math.pi/2
+            self.nodes[object.object_id] = node
             
     def on_world_object_removed(self, object):
-        if object.type == "player":
-            print "deleting node for player id=%s" % object.object_id
-            if self.nodes.has_key(object):
-                self.nodes[object].destroy()
-                del self.nodes[object]
+        # @todo: Remove nodes at some point for players no longer here.
+        pass
         
     def on_player_position_changed(self, mobileObject, position):
         self.cameraNode.position = (position[0], 100, position[1] + 100)

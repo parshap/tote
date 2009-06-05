@@ -42,7 +42,7 @@ class Node(object):
         
         # Node spatial properties
         self.position = (0,0,0)
-        self.rotation = -math.pi/2 #@todo: fix this
+        self.rotation = 0 #@todo: fix this
         self.scale = 1
         
         # Node renderables
@@ -50,6 +50,7 @@ class Node(object):
         self.particle_system = None
         
     def destroy(self):
+        print "performing delete"
         self.sceneNode.getParentSceneNode().removeAndDestroyChild(self.node_name)
         
     # spatial properties
@@ -126,13 +127,13 @@ class Node(object):
     ## Animations
     def animation_start(self, name):
         """ Play and loop the animation with the given name. """
-        anim, speed = self.animations[name]
+        anim, speed, reset = self.animations[name]
         anim.setLoop(True)
         anim.setEnabled(True)
         
-    def animation_playonce(self, name, weight=1):
+    def animation_playonce(self, name, weight=1, reset=True):
         """ Play the animation witht he given name once and then stop. """
-        anim, speed = self.animations[name]
+        anim, speed, reset = self.animations[name]
         anim.setLoop(False)
         anim.setEnabled(True)
         anim.setWeight(weight)
@@ -140,22 +141,22 @@ class Node(object):
         
     def animation_stop(self, name):
         """ Stop the animation with the given name. """
-        anim, speed = self.animations[name]
+        anim, speed, reset = self.animations[name]
         anim.setEnabled(False)
         
     def animations_stopall(self):
         """ Stop all animations. """
         for name in self.animations:
-            anim, speed = self.animations[name]
+            anim, speed, reset = self.animations[name]
             anim.setEnabled(False)
         
     def animations_addtime(self, time):
         """ Add time to all enabled animations. """
         for name in self.animations:
-            anim, speed = self.animations[name]
+            anim, speed, reset = self.animations[name]
             if anim.getEnabled():
                 anim.addTime(time * speed)
-                if anim.hasEnded():
+                if reset and anim.hasEnded():
                     anim.setEnabled(False)
         
 class GameNode(Node):
@@ -316,12 +317,30 @@ class StaticEffectNode(Node):
         return False
 
 
+class CorpseNode(Node):
+    def __init__(self, sceneManager, player, mesh_name):
+        Node.__init__(self, sceneManager,)
+        self.rotation -= math.pi/2
+        self.set_scale(.1)
+        self.set_position((player.position[0], 0, player.position[1]))
+        self.set_rotation(player.rotation)
+        self.set_mesh(mesh_name)
+        self.mesh.setMaterialName("Ninja-" + player.element.type)
+        self.animations = { }
+        self.animations["idle"] = (self.mesh.getAnimationState("Idle2"), 1, True)
+        self.animations["death"] = (self.mesh.getAnimationState("Death1"), 1, False)
+        self.animation_playonce("death")
+        
+
 class PlayerNode(MobileGameNode):
     def __init__(self, sceneManager, player, mesh_name):
         MobileGameNode.__init__(self, sceneManager, player)
         
+        self.mesh_name = mesh_name
         self.set_mesh(mesh_name)
         self.mesh.setMaterialName("Ninja-" + player.element.type)
+        
+        self.corpse = None
         
         # Listen to the events we care about.
         player.is_moving_changed += self.on_is_moving_changed
@@ -339,12 +358,12 @@ class PlayerNode(MobileGameNode):
         # as a tuple of the animation state and the speed at which the
         # animation should be played.
         self.animations = { }
-        self.animations["idle"] = (self.mesh.getAnimationState("Idle2"), 1)
-        self.animations["run"] = (self.mesh.getAnimationState("Walk"), 3)
-        self.animations["ability_1"] = (self.mesh.getAnimationState("Attack3"), 1)
+        self.animations["idle"] = (self.mesh.getAnimationState("Idle2"), 1, True)
+        self.animations["run"] = (self.mesh.getAnimationState("Walk"), 3, True)
+        self.animations["ability_1"] = (self.mesh.getAnimationState("Attack3"), 1, True)
         
         # Start the idle animation
-        self.animation_start("idle")
+        self.animation_playonce("idle")
         
     def destroy(self):
         MobileGameNode.destroy(self)
@@ -356,10 +375,25 @@ class PlayerNode(MobileGameNode):
         self.object.ability_instance_created -= self.on_ability_instance_created
         self.object.element_changed -= self.on_element_changed
         self.object.is_dead_changed -= self.on_is_dead_changed
+        if self.corpse is not None:
+            self.corpse.destroy()
+            self.corpse = None
+        
+    def animations_addtime(self, time):
+        MobileGameNode.animations_addtime(self, time)
+        if self.corpse is not None:
+            self.corpse.animations_addtime(time)
+        
+    def spawn_corpse(self):
+        if self.corpse is not None:
+            self.corpse.destroy()
+        self.corpse = CorpseNode(self.sceneManager, self.object, self.mesh_name)
         
     def on_is_dead_changed(self, player):
         # Hide the player if they are dead.
         self.sceneNode.setVisible(not player.is_dead)
+        if player.is_dead:
+            self.spawn_corpse()
         
     def on_element_changed(self, player):
         self.mesh.setMaterialName("Ninja-" + player.element.type)
@@ -376,14 +410,14 @@ class PlayerNode(MobileGameNode):
     def on_is_charging_changed(self, player, is_charging):
         # Start/stop the charging particle effect and set the animation speed.
         multi = gamestate.abilities.FireFlameRushInstance.charge_speed_multiplier
-        (anim, speed) = self.animations["run"]
+        (anim, speed, reset) = self.animations["run"]
         if is_charging:
             self.set_particle_system("FireTrail")
             self.particle_effect_start()
-            self.animations["run"] = (anim, speed * multi)
+            self.animations["run"] = (anim, speed * multi, reset)
         else:
             self.particle_effect_stop()
-            self.animations["run"] = (anim, speed / multi)
+            self.animations["run"] = (anim, speed / multi, reset)
     
     def on_is_hooked_changed(self, player, is_hooked):
         pass
