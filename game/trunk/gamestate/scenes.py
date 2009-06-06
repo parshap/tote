@@ -67,5 +67,4 @@ class TestScene(Scene):
         
     def generate_spawn_position(self):
         return (0, 0)
-        random.seed()
         return random.choice(self.spawn_locations)

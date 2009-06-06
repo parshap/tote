@@ -6,12 +6,14 @@ import ogre.renderer.OGRE as ogre
 
 # Import other external packages and modules.
 import sys
+import random
 
 # Import internal packages and modules modules.
 import application
 
 
 def main(argv=None):
+    random.seed()
     # Get command line arguments or passed parameters.
     if argv is None:
         argv = sys.argv
