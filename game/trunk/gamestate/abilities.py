@@ -121,20 +121,20 @@ class EarthEarthquakeInstance(AbilityInstance):
             
     def update(self, dt):
         AbilityInstance.update(self, dt)
-        self.update_slowed_players(dt)        
+#        self.update_slowed_players(dt)        
         # if the ability has expired...
         self.time_lived += dt
         if self.time_lived >= self.duration:
             print "Earthquake effect destroyed"
             self.expire()
             return
-        #otherwise each teach
-        if self.time_lived >= self.ticks_done * self.tick_time:
-            self.ticks_done += 1
-            # get a list of players that were hit by the earthquake
-            colliders = self.player.world.get_colliders(self.bounding_circle, self.position,
-                                                        [self.player], objects.Player)
-            if self.player.world.is_master:
+        if self.player.world.is_master:
+            #otherwise each teach
+            if self.time_lived >= self.ticks_done * self.tick_time:
+                self.ticks_done += 1
+                # get a list of players that were hit by the earthquake
+                colliders = self.player.world.get_colliders(self.bounding_circle, self.position,
+                                                            [self.player], objects.Player)
                 self.master(colliders)
 
                 
@@ -165,13 +165,13 @@ class EarthEarthquakeInstance(AbilityInstance):
     def update_slowed_players(self, dt):
         for scheduler in self.slowed_players:
             scheduler.addtime(dt)
-        return self.is_active
+        if len(self.slowed_players) == 0:
+            return self.is_active
     
     def master(self, colliders):
         print "Earthquake collided with another player!"
         for player in colliders:
             player.apply_damage(self.damage_per_tick, self.player, 103)
-            player._set_last_ability_hit_by(self)
             if not self.player_already_slowed(player):
                 player.move_speed *= self.slow_speed_multiplier
             slow_scheduler = self.EarthQuakeScheduler(player, self.slow_time)
