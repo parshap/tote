@@ -114,7 +114,7 @@ class EarthEarthquakeInstance(AbilityInstance):
         self.time_lived = 0
         self.ticks_done = 0
         self.slowed_players = []
-        self.player.world.world_update += self.update_slowed_players
+        self.player.world.world_updated += self.update_slowed_players
         
     def run(self):
         AbilityInstance.run(self)
