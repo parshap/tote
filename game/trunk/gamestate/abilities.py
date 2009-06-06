@@ -379,7 +379,7 @@ class FireRingOfFireInstance(AbilityInstance):
                 if dt >= self.tick_time:
                     print "A player was hit by Ring of Fire again!"
                     self.last_player_hit_times[collider] = self.player.world.time
-                    collider.apply_damage(self.damage_per_tick)
+                    collider.apply_damage(self.damage_per_tick, self.player, 204)
                     
             # if the player has not already been hit
             else:
