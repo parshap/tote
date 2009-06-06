@@ -98,21 +98,21 @@ class SpawnResponse(Packet):
     Sent from the server to a client to let it know they are spawning in the
     world.
     Required attributes:
-    element_type
+    element_type, x, z
     """
     id = 4
-    format = "!B"
+    format = "!B ff" # element_type x z
     
     def pack(self, packed=""):
         return Packet.pack(self, struct.pack(SpawnResponse.format,
-            element_types[self.element_type])) + \
+            element_types[self.element_type], self.x, self.z)) + \
             packed
 
     def unpack(self, packed):
         offset = Packet.unpack(self, packed)
-        etype, = struct.unpack_from(SpawnResponse.format, packed, offset)
+        etype, self.x, self.z = struct.unpack_from(SpawnResponse.format, packed, offset)
         self.element_type = element_types[etype]
-        return offset + 1
+        return offset + 9
 
 
 class PlayerUpdate(Packet):
@@ -151,31 +151,33 @@ class ObjectInit(Packet):
     send one of these packets for each object.
     
     Required atributes: object_id, object_type
-    Optional attributes: name, owner_id ttl
+    Optional attributes: element_type, name, owner_id ttl,
     """
     id = 6
-    format = "!H B H %ds H f" # object_id, object_type, namelen, name, owner_id, ttl
-    offset_namelen = struct.calcsize("H B")
+    format = "!H B B H %ds H f" # object_id, object_type, element_type, namelen, name, owner_id, ttl 
+    offset_namelen = struct.calcsize("H B B")
     
     def __init__(self):
         Packet.__init__(self)
+        self.element_type = 0
         self.name = ""
         self.owner_id = 0
         self.ttl = -1
     
     def pack(self, packed=""):
         return Packet.pack(self, struct.pack(ObjectInit.format % len(self.name),
-            self.object_id, object_types[self.object_type],
+            self.object_id, object_types[self.object_type], element_types[self.element_type],
             len(self.name), self.name, self.owner_id, self.ttl)) + \
             packed
     
     def unpack(self, packed):
         offset = Packet.unpack(self, packed)
         namelen = struct.unpack_from("!H", packed, offset + self.offset_namelen)
-        self.object_id, otype, namelen, self.name, self.owner_id, self.ttl = \
+        self.object_id, otype, etype, namelen, self.name, self.owner_id, self.ttl = \
             struct.unpack_from(ObjectInit.format % namelen , packed, offset)
         self.object_type = object_types[otype]
-        return offset + 11 + namelen
+        self.element_type = element_types[etype]
+        return offset + 12 + namelen
 
 
 class ObjectUpdate(Packet):

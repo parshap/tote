@@ -1,7 +1,6 @@
 from __future__ import division
 
 import ogre.io.OIS as OIS
-import gui
 
 import math
 
@@ -77,20 +76,15 @@ class InputHandler(OIS.MouseListener, OIS.KeyListener):
                 self.scene.player.request_ability(1)
         
         # Inject mouse press to UI elements.
-#        for element in self.scene.gui_elements:
-#            if isinstance(element, gui.IClickable):
-#                element.inject_mouse_press(id,
-#                    event.get_state().X.abs, event.get_state().Y.abs)
+        self.scene.gui.inject_mouse_press(id, event.get_state().X.abs,
+            event.get_state().Y.abs)
 
         return True
 
     def mouseReleased(self, event, id):
         # Inject mouse release to UI elements.
-#        for element in self.scene.gui_elements:
-#            if isinstance(element, gui.IClickable):
-#                element.inject_mouse_release(id,
-#                    event.get_state().X.abs, event.get_state().Y.abs)
-
+        self.scene.gui.inject_mouse_release(id, event.get_state().X.abs,
+            event.get_state().Y.abs)
         return True
 
     def keyPressed(self, event):

@@ -11,6 +11,7 @@ import gamestate, net
 from net import packets
 import SceneLoader
 from inputhandler import InputHandler
+from event import Event
 import nodes
 import gui
 import audio
@@ -18,135 +19,83 @@ import audio
 # Import other python modules
 import math
 
-class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
-    """
-    This class represents the game's main scene - the play scene. This class
-    sets up the initial scene and acts as the main game loop (via
-    frameStarted()).
-    """
-
-    def __init__(self, sceneManager, address, port):
-        # Initialize the various listener classes we are a subclass from
-        ogre.FrameListener.__init__(self)
-        ogre.WindowEventListener.__init__(self)
+class PlaySceneGUI(object):
+    def __init__(self, viewport):
+        self.viewport = viewport
+        self._setup_overlay()
+        self.elements = []
         
-        self.address = address
-        self.port = port
-        
-        self.renderWindow = ogre.Root.getSingleton().getAutoCreatedWindow()
-        self.sceneManager = sceneManager
-        self.camera = self.sceneManager.getCamera("PrimaryCamera")
-        self.cameraNode = self.sceneManager.getSceneNode("PrimaryCamera")
-        
-        self.viewport = self.camera.getViewport()
-        
-        # Create an empty list of nodes
-        self.nodes = { }
-        
-        # Create an empty list of GUI elements.
-        self.gui_elements = [] 
-        
-        # Set up the overlay for the GUI.
-        self.setupOverlay()
-        
-        # Set up the scene.
-        self.setupScene()
-        
-        # Load sounds.
-        self.loadSceneSounds()
-        
-        # Init attributes.
-        self.player = None
-        self.last_update = None
-
-        # Set up the GUI.
-        self.setupGUI()
-        
-        # Show a welcome message.
-        self.message.notice("Tides of the Elements")
-        
-        # Load scene music
-        audio.set_background_music("media/sounds/Dispatches+Of+Humanity.wav")
-        
-        # Set up the input devices.
-        self.setupInput()
-
-        # Set up initial window size.
-        self.windowResized(self.renderWindow)
-
-        # Set this to True when we get an event to exit the application
-        self.quit = False
-
-        # Listen for any events directed to the window manager's close button
-        ogre.WindowEventUtilities.addWindowEventListener(self.renderWindow, self)
-        
-        # Begin scene music
-        audio.play_background_music()
-
-    def __del__ (self ):
-        # Clean up OIS 
-        self.inputManager.destroyInputObjectKeyboard(self.keyboard)
-        self.inputManager.destroyInputObjectMouse(self.mouse)
-        OIS.InputManager.destroyInputSystem(self.inputManager)
-        self.inputManager = None
-
-        ogre.WindowEventUtilities.removeWindowEventListener(self.renderWindow, self)
-        self.windowClosed(self.renderWindow)
-        
-    def setupScene(self):
-        ## Load the level.
-
-        # Create the world.
-        self.world = gamestate.world.World()
-        
-        # Load the scene into the Ogre world.
-        # @todo: Remove .scene dependancy and move to external file (format?).
-        
-        # Load some data from the .scene file
-        sceneLoader = SceneLoader.DotSceneLoader("media/testtilescene.scene", self.sceneManager)
-        sceneLoader.parseDotScene()
-        
-        # Load the scene into the game state.
-        self.scene = gamestate.scenes.TestScene(self.world)
-        
-        # Create the client and set listeners.
-        self.client = net.client.GameClient(self.world, self.address, self.port)
-        self.client.connected += self.on_client_connected
-        
-        # Start the netclient and connect.
-        self.client_thread = threading.Thread(target=self.client.go)
-        self.client_thread.start()
-        
-        # Attach a handler to world.object_added and removed
-        self.world.object_added += self.on_world_object_added
-        self.world.object_removed += self.on_world_object_removed
-
-        # Setup camera
-        self.camera.nearClipDistance = 1
-        self.camera.farClipDistance = 500
-        self.camera.setProjectionType(ogre.PT_ORTHOGRAPHIC)
-
-        # THIS SPECIFIES THE HEIGHT OF THE ORTHOGRAPHIC WINDOW
-        # the width will be recalculated based on the aspect ratio
-        # in ortho projection mode, decreasing the size of the window
-        # is equivalent to zooming in, increasing is the equivalent of
-        # zooming out.
-        self.camera.setOrthoWindowHeight(200)
-
-        # Setup camera node
-        self.cameraNode.position = (0, 100, 100)
-        self.cameraNode.pitch(ogre.Degree(-45))
-        
-    def setupGUI(self):
         # Create an FPS label.
         fpslabel = gui.FPSLabel("UI/FPSLabel")
-        self.gui_elements.append(fpslabel)
+        self.elements.append(fpslabel)
         
         # Create the message label.
         self.message = gui.Message("UI/MessageLabel")
-        self.gui_elements.append(self.message)
+        self.elements.append(self.message)
         
-    def setupGUIPlayer(self):
+        # Create the element selection panel
+        self.element_selection = gui.Element("UI/ElementSelection")
+        self.element_selection.hide()
+        self.elements.append(self.element_selection)
+        
+        # Add buttons for each of the 4 element buttons.
+        left = self.viewport.actualWidth / 2 - 300
+        top = self.viewport.actualHeight / 2 - 300
+        
+        earth_rect = ogre.Rectangle()
+        earth_rect.left = left + 40
+        earth_rect.top = top + 40
+        earth_rect.right = earth_rect.left + 212
+        earth_rect.bottom = earth_rect.top + 212
+        
+        fire_rect = ogre.Rectangle()
+        fire_rect.left = left + 40
+        fire_rect.top = top + 600 - 212 - 40
+        fire_rect.right = fire_rect.left + 212
+        fire_rect.bottom = fire_rect.top + 212
+        
+        water_rect = ogre.Rectangle()
+        water_rect.left = left + 600 - 212 - 40
+        water_rect.top = top + 40
+        water_rect.right = water_rect.left + 212
+        water_rect.bottom = water_rect.top + 212
+        
+        air_rect = ogre.Rectangle()
+        air_rect.left = left + 600 - 212 - 40
+        air_rect.top = top + 600 - 212 - 40
+        air_rect.right = air_rect.left + 212
+        air_rect.bottom = air_rect.top + 212
+        
+        self.element_selected = Event()
+
+        def on_element_clicked_earth(button, mouse_button):
+            self.element_selected("earth")
+        def on_element_clicked_fire(button, mouse_button):
+            self.element_selected("fire")
+        def on_element_clicked_water(button, mouse_button):
+            self.element_selected("water")
+        def on_element_clicked_air(button, mouse_button):
+            self.element_selected("air")
+            
+        earth_button = gui.Button("UI/ElementSelection/Earth", earth_rect)
+        earth_button.clicked += on_element_clicked_earth
+        fire_button = gui.Button("UI/ElementSelection/Fire", fire_rect)
+        fire_button.clicked += on_element_clicked_fire
+        water_button = gui.Button("UI/ElementSelection/Water", water_rect)
+        water_button.clicked += on_element_clicked_water
+        air_button = gui.Button("UI/ElementSelection/Air", air_rect)
+        air_button.clicked += on_element_clicked_air
+        
+        self.elements.append(earth_button)
+        self.elements.append(fire_button)
+        self.elements.append(water_button)
+        self.elements.append(air_button)
+    
+    def _setup_overlay(self):
+        pOver = ogre.OverlayManager.getSingleton().getByName("UI")
+        pOver.show()
+        
+    def setup_player_gui(self, player):
         """ Sets up player-related GUI that requires a player before setting up. """
         # Set up health and power bars
         health_bar_rect = ogre.Rectangle()
@@ -154,7 +103,7 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
         health_bar_rect.top = self.viewport.actualHeight - 84
         health_bar_rect.right = health_bar_rect.left + 256
         health_bar_rect.bottom = health_bar_rect.top + 10
-        health_bar = gui.StatusBar("UI/StatusBars/Health", health_bar_rect, self.player.max_health)
+        health_bar = gui.StatusBar("UI/StatusBars/Health", health_bar_rect, player.max_health)
         health_bar.name = "Health"
         
         power_bar_rect = ogre.Rectangle()
@@ -162,24 +111,24 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
         power_bar_rect.top = health_bar_rect.bottom
         power_bar_rect.right = health_bar_rect.right
         power_bar_rect.bottom = power_bar_rect.top + 10
-        power_bar = gui.StatusBar("UI/StatusBars/Power", power_bar_rect, self.player.max_power)
+        power_bar = gui.StatusBar("UI/StatusBars/Power", power_bar_rect, player.max_power)
         power_bar.name = "Power"
         
         # Add the gui elements to the element list.
-        self.gui_elements.append(health_bar)
-        self.gui_elements.append(power_bar)
+        self.elements.append(health_bar)
+        self.elements.append(power_bar)
         
         # Add listeners to player's health and power changed events.
-        self.player.health_changed += health_bar.on_value_changed
-        self.player.power_changed += power_bar.on_value_changed
+        player.health_changed += health_bar.on_value_changed
+        player.power_changed += power_bar.on_value_changed
         
-        # Set up the ability bar.
-        self.setupGUIAbilityBar()
-    
-    def setupGUIAbilityBar(self):
-        player = self.player
-        
-        # Set up ability cooldown displays        
+        self.setup_ability_bar(player)
+
+    def setup_ability_bar(self, player):
+        # Remove all current gui.AbilityCooldownDisplay from the current gui.
+        self.elements = [element for element in self.elements
+            if type(element) is not gui.AbilityCooldownDisplay]
+        # Set up ability cooldown displays
         ability_keys = player.element.ability_keys
         ability_cooldowns = player.element.ability_cooldowns
         ability1_cooldown = ability_cooldowns[ability_keys[1]]
@@ -247,17 +196,144 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
         ability4_cooldown_display.overlay.setMaterialName(ability4_icon_mat)
         
         # Add the gui elements to the element list.
-        self.gui_elements.append(ability1_cooldown_display)
-        self.gui_elements.append(ability2_cooldown_display)
-        self.gui_elements.append(ability3_cooldown_display)
-        self.gui_elements.append(ability4_cooldown_display)
+        self.elements.append(ability1_cooldown_display)
+        self.elements.append(ability2_cooldown_display)
+        self.elements.append(ability3_cooldown_display)
+        self.elements.append(ability4_cooldown_display)
         
         # Listen to player events (why isn't this the same as how
         # StatusBar listens to its events?):
-        ability1_cooldown_display.set_player_listener(self.player)
-        ability2_cooldown_display.set_player_listener(self.player)
-        ability3_cooldown_display.set_player_listener(self.player)
-        ability4_cooldown_display.set_player_listener(self.player)
+        ability1_cooldown_display.set_player_listener(player)
+        ability2_cooldown_display.set_player_listener(player)
+        ability3_cooldown_display.set_player_listener(player)
+        ability4_cooldown_display.set_player_listener(player)
+        
+    def update(self, dt):
+        for element in self.elements:
+            element.update(dt)
+    
+    def inject_mouse_press(self, id, x, y):
+        for element in self.elements:
+            if isinstance(element, gui.IClickable):
+                element.inject_mouse_press(id, x, y)
+    
+    def inject_mouse_release(self, id, x, y):
+        for element in self.elements:
+            if isinstance(element, gui.IClickable):
+                element.inject_mouse_release(id, x, y)
+
+
+class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
+    """
+    This class represents the game's main scene - the play scene. This class
+    sets up the initial scene and acts as the main game loop (via
+    frameStarted()).
+    """
+
+    def __init__(self, sceneManager, address, port):
+        # Initialize the various listener classes we are a subclass from
+        ogre.FrameListener.__init__(self)
+        ogre.WindowEventListener.__init__(self)
+        
+        self.address = address
+        self.port = port
+        
+        self.renderWindow = ogre.Root.getSingleton().getAutoCreatedWindow()
+        self.sceneManager = sceneManager
+        self.camera = self.sceneManager.getCamera("PrimaryCamera")
+        self.cameraNode = self.sceneManager.getSceneNode("PrimaryCamera")
+        
+        self.viewport = self.camera.getViewport()
+        
+        # Create an empty dict of nodes
+        self.nodes = { }
+
+        # Set up the scene.
+        self.setupScene()
+        
+        # Load sounds.
+        self.loadSceneSounds()
+        
+        # Init attributes.
+        self.player = None
+        self.last_update = None
+
+        # Set up the GUI.
+        self.gui = PlaySceneGUI(self.viewport)
+        self.gui.element_selected += self.on_gui_element_selected
+        
+        # Show a welcome message.
+        self.gui.message.notice("Tides of the Elements")
+        
+        # Load scene music
+        audio.set_background_music("media/sounds/Dispatches+Of+Humanity.wav")
+        
+        # Set up the input devices.
+        self.setupInput()
+
+        # Set up initial window size.
+        self.windowResized(self.renderWindow)
+
+        # Set this to True when we get an event to exit the application
+        self.quit = False
+
+        # Listen for any events directed to the window manager's close button
+        ogre.WindowEventUtilities.addWindowEventListener(self.renderWindow, self)
+        
+        # Begin scene music
+        audio.play_background_music()
+
+    def __del__ (self ):
+        # Clean up OIS 
+        self.inputManager.destroyInputObjectKeyboard(self.keyboard)
+        self.inputManager.destroyInputObjectMouse(self.mouse)
+        OIS.InputManager.destroyInputSystem(self.inputManager)
+        self.inputManager = None
+
+        ogre.WindowEventUtilities.removeWindowEventListener(self.renderWindow, self)
+        self.windowClosed(self.renderWindow)
+        
+    def setupScene(self):
+        ## Load the level.
+
+        # Create the world.
+        self.world = gamestate.world.World()
+        
+        # Load the scene into the Ogre world.
+        # @todo: Remove .scene dependancy and move to external file (format?).
+        sceneLoader = SceneLoader.DotSceneLoader("media/testtilescene.scene", self.sceneManager)
+        sceneLoader.parseDotScene()
+        
+        # Load the scene into the game state.
+        self.scene = gamestate.scenes.TestScene(self.world)
+        
+        # Create the client and set listeners.
+        self.client = net.client.GameClient(self.world, self.address, self.port)
+        self.client.connected += self.on_client_connected
+        
+        # Start the netclient and connect.
+        self.client_thread = threading.Thread(target=self.client.go)
+        self.client_thread.start()
+        
+        # Attach a handler to world.object_added and removed
+        self.world.object_added += self.on_world_object_added
+        self.world.object_removed += self.on_world_object_removed
+
+        # Setup camera
+        self.camera.nearClipDistance = 1
+        self.camera.farClipDistance = 500
+        self.camera.setProjectionType(ogre.PT_ORTHOGRAPHIC)
+
+        # THIS SPECIFIES THE HEIGHT OF THE ORTHOGRAPHIC WINDOW
+        # the width will be recalculated based on the aspect ratio
+        # in ortho projection mode, decreasing the size of the window
+        # is equivalent to zooming in, increasing is the equivalent of
+        # zooming out.
+        self.camera.setOrthoWindowHeight(200)
+
+        # Setup camera node
+        self.cameraNode.position = (0, 100, 100)
+        self.cameraNode.pitch(ogre.Degree(-45))
         
     def loadSceneSounds(self):
         # Air Sounds
@@ -286,19 +362,7 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
         audio.load_source("weaponswingmiss","media/sounds/weaponswingmiss.wav")
         audio.load_source("whiff",          "media/sounds/whiff.wav")
         audio.load_source("impact",         "media/sounds/impact.wav")
-        
-        
-        
-        
-        
-        
-        
-        
-        
-    def setupOverlay(self):
-        pOver = ogre.OverlayManager.getSingleton().getByName("UI")
-        pOver.show()
-        
+    
     def setupInput(self):
         # Create the inputManager using the supplied renderWindow
         windowHnd = self.renderWindow.getCustomAttributeInt("WINDOW")
@@ -342,8 +406,7 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
         self.inputHandler.capture()
         
         # Update our UI Elements
-        for element in self.gui_elements:
-            element.update(dt)
+        self.gui.update(dt)
         
         # Update the game state world.
         self.world.update(dt)
@@ -371,7 +434,7 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
     ## Net event callbacks & helpers
     def _send_update(self, check_time=True):
         """ Sends a PlayerUpdate packet to the server if appropriate. """
-        if self.player is None:
+        if self.player is None or self.player.is_dead:
             return
 
         update = self._get_update()
@@ -405,8 +468,7 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
             update.move_speed = 0
             update.move_direction = 0
         return update
-        
-    
+
     def process_packet(self, packet):
         ptype = type(packet)
         print "Processing packet=%s: %s from server." % (packet.id, ptype.__name__)
@@ -427,56 +489,75 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
             self.player.ability_requested += self.on_player_ability_requested
             self.player.is_dead_changed += self.on_player_is_dead_changed
             
-            request = packets.SpawnRequest()
-            request.element_type = "earth"
-            self.client.output.put_nowait(request)
+            self.gui.element_selection.show()
             
         # SpawnResponse
         if ptype is packets.SpawnResponse:
-            self.player.is_dead = False
             self.player.change_element(packet.element_type)
+            self.player.position = (packet.x, packet.z)
             self.world.add_object(self.player, self.player.object_id)
-            self.setupGUIPlayer()
+            self.gui.setup_player_gui(self.player)
         
         # ObjectInit
         elif ptype is packets.ObjectInit:
             if packet.object_type == "player":
                 object = gamestate.objects.Player(self.world)
+                object.name = packet.name
+                object.change_element(packet.element_type)
+                # @todo: implement owner_id, ttl
+                self.world.add_object(object, packet.object_id)
             else:
                 raise Exception("Invalid object_type")
-            # @todo: implement name, owner_id, ttl
 
-            self.world.add_object(object, packet.object_id)
-        
         # ObjectUpdate
         elif ptype is packets.ObjectUpdate:
             if not self.world.objects_hash.has_key(packet.object_id):
-                return
-            object = self.world.objects_hash[packet.object_id]
-            print "Updating object id=%s." % object.object_id
-            object.rotation = packet.rotation
-            try:
-                if packet.move_speed > 0:
-                    diff_vector = ogre.Vector3(packet.x - object.position[0], 0, packet.z - object.position[1])
-                    move_vector = ogre.Vector3(packet.move_speed * math.cos(packet.rotation), 0,
-                                               packet.move_speed * math.sin(packet.rotation))
-                    resultant = diff_vector + move_vector
-                    angle = math.atan2(resultant.z, resultant.x)
-                    angle = packet.rotation #
-                    object.position = (packet.x, packet.z) #
-                    object.move_speed = packet.move_speed
-                    object.rotation = angle
-                    object.move_direction = 0
-                    object.is_moving = True
+                # We don't know about this object yet, so we can't update it.
+                print "Received ObjectUpdate for unnkown object id=%s" % packet.object_id
+            else:
+                object = self.world.objects_hash[packet.object_id]
+                print "Updating object id=%s." % object.object_id
+                object.rotation = packet.rotation
+                if object == self.player:
+                    # This is an update about the player. We want to deal with
+                    # this case differently so we don't overwrite some client
+                    # states such as position.
+                    object.is_dead = packet.is_dead
+                    if packet.move_speed > 0:
+                        object.move_speed = packet.move_speed
+                    diff_vector = ogre.Vector2(packet.x - object.position[0],
+                                               packet.z - object.position[1])
+                    if diff_vector.squaredLength() > 500:
+                        # If the server tells us we're far from where we think
+                        # we are, then warp to the server's location.
+                        object.position = (packet.x, packet.z)
                 else:
-                    object.position = (packet.x, packet.z)
-                    object.is_moving = False
-            except:
-                object.position = (packet.x, packet.z)
-            if object.type == "player":
-                if object.is_dead:
-                    print 'setting player to dead'
-                object.is_dead = packet.is_dead
+                    # This is an update for another game object.
+                    if packet.move_speed > 0:
+                        object.is_moving = True
+                        object.move_direction = packet.move_direction
+                        object.move_speed = packet.move_speed
+                        
+                        diff_vector = ogre.Vector3(packet.x - object.position[0], 0, packet.z - object.position[1])
+                        if diff_vector.squaredLength() > 500:
+                            # If the server's location is far from where we
+                            # thinkt his player is, then, then don't smooth.
+                            object.position = (packet.x, packet.z)
+                            object.rotation = packet.rotation
+                        else:
+                            # Smooth the difference in locations.
+                            move_vector = ogre.Vector3(packet.move_speed * math.cos(packet.rotation + packet.move_direction), 0,
+                                                       packet.move_speed * math.sin(packet.rotation + packet.move_direction))
+                            resultant = diff_vector + move_vector
+                            angle = math.atan2(resultant.z, resultant.x)
+                            object.rotation = angle - packet.move_direction
+                    else:
+                        object.position = (packet.x, packet.z)
+                        object.is_moving = False
+                if object.type == "player":
+                    if object.is_dead:
+                        print 'setting player to dead'
+                    object.is_dead = packet.is_dead
         
         # ObjectStatusUpdate
         elif ptype is packets.ObjectStatusUpdate:
@@ -532,11 +613,8 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
         self.cameraNode.position = (position[0], 100, position[1] + 100)
         
     def on_player_element_changed(self, player):
-        # Remove all current gui.AbilityCooldownDisplay from the current gui.
-        self.gui_elements = [element for element in self.gui_elements
-            if type(element) is not gui.AbilityCooldownDisplay]
         # Recreate the ability bar GUI.
-        self.setupGUIAbilityBar()
+        self.gui.setup_ability_bar(self.player)
         
     def on_player_ability_requested(self, player, ability_id):
         ar = packets.AbilityRequest()
@@ -549,16 +627,21 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
         
     def on_player_is_dead_changed(self, player):
         if self.player.is_dead:
-            print "** sending request... "
-            request = packets.SpawnRequest()
-            request.element_type = "earth"
-            self.client.output.put_nowait(request)
+            self.gui.element_selection.show()
         
         
      # Is this being used anywhere? @todo: remove if not, uncomment if exception
 #    def on_static_node_expired(self, static_node):
 #        print static_node.unique_scene_node_name
 #        self.sceneManager.destroySceneNode(static_node.node_name)
+
+    ## GUI event handlers
+    def on_gui_element_selected(self, element_type):
+        print "selected:", element_type
+        request = packets.SpawnRequest()
+        request.element_type = element_type
+        self.client.output.put_nowait(request)
+        self.gui.element_selection.hide()
 
     ## Window event listener callbacks
     def windowResized(self, renderWindow):

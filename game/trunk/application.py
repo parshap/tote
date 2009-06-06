@@ -133,7 +133,7 @@ class ServerApplication(object):
         
         # Send necessary ObjectUpdate packets.
         for object in self.world.objects:
-            self._send_update(object, ignore=object)
+            self._send_update(object)
             
         # Send necessary ObjectStatusUpdate packets.
         for object in self.status_updates:
@@ -157,7 +157,8 @@ class ServerApplication(object):
             # Sent a ObjectInit for the new player obeject to everyone but the player.
             init = packets.ObjectInit()
             init.object_id = object.object_id
-            init.object_type = "player"
+            init.object_type = object.type
+            init.element_type = object.element.type
             self.server.output_broadcast.put_nowait((init, object))
             # Send a ObjectUpdate for the new player object to everyone.
             self._send_update(object)
@@ -215,13 +216,14 @@ class ServerApplication(object):
             
             # Send ObjectUpdate and ObjectInit to the player for each object.
             for object in self.world.objects:
-                if not isinstance(object, gamestate.objects.MobileObject):
+                if object.type != "player":
                     continue
                 if object == player:
                     continue
                 init = packets.ObjectInit()
-                init.object_id = object.object_id
-                init.object_type = "player"
+                init.object_id = object.object_id                    
+                init.object_type = object.type
+                init.element_type = object.element.type
                 self.server.output.put_nowait((client, init))
                 update = self._get_update(object)
                 self.server.output.put_nowait((client, update))
@@ -233,18 +235,19 @@ class ServerApplication(object):
             client.player.position = self.scene.generate_spawn_position()
             client.player.rotation = 1.5707963267948966
             client.player.is_dead = False
-            self._send_update(client.player, check_time=False)
             response = packets.SpawnResponse()
             response.element_type = packet.element_type
+            response.x, response.z = client.player.position
             self.server.output.put_nowait((client, response))
-  
+            self._send_update(client.player, check_time=False)
+
         # PlayerUpdate
         elif ptype is packets.PlayerUpdate:
             client.player.position = (packet.x, packet.z)
             client.player.rotation = packet.rotation
             if packet.move_speed > 0:
                 client.player.is_moving = True
-                client.player.move_speed = packet.move_speed
+                #client.player.move_speed = packet.move_speed
                 client.player.move_direction = packet.move_direction
             else:
                 client.player.is_moving = False
