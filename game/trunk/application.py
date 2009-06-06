@@ -232,7 +232,7 @@ class ServerApplication(object):
                 message = packets.Message()
                 message.message = m
                 message.type = "death"
-            self.server.output_broadcast.put_nowait((message, None))
+                self.server.output_broadcast.put_nowait((message, None))
             self.world.remove_object(player)
         else:
             self.world.add_object(player)
