@@ -624,7 +624,7 @@ class WaterWaterGushInstance(AbilityInstance):
         
 class WaterTidalWaveInstance(AbilityInstance):
     power_cost = 30
-    hit_radius = 60
+    hit_radius = 90
     hit_angle = math.pi / 2
     damage = 20
     
