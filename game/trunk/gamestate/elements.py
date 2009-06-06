@@ -18,7 +18,7 @@ class Element(object):
         raise NotImplementedError("Base Element class does not implement use_ability.")
     
     def is_requestable(self, index):
-        return self.is_oncooldown(self.ability_keys[index])
+        return not self.is_oncooldown(self.ability_keys[index])
         
     def is_oncooldown(self, ability_name):
         cooldown = self.ability_cooldowns[ability_name]

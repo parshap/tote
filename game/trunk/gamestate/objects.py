@@ -393,32 +393,37 @@ class Player(MobileObject):
 
     def update(self, dt):
         # Regen health & power.
-        if self.world.is_master and not self.is_dead:
-            if self.world.time > self.regen_last_time + self.regen_frequency:
-                self.health += self.health_regen * (self.world.time - self.regen_last_time)
-                self.power += self.power_regen * (self.world.time - self.regen_last_time)
-                self.regen_last_time = self.world.time
+        if not self.is_dead:
+            # Some things (e.g., movement) should only happen when not dead.
+            if self.world.is_master:
+                # Only the master world performs regen.
+                if self.world.time > self.regen_last_time + self.regen_frequency:
+                    self.health += self.health_regen * (self.world.time - self.regen_last_time)
+                    self.power += self.power_regen * (self.world.time - self.regen_last_time)
+                    self.regen_last_time = self.world.time
+            
+            if self.is_charging:
+                # If the player is charging then force movement.
+                self.is_moving = True
+            if self.is_hooked:
+                if collision.CollisionDetector.check_collision(collision.BoundingCircle(8), self.hooked_by_player.position,
+                                                               self.bounding_shape, self.position):
+                    self.is_hooked = False
+                    self.hooked_by_player = None
+                else:
+                    self.is_moving = False
+                    distance = 200 * dt
+                    dx = self.hooked_by_player.position[0] - self.position[0]
+                    dz = self.hooked_by_player.position[1] - self.position[1]
+                    move_direction = math.atan2(dz, dx)              
+                    
+                    move_vector = (distance * math.cos(move_direction),
+                                   distance * math.sin(move_direction))
+                    self._move(move_vector)
         
-        if self.is_charging:
-            # If the player is charging then force movement.
-            self.is_moving = True
-        if self.is_hooked:
-            if collision.CollisionDetector.check_collision(collision.BoundingCircle(8), self.hooked_by_player.position,
-                                                           self.bounding_shape, self.position):
-                self.is_hooked = False
-                self.hooked_by_player = None
-            else:
-                self.is_moving = False
-                distance = 200 * dt
-                dx = self.hooked_by_player.position[0] - self.position[0]
-                dz = self.hooked_by_player.position[1] - self.position[1]
-                move_direction = math.atan2(dz, dx)              
-                
-                move_vector = (distance * math.cos(move_direction),
-                               distance * math.sin(move_direction))
-                self._move(move_vector)
-        if self.is_immobilized:
+        if self.is_immobilized or self.is_dead:
             self.is_moving = False
+        
         MobileObject.update(self, dt)
 
         for ability in self.active_abilities:
@@ -450,9 +455,13 @@ class Player(MobileObject):
     
     def request_ability(self, index):
         """ Requests use of an ability from the server. """
-        if(not self.element.is_requestable(index)):
+        if self.is_dead:
+            return False
+        if self.element.is_requestable(index):
             ability_id = self.element.ability_ids[index]
             self.ability_requested(self, ability_id)
+            return True
+        return False
         
     def use_ability(self, ability_id):
         """
@@ -460,6 +469,8 @@ class Player(MobileObject):
         False otherwise.
         """
         # Try to use the ability.
+        if self.is_dead:
+            return False
         ability = self.element.use_ability(ability_id)
         if ability is not False:
             # Ability use was successful - do some updates.
