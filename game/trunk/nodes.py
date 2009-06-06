@@ -23,6 +23,7 @@ import math
 import gamestate.abilities
 from event import Event
 import ogre.renderer.OGRE as ogre
+import audio
 
 
 class Node(object):
@@ -227,12 +228,14 @@ class ProjectileNode(MobileGameNode):
         self.secondary_particle_system = None
         projectileObject.collided += self.on_collided
         projectileObject.expired += self.on_expired
-        
+        self.collide_sound = None
     def destroy(self):
         MobileGameNode.destroy(self)
         # Stop listening to events.
         self.object.collided -= self.on_collided
         self.object.expired -= self.on_expired
+        projectileObject.expired -= self.on_expired
+        self.collide_sound = None
     
     def set_secondary_particle_system(self, system_name, position_offset = (0,0,0), rotation = 0, scale = 1):
         self.secondary_particle_system = self.sceneManager.createParticleSystem(Node._unique("PE%s" % system_name), system_name)
@@ -244,7 +247,12 @@ class ProjectileNode(MobileGameNode):
         for i in xrange(0, self.secondary_particle_system.getNumEmitters()):
                 self.secondary_particle_system.getEmitter(i).setEnabled(False)
     
+    def set_collide_sound(self, sound_name):
+        self.collide_sound = sound_name
+    
     def on_collided(self, object_collided_with):
+        if self.collide_sound is not None:
+            audio.play_sound(self.collide_sound)
         if self.particle_system is not None:
             self.particle_effect_stop()
             if self.secondary_particle_system is not None:
@@ -283,6 +291,7 @@ class StaticEffectNode(Node):
         self.time_to_live = time_to_live
         self.triggered = False
         self.triggerable = triggerable
+        self.triggered_sound = None
         self.world = world
         if time_to_live is not False:
             world.world_updated += self.on_world_updated
@@ -300,6 +309,9 @@ class StaticEffectNode(Node):
             if self.time_to_live <= 0:
                 self.expire()
                 return False
+            
+    def set_triggered_sound(self, sound_name):
+        self.triggered_sound = sound_name
     
     def expire(self):      
         # throw expired event
@@ -312,6 +324,8 @@ class StaticEffectNode(Node):
         
     def on_triggered(self):
         self.triggered = True
+        if self.triggered_sound is not None:
+            audio.play_sound(self.triggered_sound)
         if self.particle_system is not None:
             self.particle_effect_start()
         return False
@@ -433,6 +447,7 @@ class PlayerNode(MobileGameNode):
         effect_node.position = (player.position[0], 0, player.position[1])
         effect_node.set_particle_system("LavaSplash", (player.position[0], 0, player.position[1]))
         effect_node.particle_effect_start()
+        audio.play_sound("ringoffire")
              
     def create_hook_projectile_node(self, game_object):
         projectile_node = MobileGameNode(self.sceneManager, game_object)
@@ -448,11 +463,12 @@ class PlayerNode(MobileGameNode):
                 # any other animations currently playing.
                 # @todo: use an actual solution instead of weight hack.
                 self.animation_playonce("ability_1", 100)
+                audio.play_sound("weaponswing")
             
             elif ability_id == 102:
                 # Earth : Hook
                 # handled elsewhere
-                pass
+                audio.play_sound("hook")
             
             elif ability_id == 103:
                 # Earth : Earthquake
@@ -462,11 +478,14 @@ class PlayerNode(MobileGameNode):
                                                                0,
                                                                player.position[1]))
                 effect_node.particle_effect_start()
+                # Play Sound
+                audio.play_sound("earthquake")
             
             elif ability_id == 104:
                 # Earth : Power Swing
                 # Play the animation
                 self.animation_playonce("ability_1", 100)
+                audio.play_sound("weaponswing")
 
         elif player.element.type == "fire":
             if ability_id == 201:
@@ -475,10 +494,12 @@ class PlayerNode(MobileGameNode):
                 # any other animations currently playing.
                 # @todo: use an actual solution instead of weight hack.
                 self.animation_playonce("ability_1", 100)
+                audio.play_sound("weaponswing")
             elif ability_id == 202:
                 # Fire :  Flame Rush
                 # note: this is handle elsewhere
-                pass
+                # Play Sound
+                audio.play_sound("flamerush")
             elif ability_id == 203:
                 # Fire : Lava Splash
                 effect_node = StaticEffectNode(self.sceneManager, player.world, 2)
@@ -486,6 +507,8 @@ class PlayerNode(MobileGameNode):
                                                                0,
                                                                player.position[1]))
                 effect_node.particle_effect_start()
+                # Play Sound
+                audio.play_sound("lavasplash")
             
             elif ability_id == 204:
                 # Fire : Ring of Fire
@@ -494,6 +517,8 @@ class PlayerNode(MobileGameNode):
                                                                0,
                                                                player.position[1]))
                 effect_node.particle_effect_start()
+                # Play Sound
+                audio.play_sound("ringoffire")
         
         elif player.element.type == "air":
             if ability_id == 301:
@@ -508,6 +533,10 @@ class PlayerNode(MobileGameNode):
                 projectile_node.set_secondary_particle_system("LavaSplash")
                 projectile_node.particle_effect_start()
                 
+                # Play Sound
+                audio.play_sound("airshot")
+                projectile_node.set_collide_sound("impact")
+                
             if ability_id == 302:
                 # Air : Gust of Wind
                 effect_node = StaticEffectNode(self.sceneManager, player.world, 0.5)
@@ -517,6 +546,7 @@ class PlayerNode(MobileGameNode):
                                                                player.rotation)
                
                 effect_node.particle_effect_start()
+                audio.play_sound("gustofwind")
                 
             if ability_id == 303:
                 # Air : Wind Whisk
@@ -531,6 +561,7 @@ class PlayerNode(MobileGameNode):
                                                                0,
                                                                player.position[1]))
                 effect_node2.particle_effect_start()
+                audio.play_sound("windwhisk")
                 
             if ability_id == 304:
                 # Air : Lightning Bolt
@@ -553,6 +584,8 @@ class PlayerNode(MobileGameNode):
                 
                 effect_node.particle_effect_start()
                 effect_node.particle_system.getEmitter(0).setParameter("depth", str(distance))
+                # Play Sound
+                audio.play_sound("lightningbolt")
                 
         elif player.element.type == "water":
             if ability_id == 401:
@@ -567,6 +600,8 @@ class PlayerNode(MobileGameNode):
                 projectile_node.set_particle_system("AirShot")
                 projectile_node.set_secondary_particle_system("WaterSplash")
                 projectile_node.particle_effect_start()
+                projectile_node.set_collide_sound("lavasplash")
+                audio.play_sound("airshot")
 
             elif ability_id == 402:
                 # Water : Water Gush
@@ -587,7 +622,9 @@ class PlayerNode(MobileGameNode):
                 effect_node.particle_effect_start()
                 effect_node.particle_system.getEmitter(0).setParameter("depth", str(distance))
                 
-                pass
+                # Play Sound
+                audio.play_sound("watergush")
+                
             elif ability_id == 403:
                 # Water : Tidal Wave
                 effect_node = StaticEffectNode(self.sceneManager, player.world, 1)
@@ -595,6 +632,7 @@ class PlayerNode(MobileGameNode):
                                                               15, 
                                                               player.position[1] + 10 * math.sin(player.rotation)), player.rotation)
                 effect_node.particle_effect_start()
+                audio.play_sound("tidalwave")
             elif ability_id == 404:
                 # Water : Ice Burst                
                 mesh_node = StaticEffectNode(self.sceneManager, player.world, 2)
@@ -604,4 +642,7 @@ class PlayerNode(MobileGameNode):
                 explosion_node.set_particle_system("IceBurstExplosion", (player.position[0],
                                                                          0,
                                                                          player.position[1]))
+                explosion_node.set_triggered_sound("iceburst")
                 mesh_node.static_node_expired += explosion_node.on_triggered
+                # Play Sound
+                audio.play_sound("earthquake")

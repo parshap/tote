@@ -13,6 +13,7 @@ import SceneLoader
 from inputhandler import InputHandler
 import nodes
 import gui
+import audio
 
 # Import other python modules
 import math
@@ -51,6 +52,9 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
         # Set up the scene.
         self.setupScene()
         
+        # Load sounds.
+        self.loadSceneSounds()
+        
         # Init attributes.
         self.player = None
         self.last_update = None
@@ -60,6 +64,9 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
         
         # Show a welcome message.
         self.message.notice("Tides of the Elements")
+        
+        # Load scene music
+        audio.set_background_music("media/sounds/Dispatches+Of+Humanity.wav")
         
         # Set up the input devices.
         self.setupInput()
@@ -72,6 +79,9 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
 
         # Listen for any events directed to the window manager's close button
         ogre.WindowEventUtilities.addWindowEventListener(self.renderWindow, self)
+        
+        # Begin scene music
+        audio.play_background_music()
 
     def __del__ (self ):
         # Clean up OIS 
@@ -91,6 +101,8 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
         
         # Load the scene into the Ogre world.
         # @todo: Remove .scene dependancy and move to external file (format?).
+        
+        # Load some data from the .scene file
         sceneLoader = SceneLoader.DotSceneLoader("media/testtilescene.scene", self.sceneManager)
         sceneLoader.parseDotScene()
         
@@ -247,6 +259,42 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
         ability3_cooldown_display.set_player_listener(self.player)
         ability4_cooldown_display.set_player_listener(self.player)
         
+    def loadSceneSounds(self):
+        # Air Sounds
+        audio.load_source("airshot",        "media/sounds/airshot.wav")
+        audio.load_source("gustofwind",     "media/sounds/gustofwind.wav")
+        audio.load_source("windwhisk",      "media/sounds/windwhisk.wav")
+        audio.load_source("lightningbolt",  "media/sounds/lightningbolt.wav")
+        
+        # Earth Sounds
+        audio.load_source("earthquake",     "media/sounds/earthquake.wav")
+        audio.load_source("hook",           "media/sounds/hook.wav")
+       
+        # Fire Sounds
+        audio.load_source("flamerush",      "media/sounds/flamerush.wav") 
+        audio.load_source("lavasplash",     "media/sounds/lavasplash.wav")
+        audio.load_source("ringoffire",     "media/sounds/ringoffire.wav")
+        
+        # Water Sounds
+        audio.load_source("iceshot",        "media/sounds/iceshot.wav")
+        audio.load_source("iceburst",       "media/sounds/iceburst.wav")
+        audio.load_source("tidalwave",      "media/sounds/tidalwave.wav")
+        audio.load_source("watergush",      "media/sounds/watergush.wav")
+        
+        # General Sounds
+        audio.load_source("weaponswing",    "media/sounds/weaponswing.wav")
+        audio.load_source("weaponswingmiss","media/sounds/weaponswingmiss.wav")
+        audio.load_source("whiff",          "media/sounds/whiff.wav")
+        audio.load_source("impact",         "media/sounds/impact.wav")
+        
+        
+        
+        
+        
+        
+        
+        
+        
     def setupOverlay(self):
         pOver = ogre.OverlayManager.getSingleton().getByName("UI")
         pOver.show()
@@ -299,6 +347,9 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
         
         # Update the game state world.
         self.world.update(dt)
+        
+        # Update the audio module so it can throw its events
+        audio.update(dt)
         
         # Send an PlayerUpdate packet to the server if appropriate.
         self._send_update()
