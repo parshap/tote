@@ -538,5 +538,7 @@ class ProjectileObject(MobileObject):
         self.expire()
         
     def expire(self):
+        if not self.is_active:
+            return
         self.expired(self)
         self.world.remove_object(self)
