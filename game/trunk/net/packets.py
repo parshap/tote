@@ -2,7 +2,7 @@ import struct
 
 def unpack(packed):
     id, = struct.unpack_from("!B", packed)
-    print "Unpacking packet id=%s." % id
+    # print "Unpacking packet id=%s." % id
     packet = packets[id]()
     packet.unpack(packed)
     return packet
@@ -25,7 +25,7 @@ class Packet(object):
 element_types = {
         "fire": 1, 1: "fire",
         "earth": 2, 2: "earth",
-        "wind": 3, 3: "wind",
+        "air": 3, 3: "air",
         "water": 4, 4: "water",
     }
 
