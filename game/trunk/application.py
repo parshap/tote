@@ -159,6 +159,7 @@ class ServerApplication(object):
             init.object_id = object.object_id
             init.object_type = object.type
             init.element_type = object.element.type
+            init.name = object.name
             self.server.output_broadcast.put_nowait((init, object))
             # Send a ObjectUpdate for the new player object to everyone.
             self._send_update(object)
@@ -175,11 +176,29 @@ class ServerApplication(object):
     def on_player_is_dead_changed(self, player):
         self._send_update(player, check_time=False)
         if player.is_dead:
-            print "*****removing player"
+            if player.last_damage_code == 1:
+                # Player died to a suicide.
+                m = "%s has committed suicide." % player.name
+            elif player.last_damage_player is not None:
+                # Player died to an ability and we know the source player.
+                player.last_damage_player.score += 1
+                m = "%s has killed %s." % (player.last_damage_player.name, player.name)
+            else:
+                # Player died, but we don't know by who.
+                m = "%s has died." % player.name
+            message = packets.Message()
+            message.message = m
+            message.type = "death"
+            self.server.output_broadcast.put_nowait((message, None))
             self.world.remove_object(player)
         else:
-            print "*****adding player"
             self.world.add_object(player)
+            
+    def on_player_score_changed(self, player):
+        update = packets.ScoreUpdate()
+        update.player_id = player.object_id
+        update.score = player.score
+        self.server.output_broadcast.put_nowait((update, None))
     
     ## Network event handlers & helpers
     def on_client_connected(self, client):
@@ -199,12 +218,14 @@ class ServerApplication(object):
             # @todo: deny conditions
             # Create the player in the world.
             player = gamestate.objects.Player(self.world)
+            player.name = packet.player_name
             player.object_id = self.world.generate_id()
             player.is_dead = True
             # Listen to events.
             player.health_changed += self.on_player_status_changed
             player.power_changed += self.on_player_status_changed
             player.is_dead_changed += self.on_player_is_dead_changed
+            player.score_changed += self.on_player_score_changed
             client.player = player
             print "Creating player in world with id=%s for client id=%s." % \
                 (player.object_id, client.client_id)
@@ -224,9 +245,14 @@ class ServerApplication(object):
                 init.object_id = object.object_id                    
                 init.object_type = object.type
                 init.element_type = object.element.type
+                init.name = object.name
                 self.server.output.put_nowait((client, init))
                 update = self._get_update(object)
                 self.server.output.put_nowait((client, update))
+                score = packets.ScoreUpdate()
+                score.player_id = object.object_id
+                score.score = object.score
+                self.server.output.put_nowait((client, score))
         
         # SpawnRequest
         elif ptype is packets.SpawnRequest:

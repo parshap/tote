@@ -20,14 +20,22 @@ import audio
 import math
 
 class PlaySceneGUI(object):
-    def __init__(self, viewport):
-        self.viewport = viewport
+    def __init__(self, playscene):
+        self.playscene = playscene
+        self.viewport = playscene.viewport
         self._setup_overlay()
         self.elements = []
         
         # Create an FPS label.
         fpslabel = gui.FPSLabel("UI/FPSLabel")
         self.elements.append(fpslabel)
+        
+        # Create quick scores labels.
+        self.qscores_1_name = gui.Label("UI/QuickScores/1/Name")
+        self.qscores_1_score = gui.Label("UI/QuickScores/1/Score")
+        self.qscores_2_name = gui.Label("UI/QuickScores/2/Name")
+        self.qscores_2_score = gui.Label("UI/QuickScores/2/Score")
+        playscene.scores_changed += self.on_scores_changed
         
         # Create the message label.
         self.message = gui.Message("UI/MessageLabel")
@@ -221,6 +229,30 @@ class PlaySceneGUI(object):
         for element in self.elements:
             if isinstance(element, gui.IClickable):
                 element.inject_mouse_release(id, x, y)
+    
+    def on_scores_changed(self, scores):
+        slist = scores.items()
+        slist.sort(key=lambda x: x[1])
+        slist.reverse()
+        
+        first_name = self.playscene.players[slist[0][0]].name
+        first_score = str(slist[0][1])
+        
+        if slist[0][0] == self.playscene.player:
+            if len(slist) > 1:
+                second_name = self.playscene.players[slist[1][0]].name
+                second_score = str(slist[1][1])
+            else:
+                second_name, second_score = "", ""
+        else:
+            second_name = self.playscene.player.name
+            second_score = str(self.playscene.player.score)
+        
+        self.qscores_1_name.text = "1. " + first_name
+        self.qscores_1_score.text = first_score
+        
+        self.qscores_2_name.text = "2. " + second_name if len(second_name) > 0 else ""
+        self.qscores_2_score.text = second_score
 
 
 class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
@@ -237,6 +269,7 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
         
         self.address = address
         self.port = port
+        self.player_name = "Player1"
         
         self.renderWindow = ogre.Root.getSingleton().getAutoCreatedWindow()
         self.sceneManager = sceneManager
@@ -245,21 +278,21 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
         
         self.viewport = self.camera.getViewport()
         
-        # Create an empty dict of nodes
+        self.player = None
+        self.last_update = None
+        self.scores = { }
+        self.scores_changed = Event()
         self.nodes = { }
-
+        self.players = { }
+        
         # Set up the scene.
         self.setupScene()
         
         # Load sounds.
         self.loadSceneSounds()
         
-        # Init attributes.
-        self.player = None
-        self.last_update = None
-
         # Set up the GUI.
-        self.gui = PlaySceneGUI(self.viewport)
+        self.gui = PlaySceneGUI(self)
         self.gui.element_selected += self.on_gui_element_selected
         
         # Show a welcome message.
@@ -481,6 +514,10 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
             self.player = gamestate.objects.Player(self.world)
             self.player.object_id = packet.player_id
             self.player.is_dead = True
+            self.player.name = self.player_name
+            self.players[self.player.object_id] = self.player
+            self.scores[self.player.object_id] = 0
+            self.scores_changed(self.scores)
             
             # Listen to the player's position change event so we can mvoe the
             # camera with the player.
@@ -506,6 +543,10 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
                 object.change_element(packet.element_type)
                 # @todo: implement owner_id, ttl
                 self.world.add_object(object, packet.object_id)
+                self.players[packet.object_id] = object
+                if not self.scores.has_key(packet.object_id):
+                    self.scores[packet.object_id] = 0
+                    self.scores_changed(self.scores)
             else:
                 raise Exception("Invalid object_type")
 
@@ -578,11 +619,28 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
             print "Using ability id=%s on player_id=%s" % (packet.object_id, packet.ability_id)
             player = self.world.objects_hash[packet.object_id]
             player.use_ability(packet.ability_id)
+            
+        # Message
+        elif ptype is packets.Message:
+            if packet.type == "error": self.gui.message.error(packet.message)
+            elif packet.type == "notice": self.gui.message.notice(packet.message)
+            elif packet.type == "death": self.gui.message.death(packet.message)
+            elif packet.type == "success": self.gui.message.success(packet.message)
+            elif packet.type == "system": self.gui.message.system(packet.message)
+            else: self.gui.message.system(packet.message)
+            
+        # ScoreUpdate
+        elif ptype is packets.ScoreUpdate:
+            # @todo: Delete these at some point.
+            player = self.players[packet.player_id]
+            player.score = packet.score
+            self.scores[player.object_id] = player.score
+            self.scores_changed(self.scores)
     
     def on_client_connected(self):
         packet = packets.JoinRequest()
         # @todo: Get player_name from somewhere.
-        packet.player_name = "Player1"
+        packet.player_name = self.player_name
         self.client.output.put_nowait(packet)
         
     ## Game event callbacks

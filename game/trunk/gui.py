@@ -119,7 +119,7 @@ class AbilityCooldownDisplay(Element):
 class Label(Element):
     def __init__(self, overlay_name):
         Element.__init__(self, overlay_name)
-        self._textarea = self.overlay.getChild(overlay_name + "/Text")
+        self._textarea = self.overlay
         self._opacity_target = None
         self._opacity_step = 1
         self._fade_callback = None
@@ -268,11 +268,15 @@ class Message(Label):
         self.show(text, (.8, .1, .1))
         
     def notice(self, text):
-        # Used for game notices (e.g., player won the game, you died)
+        # Used for game notices (e.g., player won the game)
         self.show(text, (.9, .9, .6))
+        
+    def death(self, text):
+        # Used for player deaths (e.g., bob killed alice)
+        self.show(text, (1, 1, 1))
 
     def success(self, text):
-        # Used for game success messages (e.g., you killed a player)
+        # Used for game success messages
         self.show(text, (.1, .8, .1))
         
     def system(self, text):

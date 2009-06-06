@@ -298,6 +298,55 @@ class AbilityUsed(Packet):
         return offset + 4
 
 
+message_types = {
+    "error": 1, 1: "error",
+    "notice": 2, 2: "notice",
+    "success": 3, 3: "success",
+    "system": 4, 4: "system",
+    "death": 5, 5: "death",
+}
+
+
+class Message(Packet):
+    """
+    Required attributes:
+    message - the text of the message
+    type - the type of the message
+    """
+    id = 20
+    format = "!H %ds B" # message_length, message, type
+    
+    def pack(self, packed=""):
+        typeid = message_types[self.type]
+        return Packet.pack(self, struct.pack(Message.format % len(self.message),
+            len(self.message), self.message, typeid)) + packed
+    
+    def unpack(self, packed):
+        offset = Packet.unpack(self, packed)
+        mlen = struct.unpack_from("!H", packed, offset)
+        mlen, self.message, typeid = struct.unpack_from(Message.format % mlen, packed, offset)
+        self.type = message_types[typeid]
+        return offset + 3 + mlen
+
+
+class ScoreUpdate(Packet):
+    """
+    Required attributes: player_id, score
+    """
+    id = 21
+    format = "!H h" # player_id, score
+    
+    def pack(self, packed=""):
+        return Packet.pack(self, struct.pack(ScoreUpdate.format,
+            self.player_id, self.score)) + packed
+    
+    def unpack(self, packed):
+        offset = Packet.unpack(self, packed)
+        self.player_id, self.score = struct.unpack_from(ScoreUpdate.format,
+            packed, offset)
+        return offset + 4
+
+
 packets = {
     0: Packet,
     1: JoinRequest,
@@ -311,4 +360,6 @@ packets = {
     9: ObjectStatusUpdate,
     10: AbilityRequest,
     11: AbilityUsed,
+    20: Message,
+    21: ScoreUpdate,
 }

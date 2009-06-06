@@ -197,19 +197,18 @@ UI
         }
     }
     
-    container Panel(UI/FPSLabel)
+    container Panel(UI/FPSLabelContainer)
     {
-        metrics_mode pixels
-        left 5
-        top 5
-        width 100
-        height 64
-        
-        element TextArea(UI/FPSLabel/Text)
+        element TextArea(UI/FPSLabel)
         {
             metrics_mode pixels
+            horz_align right
+            left -5
+            top 5
             width 100
             height 64
+            
+            alignment right
             
             font_name arial
             char_height 30
@@ -217,21 +216,80 @@ UI
         }
     }
     
-    container Panel(UI/MessageLabel)
+    container Panel(UI/MessageLabelContianer)
     {
-        metrics_mode pixels
-        horz_align center
-        vert_align top
-        top 30
-        
-        element TextArea(UI/MessageLabel/Text)
+        element TextArea(UI/MessageLabel)
         {
             metrics_mode pixels
+            horz_align center
+            vert_align top
+            top 30
             
             font_name arial
             alignment center
             char_height 40
             colour 1 1 1
+        }
+    }
+    
+    container Panel(UI/QuickScores)
+    {
+        metrics_mode pixels
+        top 5
+        left 5
+        width 200
+        
+        container Panel(UI/QuickScores/1)
+        {
+            metrics_mode pixels
+            width 200
+            
+            element TextArea(UI/QuickScores/1/Name)
+            {
+                metrics_mode pixels
+                
+                font_name arial
+                char_height 20
+                colour 1 1 1 0.8
+            }
+            
+            element TextArea(UI/QuickScores/1/Score)
+            {
+                metrics_mode pixels
+                horz_align right
+                alignment right
+                
+                font_name arial
+                char_height 20
+                colour 1 1 1 0.8
+            }
+        }
+        
+        container Panel(UI/QuickScores/2)
+        {
+            metrics_mode pixels
+            top 18
+            width 200
+            
+            element TextArea(UI/QuickScores/2/Name)
+            {
+                metrics_mode pixels
+                
+                font_name arial
+                char_height 20
+                colour 1 1 1 0.8
+            }
+            
+            element TextArea(UI/QuickScores/2/Score)
+            {
+                metrics_mode pixels
+                horz_align right
+                alignment right
+                
+                font_name arial
+                char_height 20
+                colour 1 1 1 0.8
+            }
         }
     }
 

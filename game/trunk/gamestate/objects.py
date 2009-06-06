@@ -296,6 +296,9 @@ class Player(MobileObject):
         self.type = "player"
         self.last_damage_code = 0
         self.last_damage_player = None
+        self.name = ""
+        self._score = 0
+        self.score_changed = Event()
         
         self._is_charging = False
         self._is_hooked = False
@@ -379,13 +382,19 @@ class Player(MobileObject):
     is_charging = property(_get_is_charging, _set_is_charging)
     
     def _get_is_hooked(self):
-            return self._is_hooked
+        return self._is_hooked
     def _set_is_hooked(self, value):
         if value is not self._is_hooked:
             self._is_hooked = value
             self.is_hooked_changed(self, value)
     is_hooked = property(_get_is_hooked, _set_is_hooked)
     
+    def _get_score(self):
+        return self._score
+    def _set_score(self, value):
+        self._score = value
+        self.score_changed(self)
+    score = property(_get_score, _set_score)
     
     # We will override the MobileObject.rotation property to redefine the
     # setter used so that we can deny a rotation change while charging.
