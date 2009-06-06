@@ -57,6 +57,7 @@ class EarthPrimaryInstance(AbilityInstance):
         
 class EarthHookInstance(AbilityInstance):
     power_cost = 50
+    damage = 10
     projectile_velocity = 200
     projectile_radius = 12
     projectile_duration = 0.5
@@ -227,13 +228,13 @@ class FirePrimaryInstance(AbilityInstance):
     def master(self, colliders):
         print "Fire Primary ability collided with %s game objects." % (len(colliders))
         for player in colliders:
-            player.apply_damage(self.damage, self.play, 201)
+            player.apply_damage(self.damage, self.player, 201)
         
 
 class FireFlameRushInstance(AbilityInstance):
     power_cost = 30
     charge_speed_multiplier = 3
-    damage = 35 
+    damage = 20 
     duration = .5
     radius = 12
 
@@ -285,7 +286,7 @@ class FireFlameRushInstance(AbilityInstance):
         
 class FireLavaSplashInstance(AbilityInstance):
     power_cost = 30
-    damage = 20
+    damage = 25
     radius = 30
         
     def __init__(self, player):
@@ -492,7 +493,7 @@ class AirWindWhiskInstance(AbilityInstance):
         
 class AirLightningBoltInstance(AbilityInstance):
     power_cost = 50
-    damage = 10
+    damage = 20
     range = 100
     
     def __init__(self, player):
@@ -543,7 +544,7 @@ class WaterPrimaryInstance(AbilityInstance):
     speed = 200
     projectile_radius = 20
     duration = 20
-    damage = 10
+    damage = 15
     collided = Event()
     
     def __init__(self, player):
@@ -577,6 +578,7 @@ class WaterPrimaryInstance(AbilityInstance):
 
 class WaterWaterGushInstance(AbilityInstance):  
     power_cost = 30
+    damage = 25
     teleport_distance = 100
     
     # increasing move_samples increases collision detection accuracy (no jumping over stuff etc)
@@ -622,7 +624,7 @@ class WaterTidalWaveInstance(AbilityInstance):
     power_cost = 30
     hit_radius = 60
     hit_angle = math.pi / 2
-    damage = 10
+    damage = 20
     
     def __init__(self, player):
         AbilityInstance.__init__(self, player)
@@ -648,8 +650,8 @@ class WaterTidalWaveInstance(AbilityInstance):
         
 class WaterIceBurstInstance(AbilityInstance):
     power_cost = 50
-    invulnerable_duration = 2
-    shard_damage = 10
+    invulnerable_duration = 1
+    shard_damage = 35
     shard_radius = 30
     
     def __init__(self, player):
