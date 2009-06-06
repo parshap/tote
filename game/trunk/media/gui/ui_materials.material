@@ -1,0 +1,101 @@
+material mat_cooldown_overlay
+{
+	receive_shadows off
+	technique
+	{
+		pass
+		{
+			texture_unit
+			{
+				texture cooldown_overlay.png
+			}
+			scene_blend alpha_blend
+			depth_write off
+		}
+	}
+}
+
+material UI/ElementSelectionBG
+{
+	receive_shadows off
+	technique
+	{
+		pass
+		{
+			texture_unit
+			{
+				texture element_selection_BG.png
+			}
+			scene_blend alpha_blend
+			depth_write off
+		}
+	}
+}
+
+material UI/EarthSymbol
+{
+	receive_shadows off
+	technique
+	{
+		pass
+		{
+			texture_unit
+			{
+				texture earthsymbol.png
+			}
+			scene_blend alpha_blend
+			depth_write off
+		}
+	}
+}
+
+material UI/FireSymbol
+{
+	receive_shadows off
+	technique
+	{
+		pass
+		{
+			texture_unit
+			{
+				texture firesymbol.png
+			}
+			scene_blend alpha_blend
+			depth_write off
+		}
+	}
+}
+
+material UI/AirSymbol
+{
+	receive_shadows off
+	technique
+	{
+		pass
+		{
+			texture_unit
+			{
+				texture airsymbol.png
+			}
+			scene_blend alpha_blend
+			depth_write off
+		}
+	}
+}
+
+material UI/WaterSymbol
+{
+	receive_shadows off
+	technique
+	{
+		pass
+		{
+			texture_unit
+			{
+				texture watersymbol.png
+			}
+			scene_blend alpha_blend
+			depth_write off
+		}
+	}
+}
