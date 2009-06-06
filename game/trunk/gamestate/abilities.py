@@ -249,7 +249,8 @@ class FireFlameRushInstance(AbilityInstance):
     def run(self):
         AbilityInstance.run(self)
         self.player.is_charging = True
-        self.player.move_speed *= self.charge_speed_multiplier
+        if self.player.world.is_master:
+            self.player.move_speed *= self.charge_speed_multiplier
         self.player.collided += self.on_player_collided
         
     def on_player_collided(self, object):
@@ -280,9 +281,10 @@ class FireFlameRushInstance(AbilityInstance):
         self.scheduler.addtime(dt)
 
     def expire(self):
-        AbilityInstance.expire(self)
+        AbilityInstance.expire(self)     
         self.player.is_charging = False
-        self.player.move_speed /= self.charge_speed_multiplier
+        if self.player.world.is_master:
+            self.player.move_speed /= self.charge_speed_multiplier
         
 class FireLavaSplashInstance(AbilityInstance):
     power_cost = 30
