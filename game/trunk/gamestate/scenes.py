@@ -1,6 +1,7 @@
 import gamestate
 from xml.dom import minidom, Node
 import os.path
+import random
 
 class Scene(object):
     def __init__(self, world):
@@ -48,10 +49,23 @@ class Scene(object):
             
             return False
 
-
 class TestScene(Scene):
     def __init__(self, world):
         Scene.__init__(self, world)
         
+        self.spawn_locations = []
+        self.spawn_locations.append((-548, 545))
+        self.spawn_locations.append((-420, 156))
+        self.spawn_locations.append((-530, 194))
+        self.spawn_locations.append((-83, -555))
+        self.spawn_locations.append((230, -506))
+        self.spawn_locations.append((507, 105))
+        self.spawn_locations.append((72, 61))
+        self.spawn_locations.append((-79, -149))       
         # Add boundary lines for map walls.       
         self._setup_level_boundaries(os.path.join("media", "levelbounds.bounds"))
+        
+    def generate_spawn_position(self):
+        return (0, 0)
+        random.seed()
+        return random.choice(self.spawn_locations)
