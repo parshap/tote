@@ -345,7 +345,12 @@ class ScoreUpdate(Packet):
         self.player_id, self.score = struct.unpack_from(ScoreUpdate.format,
             packed, offset)
         return offset + 4
+        
+class RoundStart(Packet):
+    id = 22
 
+class RoundEnd(Packet):
+    id = 23
 
 packets = {
     0: Packet,
@@ -362,4 +367,6 @@ packets = {
     11: AbilityUsed,
     20: Message,
     21: ScoreUpdate,
+    22: RoundStart,
+    23: RoundEnd,
 }
