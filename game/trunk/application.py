@@ -205,7 +205,7 @@ class ServerApplication(object):
         pass
     
     def on_client_disconnected(self, client):
-        if client.player is not None:
+        if client.player is not None and client.player.is_active:
             self.world.remove_object(client.player)
             client.player = None
 
