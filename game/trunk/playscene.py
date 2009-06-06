@@ -238,7 +238,7 @@ class PlaySceneGUI(object):
         first_name = self.playscene.players[slist[0][0]].name
         first_score = str(slist[0][1])
         
-        if slist[0][0] == self.playscene.player:
+        if slist[0][0] == self.playscene.player.object_id:
             if len(slist) > 1:
                 second_name = self.playscene.players[slist[1][0]].name
                 second_score = str(slist[1][1])
@@ -270,6 +270,7 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
         self.address = address
         self.port = port
         self.player_name = "Player1"
+        self.is_round_active = False
         
         self.renderWindow = ogre.Root.getSingleton().getAutoCreatedWindow()
         self.sceneManager = sceneManager
@@ -534,6 +535,7 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
             self.player.position = (packet.x, packet.z)
             self.world.add_object(self.player, self.player.object_id)
             self.gui.setup_player_gui(self.player)
+            self.is_round_active = True
         
         # ObjectInit
         elif ptype is packets.ObjectInit:
@@ -636,6 +638,17 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
             player.score = packet.score
             self.scores[player.object_id] = player.score
             self.scores_changed(self.scores)
+            
+        # RoundEnd
+        elif ptype is packets.RoundEnd:
+            self.is_round_active = False
+            self.player.is_dead = True
+            self.gui.element_selection.hide()
+            
+        # RoundStart
+        elif ptype is packets.RoundStart:
+            self.is_round_active = True
+            self.gui.element_selection.show()
     
     def on_client_connected(self):
         packet = packets.JoinRequest()
@@ -684,7 +697,7 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
         self.client.output.put_nowait(ar)
         
     def on_player_is_dead_changed(self, player):
-        if self.player.is_dead:
+        if self.player.is_dead and self.is_round_active:
             self.gui.element_selection.show()
         
         

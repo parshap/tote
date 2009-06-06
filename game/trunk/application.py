@@ -11,6 +11,7 @@ import threading, time
 from playscene import PlayScene
 import gamestate, net
 from net import packets
+from event import Event, Scheduler
 
 class ClientApplication(object):
     app_title = "MyApplication"
@@ -90,6 +91,8 @@ class ClientApplication(object):
 class ServerApplication(object):
     def __init__(self, port=8981):
         self.port = port
+        self.schedulers = []
+        self.is_round_active = False
         
     def go(self):
         self.world = gamestate.world.World(master=True)
@@ -109,6 +112,7 @@ class ServerApplication(object):
         
         self.scene = gamestate.scenes.TestScene(self.world)
         
+        self.is_round_active = True
         self.run = True
         
         last = time.clock()
@@ -123,6 +127,10 @@ class ServerApplication(object):
         self.server.stop()
         
     def update(self, dt):
+        # Add time to schedulers.
+        for scheduler in self.schedulers:
+            scheduler.addtime(dt)
+        
         # Get buffered input from clients and process it.
         while not self.server.input.empty():
             (client, packet) = self.server.input.get_nowait()
@@ -133,7 +141,8 @@ class ServerApplication(object):
         
         # Send necessary ObjectUpdate packets.
         for object in self.world.objects:
-            self._send_update(object)
+            if object.type == "player":
+                self._send_update(object)
             
         # Send necessary ObjectStatusUpdate packets.
         for object in self.status_updates:
@@ -150,6 +159,39 @@ class ServerApplication(object):
         extra = 0.01 - dt
         if extra >= 0.001:
             time.sleep(extra)
+            
+    def schedule(self, in_time, callback, *params):
+        s = Scheduler(in_time, *params)
+        s.fired += lambda *_: self.schedulers.remove(s)
+        s.fired += callback
+        self.schedulers.append(s)
+        
+    def round_start(self):
+        self.is_round_active = True
+        # Reset everyone's score to 0.
+        for client in self.server.clients:
+            if client.player is not None:
+                client.player.score = 0
+        # Tell everyone that the round is starting.
+        start = packets.RoundStart()
+        self.server.output_broadcast.put_nowait((start, None))
+    
+    def round_end(self, winner_player):
+        self.is_round_active = False
+        # Send RoundEnd packet.
+        end = packets.RoundEnd()
+        self.server.output_broadcast.put_nowait((end, None))
+        # Send a message to everyone.
+        m = packets.Message()
+        m.message = "%s has won the round." % winner_player.name
+        m.type = "success"
+        self.server.output_broadcast.put_nowait((m, None))
+        # Kill everyone.
+        for client in self.server.clients:
+            if client.player is not None:
+                client.player.is_dead = True
+        # Schedule a round to start in 5 seconds.
+        self.schedule(5, self.round_start)
 
     ## World event handlers
     def on_world_object_added(self, object):
@@ -176,19 +218,20 @@ class ServerApplication(object):
     def on_player_is_dead_changed(self, player):
         self._send_update(player, check_time=False)
         if player.is_dead:
-            if player.last_damage_code == 1:
-                # Player died to a suicide.
-                m = "%s has committed suicide." % player.name
-            elif player.last_damage_player is not None:
-                # Player died to an ability and we know the source player.
-                player.last_damage_player.score += 1
-                m = "%s has killed %s." % (player.last_damage_player.name, player.name)
-            else:
-                # Player died, but we don't know by who.
-                m = "%s has died." % player.name
-            message = packets.Message()
-            message.message = m
-            message.type = "death"
+            if self.is_round_active:
+                if player.last_damage_code == 1:
+                    # Player died to a suicide.
+                    m = "%s has committed suicide." % player.name
+                elif player.last_damage_player is not None:
+                    # Player died to an ability and we know the source player.
+                    player.last_damage_player.score += 1
+                    m = "%s has killed %s." % (player.last_damage_player.name, player.name)
+                else:
+                    # Player died, but we don't know by who.
+                    m = "%s has died." % player.name
+                message = packets.Message()
+                message.message = m
+                message.type = "death"
             self.server.output_broadcast.put_nowait((message, None))
             self.world.remove_object(player)
         else:
@@ -199,6 +242,12 @@ class ServerApplication(object):
         update.player_id = player.object_id
         update.score = player.score
         self.server.output_broadcast.put_nowait((update, None))
+        if player.score >= 10:
+            # Schedule the round end to happen on the next frame. We need to do
+            # this because otherwise there is some conflict with the order of
+            # packets being processed (player is killed before ability_used is
+            # sent.)
+            self.schedule(0, self.round_end, player)
     
     ## Network event handlers & helpers
     def on_client_connected(self, client):
@@ -256,18 +305,19 @@ class ServerApplication(object):
         
         # SpawnRequest
         elif ptype is packets.SpawnRequest:
-            # @todo: deny conditions
-            client.player.change_element(packet.element_type)
-            client.player.position = self.scene.generate_spawn_position()
-            client.player.rotation = 1.5707963267948966
-            client.player.health = client.player.max_health
-            client.player.health = client.player.max_power
-            client.player.is_dead = False
-            response = packets.SpawnResponse()
-            response.element_type = packet.element_type
-            response.x, response.z = client.player.position
-            self.server.output.put_nowait((client, response))
-            self._send_update(client.player, check_time=False)
+            if self.is_round_active:
+                # @todo: more deny conditions
+                client.player.change_element(packet.element_type)
+                client.player.position = self.scene.generate_spawn_position()
+                client.player.rotation = 1.5707963267948966
+                client.player.health = client.player.max_health
+                client.player.health = client.player.max_power
+                client.player.is_dead = False
+                response = packets.SpawnResponse()
+                response.element_type = packet.element_type
+                response.x, response.z = client.player.position
+                self.server.output.put_nowait((client, response))
+                self._send_update(client.player, check_time=False)
 
         # PlayerUpdate
         elif ptype is packets.PlayerUpdate:
