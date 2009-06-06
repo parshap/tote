@@ -635,7 +635,7 @@ class PlayerNode(MobileGameNode):
                 audio.play_sound("tidalwave")
             elif ability_id == 404:
                 # Water : Ice Burst                
-                mesh_node = StaticEffectNode(self.sceneManager, player.world, 2)
+                mesh_node = StaticEffectNode(self.sceneManager, player.world, 1)
                 mesh_node.set_mesh("iceblock.mesh", (player.position[0], 0, player.position[1] + 10), 0, 15)
                 
                 explosion_node = StaticEffectNode(self.sceneManager, player.world, 0.5, True)
