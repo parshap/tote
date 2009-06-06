@@ -386,6 +386,7 @@ class FireRingOfFireInstance(AbilityInstance):
 class AirPrimaryInstance(AbilityInstance):
     power_cost = 20
     start_velocity = 200
+    damage_divisor = 20
     acceleration = 500
     projectile_radius = 10
     duration = 10
@@ -412,8 +413,14 @@ class AirPrimaryInstance(AbilityInstance):
         if not object_collided_with == self.player:
             self.collided()
         if object_collided_with.type == "player":
-            print "Air Shot collided with another player!"
-            
+            if self.player.world.is_master:
+                self.master(object_collided_with)
+    
+    def master(self, player):
+        damage = int(self.projectile.move_speed / self.damage_divisor)
+        player.apply_damage(damage)
+        print "Air Shot collided with another player for " + str(damage) + " damage!"
+        
 class AirGustOfWindInstance(AbilityInstance):
     power_cost = 30
     knockback_strength = 150
@@ -514,11 +521,15 @@ class AirLightningBoltInstance(AbilityInstance):
                 
         # target found, cast spell
         # @todo: apply damage to self.target here 
-        print "Another player was hit by lightning bolt!"
+        if self.player.world.is_master:
+            self.master(self.target)
         
     def _square_of_distance(self, player1, player2):
         return (player2.position[0] - player1.position[0]) * (player2.position[0] - player1.position[0]) + (player2.position[1] - player1.position[1]) * (player2.position[1] - player1.position[1])
                 
+    def master(self, target):
+        target.apply_damage(self.damage)
+        print "Another player was hit by lightning bolt!"
         
     def update(self, dt):
         AbilityInstance.update(self, dt)
@@ -553,9 +564,14 @@ class WaterPrimaryInstance(AbilityInstance):
     def on_collided(self, object_collided_with):
         if not object_collided_with == self.player:
             self.collided()
+        if self.player.world.is_master:
+            self.master(object_collided_with)
+            
+            
+    def master(self, object_collided_with):
         if object_collided_with.type == "player":
+            object_collided_with.apply_damage(self.damage)
             print "Ice Shot collided with another player!"
-            #@todo: apply damage etc
 
 
 class WaterWaterGushInstance(AbilityInstance):  
@@ -613,20 +629,21 @@ class WaterTidalWaveInstance(AbilityInstance):
     
     def run(self):
         AbilityInstance.run(self)
+        if self.player.world.is_master:
+            self.master()
+        # end the effect
+        self.expire()
+    
+    def master(self):
         # create the bounding circle to check collision against
         bounding_cone = collision.BoundingCone(self.hit_radius, self.player.rotation, self.hit_angle) 
-        
         # get a list of colliding players
         colliders = self.player.world.get_colliders(bounding_cone, self.player.position,
                                                     [self.player], objects.Player)
-        
         # for each player, apply effects
         for player in colliders:
-            # @todo: apply damage etc
+            player.apply_damage(self.damage)
             print "Tidal Wave collided with another player!"
-                
-        # end the effect
-        self.expire()
         
 class WaterIceBurstInstance(AbilityInstance):
     power_cost = 50
@@ -652,18 +669,20 @@ class WaterIceBurstInstance(AbilityInstance):
             self.player.is_immobilized = False
             self.create_shard_explosion()
             
-    def create_shard_explosion(self):
+    def create_shard_explosion(self):        
+        if self.player.world.is_master:
+            self.master()
+                
+        # end the effect
+        self.expire()
+    
+    def master(self):
         bounding_circle = collision.BoundingCircle(self.shard_radius) 
         
         # get a list of colliding players
         colliders = self.player.world.get_colliders(bounding_circle, self.player.position,
                                                     [self.player], objects.Player)
-        
         # for each player, apply effects
         for player in colliders:
-            # @todo: apply damage
+            player.apply_damage(self.shard_damage)
             print "Ice Burst collided with another player!"
-                
-        # end the effect
-        self.expire()
-                
