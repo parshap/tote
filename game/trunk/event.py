@@ -43,7 +43,7 @@ class Event:
 
 class Scheduler(object):
     """ A generic class for scheduling events to occur in the future. """
-    def __init__(self, delay):
+    def __init__(self, delay, *params):
         """
         Schedule the fired event to be fired delay time units in the future.
         The addtime(time) method must be called to add time units to the
@@ -51,6 +51,7 @@ class Scheduler(object):
         """
         self._delay = delay
         self._clock = 0
+        self.params = params
         self.fired = Event()
         self.is_fired = False
 
@@ -62,4 +63,4 @@ class Scheduler(object):
         self._clock += time
         if self._clock >= self._delay:
             self.is_fired = True
-            self.fired()
+            self.fired(*self.params)
