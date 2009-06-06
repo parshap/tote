@@ -10,7 +10,7 @@ material Material/TEXFACE/phtile.PNG
 			emissive 0.000000 0.000000 0.000000 1.000000
 			texture_unit
 			{
-				texture phtile.png
+				texture rocktile.png
 				colour_op modulate
 			}
 		}
