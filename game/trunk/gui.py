@@ -11,6 +11,14 @@ class Element(object):
     def show(self): self.overlay.show()
     def hide(self): self.overlay.hide()
     
+    def is_visible(self):
+        overlay = self.overlay
+        while overlay is not None:
+            if not overlay.isVisible():
+                return False
+            overlay = overlay.getParent()
+        return True
+    
     def update(self, dt):
         self.updated(self, dt)
 
@@ -20,12 +28,11 @@ class IClickable(object):
         self.bounding_rectangle = bounding_rectangle
 
     def inject_mouse_press(self, button, x, y):
-        if self.overlay.isVisible() and self.bounding_rectangle.inside(x, y):
+        if self.bounding_rectangle.inside(x, y):
             self.on_click(button)
             
     def inject_mouse_release(self, mouse_button, x, y):
         pass
-        
             
     def on_click(self, mouse_button):
         pass
@@ -38,6 +45,8 @@ class Button(Element, IClickable):
         self.clicked = Event()
     
     def on_click(self, mouse_button):
+        if not self.is_visible():
+            return
         self.clicked(self, mouse_button)
         
     def update(self, dt):
