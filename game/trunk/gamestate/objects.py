@@ -294,6 +294,7 @@ class Player(MobileObject):
         self.is_dead_changed = Event()
         self.bounding_shape = collision.BoundingCircle(6)
         self.type = "player"
+        self._last_ability_hit_by = 0
         
         self._is_charging = False
         self._is_hooked = False
@@ -361,7 +362,12 @@ class Player(MobileObject):
                 
     def use_power(self, amount):
         self.power = self.power - amount
-        
+    
+    def _get_last_ability_hit_by(self):
+        return self._last_ability_hit_by
+    def _set_last_ability_hit_by(self, ability_id):
+        self._last_ability_hit_by = ability_id
+    
     def _get_is_charging(self):
         """ Gets or sets the object's current charging state """
         return self._is_charging
