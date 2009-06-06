@@ -234,4 +234,75 @@ UI
             colour 1 1 1
         }
     }
+
+    container Panel(UI/ElementSelection)
+    {
+        metrics_mode pixels
+        horz_align center
+        vert_align center
+        
+        width 600
+        height 600
+        left -300
+        top -300
+
+        material UI/ElementSelectionBG
+        transparent false
+        
+        element Panel(UI/ElementSelection/Earth)
+        {
+            metrics_mode pixels
+            horz_align left
+            vert_align top
+            left 40
+            top  40
+            width 212
+            height 212
+            
+            material UI/EarthSymbol
+            transparent false
+        }
+        
+        element Panel(UI/ElementSelection/Fire)
+        {
+            metrics_mode pixels
+            horz_align left
+            vert_align bottom
+            left 40
+            top  -252
+            width 212
+            height 212
+            
+            material UI/FireSymbol
+            transparent false
+        }
+        
+        element Panel(UI/ElementSelection/Water)
+        {
+            metrics_mode pixels
+            horz_align right
+            vert_align top
+            left -252
+            top  40
+            width 212
+            height 212
+            
+            material UI/WaterSymbol
+            transparent false
+        }
+        
+        element Panel(UI/ElementSelection/Air)
+        {
+            metrics_mode pixels
+            horz_align right
+            vert_align bottom
+            left -252
+            top  -252
+            width 212
+            height 212
+            
+            material UI/AirSymbol
+            transparent false
+        }
+    }
 }
