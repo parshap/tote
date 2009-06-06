@@ -234,6 +234,8 @@ class ServerApplication(object):
             client.player.change_element(packet.element_type)
             client.player.position = self.scene.generate_spawn_position()
             client.player.rotation = 1.5707963267948966
+            client.player.health = client.player.max_health
+            client.player.health = client.player.max_power
             client.player.is_dead = False
             response = packets.SpawnResponse()
             response.element_type = packet.element_type
