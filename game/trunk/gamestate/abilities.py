@@ -31,13 +31,13 @@ class AbilityInstance(object):
 
 class EarthPrimaryInstance(AbilityInstance):
     power_cost = 0
-    hit_angle = math.pi/2
+    hit_angle = 2*math.pi/3
     damage = 25
     
     def __init__(self, player):
         AbilityInstance.__init__(self, player)
         self.type = "EarthPrimaryInstance"
-        self.range = self.player.bounding_shape.radius + 8
+        self.range = self.player.bounding_shape.radius + 16
 
     def run(self):
         AbilityInstance.run(self)
@@ -205,8 +205,8 @@ class EarthPowerSwingInstance(AbilityInstance):
     def __init__(self, player):
         AbilityInstance.__init__(self, player)
         self.type = "EarthPowerSwingInstance"
-        self.hit_angle = math.pi/2
-        self.range = 10
+        self.hit_angle = 2*math.pi/3
+        self.range = 20
         
     def run(self):
         AbilityInstance.run(self)
@@ -237,8 +237,8 @@ class FirePrimaryInstance(AbilityInstance):
     def run(self):
         AbilityInstance.run(self)
         bounding_shape = collision.BoundingCone(
-            self.player.bounding_shape.radius + 8,
-            self.player.rotation, math.pi/2)
+            self.player.bounding_shape.radius + 16,
+            self.player.rotation, 2*math.pi/3)
         colliders = self.player.world.get_colliders(
             bounding_shape, self.player.position,
             [self.player], objects.Player)
@@ -700,7 +700,7 @@ class WaterIceBurstInstance(AbilityInstance):
     power_cost = 50
     invulnerable_duration = 1
     shard_damage = 35
-    shard_radius = 30
+    shard_radius = 60
     
     def __init__(self, player):
         AbilityInstance.__init__(self, player)
