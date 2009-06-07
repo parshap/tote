@@ -18,9 +18,9 @@ particle_system IceBurstExplosion
 		direction	0 1 0
 		emission_rate	1000
 		position	0 0 0
-		velocity	100
-		velocity_min	100
-		velocity_max	100
+		velocity	200
+		velocity_min	200
+		velocity_max	200
 		time_to_live	0.25
 		time_to_live_min	0.25
 		time_to_live_max	0.5
