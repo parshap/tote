@@ -588,7 +588,7 @@ class AirLightningBoltInstance(AbilityInstance):
 class WaterPrimaryInstance(AbilityInstance):
     power_cost = 0
     speed = 200
-    projectile_radius = 20
+    projectile_radius = 14
     duration = 20
     damage = 15
     collided = Event()

@@ -74,8 +74,8 @@ class EarthElement(Element):
             return False
     
     def use_ability_Primary(self):
-        if self.player.is_ongcd():
-            return False
+#        if self.player.is_ongcd():
+#            return False
         if self.is_oncooldown("Primary"):
             return False
         ability = abilities.EarthPrimaryInstance(self.player)
@@ -157,8 +157,8 @@ class FireElement(Element):
             return False
         
     def use_ability_Primary(self):
-        if self.player.is_ongcd():
-            return False
+#        if self.player.is_ongcd():
+#            return False
         if self.is_oncooldown("Primary"):
             return False
         ability = abilities.FirePrimaryInstance(self.player)
