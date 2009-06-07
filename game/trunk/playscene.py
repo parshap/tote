@@ -607,7 +607,8 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
                             object.position = (packet.x, packet.z)
                             object.is_moving = False
                     if object.type == "player":
-                        if object.is_dead:
+                        if packet.is_dead:
+                            print self.nodes[object.object_id]
                             object.is_dead = packet.is_dead
         
         # ObjectStatusUpdate
@@ -666,7 +667,9 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
                 node.destroy()
             if self.players.has_key(packet.player_id):
                 del self.players[packet.player_id]
-            
+            if self.scores.has_key(packet.player_id):
+                del self.scores[packet.player_id]
+                self.scores_changed(self.scores)
     
     def on_client_connected(self):
         packet = packets.JoinRequest()
@@ -716,6 +719,7 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
         
     def on_player_is_dead_changed(self, player):
         if self.player.is_dead and self.is_round_active:
+            print "setting player to dead id=", player.object_id
             self.gui.element_selection.show()
 
     ## GUI event handlers

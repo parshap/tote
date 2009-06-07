@@ -239,7 +239,7 @@ class ServerApplication(object):
             self.world.add_object(player)
     
     def on_player_teleported(self, player):
-        self._send_update(player, time_check=False, forced=True)
+        self._send_update(player, check_time=False, forced=True)
     
     def on_player_score_changed(self, player):
         update = packets.ScoreUpdate()
@@ -282,6 +282,7 @@ class ServerApplication(object):
             player.power_changed += self.on_player_status_changed
             player.is_dead_changed += self.on_player_is_dead_changed
             player.score_changed += self.on_player_score_changed
+            player.teleported += self.on_player_teleported
             client.player = player
             print "Creating player in world with id=%s for client id=%s." % \
                 (player.object_id, client.client_id)

@@ -32,8 +32,10 @@ def main(argv=None):
     else:
         address = "localhost"
         port = 8981
-        if len(argv) > 2:
+        playername = "Newbie"
+        if len(argv) > 1:
             player_name = argv[1]
+        if len(argv) > 2:
             address = argv[2]
         if len(argv) > 3:
             port = int(argv[3])

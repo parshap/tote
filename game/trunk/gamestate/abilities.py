@@ -30,7 +30,7 @@ class AbilityInstance(object):
 
 
 class EarthPrimaryInstance(AbilityInstance):
-    power_cost = 0
+    power_cost = 20
     hit_angle = 2*math.pi/3
     damage = 25
     
@@ -228,7 +228,7 @@ class EarthPowerSwingInstance(AbilityInstance):
 
         
 class FirePrimaryInstance(AbilityInstance):
-    power_cost = 0
+    power_cost = 20
     damage = 18
     def __init__(self, player):
         AbilityInstance.__init__(self, player)
@@ -407,7 +407,7 @@ class FireRingOfFireInstance(AbilityInstance):
                 collider.apply_damage(self.damage_per_tick, self.player, 204)
     
 class AirPrimaryInstance(AbilityInstance):
-    power_cost = 0
+    power_cost = 20
     start_velocity = 100
     damage_divisor = 10
     acceleration = 500
@@ -533,7 +533,7 @@ class AirWindWhiskInstance(AbilityInstance):
                 move_vector = (sample_position[0] - self.player.position[0], sample_position[1] - self.player.position[1])
                 self.player._move(move_vector) # <-- this is why it's hackish
                 i += 1
-            self.player.teleported()
+            self.player.teleported(self.player)
         # end the effect
         self.expire()
         
@@ -586,7 +586,7 @@ class AirLightningBoltInstance(AbilityInstance):
         AbilityInstance.expire(self)
         
 class WaterPrimaryInstance(AbilityInstance):
-    power_cost = 0
+    power_cost = 20
     speed = 200
     projectile_radius = 14
     duration = 20
@@ -664,7 +664,7 @@ class WaterWaterGushInstance(AbilityInstance):
                 move_vector = (sample_position[0] - self.player.position[0], sample_position[1] - self.player.position[1])
                 self.player._move(move_vector) # <-- this is why it's hackish
                 i += 1
-            self.player.teleported()
+            self.player.teleported(self.player)
         # end the effect
         self.expire()      
         
