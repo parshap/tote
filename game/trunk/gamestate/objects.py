@@ -285,10 +285,8 @@ class Player(MobileObject):
         
         self._is_charging = False
         self._is_hooked = False
-        self.hooked_position = (0, 0)
         self.is_charging_changed = Event()
         self.is_hooked_changed = Event()
-        self.hooked_by_player = None
         self.is_invulnerable = False
         self.is_immobilized = False
         
@@ -410,20 +408,7 @@ class Player(MobileObject):
                 # If the player is charging then force movement.
                 self.is_moving = True
             if self.is_hooked:
-                if collision.CollisionDetector.check_collision(collision.BoundingCircle(8), self.hooked_by_player.position,
-                                                               self.bounding_shape, self.position):
-                    self.is_hooked = False
-                    self.hooked_by_player = None
-                else:
-                    self.is_moving = False
-                    distance = 200 * dt
-                    dx = self.hooked_by_player.position[0] - self.position[0]
-                    dz = self.hooked_by_player.position[1] - self.position[1]
-                    move_direction = math.atan2(dz, dx)              
-                    
-                    move_vector = (distance * math.cos(move_direction),
-                                   distance * math.sin(move_direction))
-                    self._move(move_vector)
+                self.is_moving = False
         
         if self.is_immobilized or self.is_dead:
             self.is_moving = False

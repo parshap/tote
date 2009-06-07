@@ -61,6 +61,7 @@ class EarthHookInstance(AbilityInstance):
     projectile_velocity = 200
     projectile_radius = 12
     projectile_duration = 0.5
+    retraction_speed = 200
     
     def __init__(self, player):
         AbilityInstance.__init__(self, player)
@@ -68,6 +69,7 @@ class EarthHookInstance(AbilityInstance):
         self.hook_projectile_created = Event()
         self.start_position = player.position
         self.start_rotation = player.rotation
+        self.player_hooked = None
 
     def run(self):
         AbilityInstance.run(self)
@@ -87,19 +89,33 @@ class EarthHookInstance(AbilityInstance):
         self.hook_projectile_created(self.hook_projectile)
         
     def update(self, dt):
-        AbilityInstance.update(dt)
+        AbilityInstance.update(self, dt)
+        if self.player.world.is_master:
+            if self.player_hooked is None:
+                return
+            if collision.CollisionDetector.check_collision(collision.BoundingCircle(8), 
+                                                           self.player_hooked.position,
+                                                           self.player.bounding_shape, 
+                                                           self.player.position):
+                self.player_hooked.is_hooked = False
+                self.player_hooked.force_vector = (0, 0)
+                self.expire()
+            else:
+                fv = (self.player.position[0] - self.player_hooked.position[0],
+                      self.player.position[1] - self.player_hooked.position[1])
+                fv = CollisionDetector.normalise_vector(fv)
+                fv = (fv[0] * self.retraction_speed, fv[1] * self.retraction_speed)
+                self.player_hooked.force_vector = fv
         
     
     def on_collided(self, object_collided_with):
         if object_collided_with.type == "player":
             if self.player.world.is_master:
                 print "hook collided with player"
-                object_collided_with.apply_damage(self.damage, self.player, 102)
-            if not object_collided_with.is_hooked:
-                object_collided_with.is_hooked = True
-                object_collided_with.hooked_position = self.start_position
-                object_collided_with.hooked_by_player = self.player
-                self.expire()
+                if not object_collided_with.is_hooked:
+                    self.player_hooked = object_collided_with
+                    object_collided_with.is_hooked = True
+                    object_collided_with.apply_damage(self.damage, self.player, 102)
 
 class EarthEarthquakeInstance(AbilityInstance):
     power_cost = 50
