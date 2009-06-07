@@ -188,13 +188,21 @@ class ObjectUpdate(Packet):
     
     Required attributes:
     object_id, x, z, rotation, move_speed, move_direction, is_dead
+    Optional attributes:
+    forced
     """
     id = 7
     format = "!H ff f f f B" # object_id position rotation move_speed move_direction flags
-    _flags_mask_is_dead = 1 << 0
+    _flags_mask_forced = 1 << 0
+    _flags_mask_is_dead = 1 << 1
+    
+    def __init__(self):
+        Packet.__init__(self)
+        self.forced = False
     
     def pack(self, packed=""):
         flags = 0
+        if self.forced: flags |= self._flags_mask_forced
         if self.is_dead: flags |= self._flags_mask_is_dead
         return Packet.pack(self, struct.pack(ObjectUpdate.format,
             self.object_id, self.x, self.z, self.rotation,
@@ -206,6 +214,7 @@ class ObjectUpdate(Packet):
         self.object_id, self.x, self.z, self.rotation, self.move_speed, \
             self.move_direction, flags = \
             struct.unpack_from(ObjectUpdate.format, packed, offset)
+        self.forced = (flags & self._flags_mask_forced) == self._flags_mask_forced
         self.is_dead = (flags & self._flags_mask_is_dead) == self._flags_mask_is_dead
         return offset + 23
         
