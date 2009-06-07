@@ -432,11 +432,11 @@ class AirPrimaryInstance(AbilityInstance):
         
 class AirGustOfWindInstance(AbilityInstance):
     power_cost = 30
-    starting_strength = 100
-    acceleration_factor = 1.02
+    starting_strength = 300
+    acceleration_factor = 1
     hit_radius = 60
     hit_angle = math.pi * 2 / 3
-    duration = 0.25
+    duration = 0.5
     
     def __init__(self, player):
         AbilityInstance.__init__(self, player)
@@ -459,7 +459,8 @@ class AirGustOfWindInstance(AbilityInstance):
                 force_vector = ((player.position[0] - self.player.position[0],
                                  player.position[1] - self.player.position[1]))
                 force_vector = CollisionDetector.normalise_vector(force_vector)
-                player.force_vector = force_vector * self.starting_strength
+                player.force_vector = (force_vector[0] * self.starting_strength,
+                    force_vector[1] * self.starting_strength)
                 print "Gust of wind collided with another player!"
                 
         # end the effect
@@ -478,8 +479,8 @@ class AirGustOfWindInstance(AbilityInstance):
                 old_fv = player.force_vector
                 
                 # calculate new force vector
-                fv = (old_fv[0] * self.acceleration_factor * dt,
-                      old_fv[1] * self.acceleration_factor * dt)
+                fv = (old_fv[0] * ((self.acceleration_factor * dt) + 1),
+                      old_fv[1] * ((self.acceleration_factor * dt) + 1))
                 
                 # apply the new force vector
                 player.force_vector = fv

@@ -560,14 +560,17 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
             else:
                 object = self.world.objects_hash[packet.object_id]
                 print "Updating object id=%s." % object.object_id
+                print "Update force vector: (%.2f, %.2f)" % (packet.force_x, packet.force_z)
                 if packet.forced:
                     object.position = (packet.x, packet.z)
                     object.rotation = packet.rotation
                     object.move_speed = packet.move_speed
                     object.move_direction = packet.move_direction
+                    object.force_vector = (packet.force_x, packet.force_z)
                     object.is_dead = packet.is_dead
                 else:
                     object.rotation = packet.rotation
+                    object.force_vector = (packet.force_x, packet.force_z)
                     if object == self.player:
                         # This is an update about the player. We want to deal with
                         # this case differently so we don't overwrite some client

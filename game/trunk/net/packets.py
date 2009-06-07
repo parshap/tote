@@ -187,12 +187,12 @@ class ObjectUpdate(Packet):
     these packets constantly to update the client's game state.
     
     Required attributes:
-    object_id, x, z, rotation, move_speed, move_direction, is_dead
+    object_id, x, z, rotation, move_speed, move_direction, force_x, force_z, is_dead
     Optional attributes:
     forced
     """
     id = 7
-    format = "!H ff f f f B" # object_id position rotation move_speed move_direction flags
+    format = "!H ff f f f ff B" # object_id position rotation move_speed move_direction force_vector flags
     _flags_mask_forced = 1 << 0
     _flags_mask_is_dead = 1 << 1
     
@@ -206,17 +206,17 @@ class ObjectUpdate(Packet):
         if self.is_dead: flags |= self._flags_mask_is_dead
         return Packet.pack(self, struct.pack(ObjectUpdate.format,
             self.object_id, self.x, self.z, self.rotation,
-            self.move_speed, self.move_direction, flags)) + \
+            self.move_speed, self.move_direction, self.force_x, self.force_z, flags)) + \
             packed
     
     def unpack(self, packed):
         offset = Packet.unpack(self, packed)
         self.object_id, self.x, self.z, self.rotation, self.move_speed, \
-            self.move_direction, flags = \
+            self.move_direction, self.force_x, self.force_z, flags = \
             struct.unpack_from(ObjectUpdate.format, packed, offset)
         self.forced = (flags & self._flags_mask_forced) == self._flags_mask_forced
         self.is_dead = (flags & self._flags_mask_is_dead) == self._flags_mask_is_dead
-        return offset + 23
+        return offset + 31
         
 
 class ObjectStatusUpdate(Packet):

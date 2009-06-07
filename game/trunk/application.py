@@ -366,6 +366,7 @@ class ServerApplication(object):
                 update.rotation == last_update.rotation and \
                 update.move_speed == last_update.move_speed and \
                 update.move_direction == last_update.move_direction and \
+                update.force_x == last_update.force_x and update.force_z == last_update.force_z and \
                 update.is_dead == last_update.is_dead:
                 return
         
@@ -380,6 +381,8 @@ class ServerApplication(object):
         update.x = object.position[0]
         update.z = object.position[1]
         update.rotation = object.rotation
+        update.force_x = object.force_vector[0]
+        update.force_z = object.force_vector[1]
         try:
             if object.is_moving:
                 update.move_speed = object.move_speed
