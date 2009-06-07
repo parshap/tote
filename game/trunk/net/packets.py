@@ -360,6 +360,19 @@ class RoundStart(Packet):
 
 class RoundEnd(Packet):
     id = 23
+    
+class ClientDisconnect(Packet):
+    id = 31
+    format = "!H" # player_id
+    
+    def pack(self, packed=""):
+        return Packet.pack(self, struct.pack(ClientDisconnect.format,
+            self.player_id)) + packed
+    
+    def unpack(self, packed):
+        offset = Packet.unpack(self, packed)
+        self.player_id, = struct.unpack_from(ClientDisconnect.format, packed, offset)
+        return offset + 2
 
 packets = {
     0: Packet,
@@ -378,4 +391,5 @@ packets = {
     21: ScoreUpdate,
     22: RoundStart,
     23: RoundEnd,
+    31: ClientDisconnect,
 }

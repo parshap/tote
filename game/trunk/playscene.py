@@ -659,6 +659,16 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
         elif ptype is packets.RoundStart:
             self.is_round_active = True
             self.gui.element_selection.show()
+            
+        # ClientDisconnect
+        elif ptype is packets.ClientDisconnect:
+            if self.nodes.has_key(packet.player_id):
+                node = self.nodes[packet.player_id]
+                del self.nodes[packet.player_id]
+                node.destroy()
+            if self.players.has_key(packet.player_id):
+                del self.players[packet.player_id]
+            
     
     def on_client_connected(self):
         packet = packets.JoinRequest()

@@ -259,6 +259,9 @@ class ServerApplication(object):
     def on_client_disconnected(self, client):
         if client.player is not None and client.player.is_active:
             self.world.remove_object(client.player)
+            cd = packets.ClientDisconnect()
+            cd.player_id = client.player.object_id
+            self.server.output_broadcast.put_nowait((cd, None))
             client.player = None
 
     def process_packet(self, client, packet):
