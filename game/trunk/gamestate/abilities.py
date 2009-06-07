@@ -85,11 +85,16 @@ class EarthHookInstance(AbilityInstance):
         
         # throw event
         self.hook_projectile_created(self.hook_projectile)
+        
+    def update(self, dt):
+        AbilityInstance.update(dt)
+        
     
     def on_collided(self, object_collided_with):
-        # @todo: do damage
         if object_collided_with.type == "player":
-            print "hook collided with player"
+            if self.player.world.is_master:
+                print "hook collided with player"
+                object_collided_with.apply_damage(self.damage, self.player, 102)
             if not object_collided_with.is_hooked:
                 object_collided_with.is_hooked = True
                 object_collided_with.hooked_position = self.start_position
@@ -98,7 +103,7 @@ class EarthHookInstance(AbilityInstance):
 
 class EarthEarthquakeInstance(AbilityInstance):
     power_cost = 50
-    damage_per_tick = 5
+    damage_per_tick = 7
     duration = 2
     tick_time = .5
     radius = 50
@@ -427,15 +432,16 @@ class AirPrimaryInstance(AbilityInstance):
         
 class AirGustOfWindInstance(AbilityInstance):
     power_cost = 30
-    knockback_strength = 150
-    acceleration_factor = 2
-    hit_radius = 50
-    hit_angle = math.pi / 2
+    starting_strength = 100
+    acceleration_factor = 1.02
+    hit_radius = 60
+    hit_angle = math.pi * 2 / 3
     duration = 0.25
     
     def __init__(self, player):
         AbilityInstance.__init__(self, player)
         self.type = "AirGustOfWindInstance"
+        self.targets = []
     
     def run(self):
         AbilityInstance.run(self)
@@ -443,19 +449,38 @@ class AirGustOfWindInstance(AbilityInstance):
         bounding_cone = collision.BoundingCone(self.hit_radius, self.player.rotation, self.hit_angle) 
         
         # get a list of colliding players
-        colliders = self.player.world.get_colliders(bounding_cone, self.player.position,
+        self.targets = self.player.world.get_colliders(bounding_cone, self.player.position,
                                                     [self.player], objects.Player)
         
         # for each player, apply effects
-        for player in colliders:
+        for player in self.targets:
             # get force vector for other player
             force_vector = ((player.position[0] - self.player.position[0],
                              player.position[1] - self.player.position[1]))
-            player.apply_force(force_vector, self.knockback_strength, self.acceleration_factor, self.duration)
+            force_vector = CollisionDetector.normalise_vector(force_vector)
+            player.force_vector = force_vector * self.starting_strength
             print "Gust of wind collided with another player!"
                 
         # end the effect
         self.expire()
+        
+    def update(self, dt):
+        self.duration -= dt
+        if self.duration <= 0:
+            self.duration = 0
+            for player in self.targets:
+                player.force_vector = (0, 0)
+            self.expire()
+            
+        for player in self.targets:
+            old_fv = player.force_vector
+            
+            # calculate new force vector
+            fv = (old_fv[0] * self.acceleration_factor,
+                  old_fv[1] * self.acceleration_factor)
+            
+            # apply the new force vector
+            player.force_vector = fv
         
 class AirWindWhiskInstance(AbilityInstance):
     power_cost = 30
@@ -476,20 +501,22 @@ class AirWindWhiskInstance(AbilityInstance):
         AbilityInstance.run(self)
         # hackish implementation
         # @todo: make this less hackish
-        i = 0
-        while i < self.move_samples:
-            sample_position = (self.player.position[0] + (self.teleport_distance /  self.move_samples) * math.cos(self.player.rotation),
-                               self.player.position[1] + (self.teleport_distance /  self.move_samples) * math.sin(self.player.rotation))
-            colliders = self.player.world.get_colliders(self.player.bounding_shape, sample_position,
-                                                   [self.player])
-            for collider in colliders:
-                if collider.type == "player" or collider.type == "projectile":
-                    continue
-                else:
-                    self.has_collided = True
-            move_vector = (sample_position[0] - self.player.position[0], sample_position[1] - self.player.position[1])
-            self.player._move(move_vector) # <-- this is why it's hackish
-            i += 1
+        if self.player.world.is_master:    
+            i = 0
+            while i < self.move_samples:
+                sample_position = (self.player.position[0] + (self.teleport_distance /  self.move_samples) * math.cos(self.player.rotation),
+                                   self.player.position[1] + (self.teleport_distance /  self.move_samples) * math.sin(self.player.rotation))
+                colliders = self.player.world.get_colliders(self.player.bounding_shape, sample_position,
+                                                       [self.player])
+                for collider in colliders:
+                    if collider.type == "player" or collider.type == "projectile":
+                        continue
+                    else:
+                        self.has_collided = True
+                move_vector = (sample_position[0] - self.player.position[0], sample_position[1] - self.player.position[1])
+                self.player._move(move_vector) # <-- this is why it's hackish
+                i += 1
+            self.player.teleported()
         # end the effect
         self.expire()
         
@@ -599,26 +626,28 @@ class WaterWaterGushInstance(AbilityInstance):
         AbilityInstance.run(self)
         # hackish implementation
         # @todo: make this less hackish
-        i = 0
-        already_collided = defaultdict(int)
-        while i < self.move_samples:
-            sample_position = (self.player.position[0] + (self.teleport_distance /  self.move_samples) * math.cos(self.player.rotation),
-                               self.player.position[1] + (self.teleport_distance /  self.move_samples) * math.sin(self.player.rotation))
-            colliders = self.player.world.get_colliders(self.player.bounding_shape, sample_position,
-                                                   [self.player])
-            for collider in colliders:
-                if collider.type == "projectile":
-                    continue
-                elif collider.type == "player":
-                    if not already_collided[collider]:
-                        # @todo: apply damage etc
-                        already_collided[collider] = True
-                        print "Water Gush collided with another player!"
-                else:
-                    self.has_collided = True
-            move_vector = (sample_position[0] - self.player.position[0], sample_position[1] - self.player.position[1])
-            self.player._move(move_vector) # <-- this is why it's hackish
-            i += 1
+        if self.player.world.is_master:
+            i = 0
+            already_collided = defaultdict(int)
+            while i < self.move_samples:
+                sample_position = (self.player.position[0] + (self.teleport_distance /  self.move_samples) * math.cos(self.player.rotation),
+                                   self.player.position[1] + (self.teleport_distance /  self.move_samples) * math.sin(self.player.rotation))
+                colliders = self.player.world.get_colliders(self.player.bounding_shape, sample_position,
+                                                       [self.player])
+                for collider in colliders:
+                    if collider.type == "projectile":
+                        continue
+                    elif collider.type == "player":
+                        if not already_collided[collider]:
+                            collider.apply_damage(self.damage, self.player, 402)
+                            already_collided[collider] = True
+                            print "Water Gush collided with another player!"
+                    else:
+                        self.has_collided = True
+                move_vector = (sample_position[0] - self.player.position[0], sample_position[1] - self.player.position[1])
+                self.player._move(move_vector) # <-- this is why it's hackish
+                i += 1
+            self.player.teleported()
         # end the effect
         self.expire()      
         

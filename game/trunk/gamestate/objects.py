@@ -53,15 +53,12 @@ class MobileObject(GameObject):
         self.is_moving_changed = Event()
         self.move_speed = 0
         self.move_direction = 0
+        self._force_vector = (0, 0)
         
         self.position_changed = Event()
+        self.force_vector_changed = Event()
         self.collided = Event()
-        
-        self.force_vector = (0, 0)
-        self.force_strength = 0
-        self.force_applied = False
-        self.force_duration = 0
-
+    
     def _get_is_moving(self):
         """ Gets or sets the object's current moving state """
         return self._is_moving
@@ -71,6 +68,14 @@ class MobileObject(GameObject):
             self._is_moving = value
             self.is_moving_changed(self, value)
     is_moving = property(_get_is_moving, _set_is_moving)
+    
+    def _get_force_vector(self):
+        return self._force_vector
+    def _set_force_vector(self, vector):
+        self._force_vector = vector
+        self.force_vector_changed()
+        
+    force_vector = property(_get_force_vector, _set_force_vector)
 
     # Override the GameObject._set_position so we can fire the event.
     def _set_position(self, value):
@@ -78,40 +83,15 @@ class MobileObject(GameObject):
         GameObject._set_position(self, value)
         self.position_changed(self, value)
     position = property(GameObject._get_position, _set_position)
-    
-    def apply_force(self, vector, strength, acceleration_factor = 1, duration = False):
-        self.force_vector = CollisionDetector.normalise_vector(vector)
-        self.force_strength = strength
-        self.force_duration = duration
-        self.force_acceleration = acceleration_factor
-        self.force_applied = True
-        
-    def remove_force(self):
-        self.force_applied = False
 
     def update(self, dt):
         GameObject.update(self, dt)
 
         # if a force is applied to this mobileobject
-        if self.force_applied:
-            # if there is time remaining for the force, or if no duration was set
-            if self.force_duration > 0 or not self.force_duration:
+        if self.force_vector[0] != 0 or self.force_vector[1] != 0:
                 # move this object based on the force
-                self._move((self.force_vector[0] * self.force_strength * dt, 
-                            self.force_vector[1] * self.force_strength * dt))
-                # update duration if duration is set
-                if self.force_duration is not False:
-                    self.force_duration -= dt
-                
-                # apply force acceleration
-                self.force_vector = (self.force_vector[0] + self.force_acceleration * self.force_vector[0] * dt,
-                                     self.force_vector[1] + self.force_acceleration * self.force_vector[1] * dt)
-            else:
-                # duration expired
-                print "force expired"
-                self.force_duration = 0
-                self.force_applied = False
-
+                self._move(self.force_vector)
+               
         if self.is_moving:
             movespd = self.move_speed * dt
             movedir = self.rotation + self.move_direction
@@ -299,6 +279,8 @@ class Player(MobileObject):
         self.name = ""
         self._score = 0
         self.score_changed = Event()
+        self.teleported = Event()
+        self.last_position = None
         
         self._is_charging = False
         self._is_hooked = False
@@ -406,6 +388,11 @@ class Player(MobileObject):
         self._rotation = value
         self.rotation_changed(self, value)
     rotation = property(MobileObject._get_rotation, _set_rotation)
+    
+    def _set_position(self, value):
+        self.last_position = self._position
+        MobileObject._set_position(self, value)
+    position = property(GameObject._get_position, _set_position)
 
     def update(self, dt):
         # Regen health & power.
