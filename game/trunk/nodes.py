@@ -51,7 +51,6 @@ class Node(object):
         self.particle_system = None
         
     def destroy(self):
-        print "performing delete"
         self.sceneNode.getParentSceneNode().removeAndDestroyChild(self.node_name)
         
     # spatial properties
@@ -93,7 +92,6 @@ class Node(object):
         
     def particle_effect_start(self):
         """ Enable the particle effect with the given name. """
-        print "particle started!"
         if self.particle_system is not None:
             for i in xrange(0, self.particle_system.getNumEmitters()):
                 self.particle_system.getEmitter(i).setEnabled(True)
@@ -316,7 +314,6 @@ class StaticEffectNode(Node):
     def expire(self):      
         # throw expired event
         if self.particle_system is not None:
-            print "turning particle effect off"
             self.particle_effect_stop()
         if self.mesh is not None:
             self.sceneNode.setVisible(False)
