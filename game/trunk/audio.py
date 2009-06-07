@@ -67,11 +67,6 @@ def set_background_music(path):
     _bg_music_player.eos_action = media.Player.EOS_LOOP
     _bg_music_player.queue(_bg_music_source)
     _bg_music_player.pause()
-    print "set music"
-
-def test(player):
-    player.pause()
-    print "EOS"
     
 def play_background_music(volume = 0.5):
     """
