@@ -33,28 +33,39 @@ class EarthPrimaryInstance(AbilityInstance):
     power_cost = 0
     hit_angle = 2*math.pi/3
     damage = 25
+    duration = 0.25
     
     def __init__(self, player):
         AbilityInstance.__init__(self, player)
         self.type = "EarthPrimaryInstance"
-        self.range = self.player.bounding_shape.radius + 16
 
     def run(self):
         AbilityInstance.run(self)
         # @todo: have swing delay
-        bounding_shape = collision.BoundingCone(self.range,
-            self.player.rotation, self.hit_angle)
-        colliders = self.player.world.get_colliders(bounding_shape,
+        if not self.player.world.is_master:
+            # This ability doesn't do anything client-side.
+            self.expire()
+        else:
+            self.range = self.player.bounding_shape.radius + 16
+            self.bounding_shape = collision.BoundingCone(self.range,
+                self.player.rotation, self.hit_angle)
+            self.hit_players = []
+        
+    def update(self, dt):
+        AbilityInstance.update(self, dt)
+        if not self.player.world.is_master:
+            return
+        colliders = self.player.world.get_colliders(self.bounding_shape,
             self.player.position, [self.player], objects.Player)
-        if self.player.world.is_master:
-            self.master(colliders)
-        self.expire()
-        
-    def master(self, colliders):
-        print "Earth Primary ability collided with %s players." % (len(colliders))
         for player in colliders:
-            player.apply_damage(self.damage, self.player, 101)
-        
+            if player not in self.hit_players:
+                print "Earth Primary ability collided with %s players." % (len(colliders))
+                player.apply_damage(self.damage, self.player, 101)
+                self.hit_players.append(player)
+        self.duration -= dt
+        if self.duration <= 0:
+            self.expire()
+    
 class EarthHookInstance(AbilityInstance):
     power_cost = 50
     damage = 10
@@ -125,7 +136,6 @@ class EarthEarthquakeInstance(AbilityInstance):
     radius = 50
     slow_speed_multiplier = .5
     slow_time = 1.5
-    
     
     def __init__(self, player):
         AbilityInstance.__init__(self, player)
@@ -230,28 +240,39 @@ class EarthPowerSwingInstance(AbilityInstance):
 class FirePrimaryInstance(AbilityInstance):
     power_cost = 0
     damage = 18
+    duration = .25
+    
     def __init__(self, player):
         AbilityInstance.__init__(self, player)
         self.type = "FirePrimaryInstance"
 
     def run(self):
         AbilityInstance.run(self)
-        bounding_shape = collision.BoundingCone(
-            self.player.bounding_shape.radius + 16,
-            self.player.rotation, 2*math.pi/3)
-        colliders = self.player.world.get_colliders(
-            bounding_shape, self.player.position,
-            [self.player], objects.Player)
-        if self.player.world.is_master:
-            self.master(colliders)
-        self.expire()
-    
-    def master(self, colliders):
-        print "Fire Primary ability collided with %s game objects." % (len(colliders))
-        for player in colliders:
-            player.apply_damage(self.damage, self.player, 201)
+        if not self.player.world.is_master:
+            # This ability doesn't do anything client-side.
+            self.expire()
+        else:
+            self.range = self.player.bounding_shape.radius + 16
+            self.bounding_shape = collision.BoundingCone(self.range,
+                self.player.rotation, 2*math.pi/3)
+            self.hit_players = []
         
-
+    def update(self, dt):
+        AbilityInstance.run(self)
+        if not self.player.world.is_master:
+            return
+        colliders = self.player.world.get_colliders(self.bounding_shape,
+            self.player.position, [self.player], objects.Player)
+        for player in colliders:
+            if player not in self.hit_players:
+                print "Fire Primary ability collided with %s game objects." % (len(colliders))
+                player.apply_damage(self.damage, self.player, 201)
+                self.hit_players.append(player)
+        self.duration -= dt
+        if self.duration <= 0:
+            self.expire()
+        
+        
 class FireFlameRushInstance(AbilityInstance):
     power_cost = 30
     charge_speed_multiplier = 3
