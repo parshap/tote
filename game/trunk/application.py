@@ -14,7 +14,7 @@ from net import packets
 from event import Event, Scheduler
 
 class ClientApplication(object):
-    app_title = "MyApplication"
+    app_title = "Tides of the Elements 0.5.0"
     
     def __init__(self, player_name, address, port=8981):
         self.address = address
