@@ -548,9 +548,9 @@ class PlayerNode(MobileGameNode):
             if ability_id == 303:
                 # Air : Wind Whisk
                 effect_node1 = StaticEffectNode(self.sceneManager, player.world, 0.3)
-                effect_node1.set_particle_system("WindWhisk", (ability_instance.player_start_position[0],
+                effect_node1.set_particle_system("WindWhisk", (player.last_position[0],
                                                                0,
-                                                               ability_instance.player_start_position[1]))
+                                                               player.last_position[1]))
                 effect_node1.particle_effect_start()
                 
                 effect_node2 = StaticEffectNode(self.sceneManager, player.world, 0.3)
@@ -605,8 +605,8 @@ class PlayerNode(MobileGameNode):
                 effect_node = StaticEffectNode(self.sceneManager, player.world, 0.5)
                 # @todo: come up with a particle effect for this ability
                 
-                dx = -player.position[0] + ability_instance.player_start_position[0]
-                dz = -player.position[1] + ability_instance.player_start_position[1]
+                dx = -player.position[0] + player.last_position[0]
+                dz = -player.position[1] + player.last_position[1]
                 distance = math.sqrt( dx * dx + dz * dz)
                 rotation = math.atan2(dz, dx)
                 x_offset = dx/2
