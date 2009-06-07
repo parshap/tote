@@ -737,3 +737,25 @@ class WaterIceBurstInstance(AbilityInstance):
         for player in colliders:
             player.apply_damage(self.shard_damage, self.player, 404)
             print "Ice Burst collided with another player!"
+
+abilityinstances = {
+    101: EarthPrimaryInstance,
+    102: EarthHookInstance,
+    103: EarthEarthquakeInstance,
+    104: EarthPowerSwingInstance,
+    
+    201: FirePrimaryInstance,
+    202: FireFlameRushInstance,
+    203: FireLavaSplashInstance,
+    204: FireRingOfFireInstance,
+    
+    301: AirPrimaryInstance,
+    302: AirGustOfWindInstance,
+    303: AirWindWhiskInstance,
+    304: AirLightningBoltInstance,
+    
+    401: WaterPrimaryInstance,
+    402: WaterWaterGushInstance,
+    403: WaterTidalWaveInstance,
+    404: WaterIceBurstInstance,
+}

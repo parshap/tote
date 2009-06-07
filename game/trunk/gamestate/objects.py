@@ -5,6 +5,7 @@ import collision
 from collision import CollisionDetector
 import elements
 from event import Event
+import abilities
 
 class GameObject(object):
     def __init__(self, world):
@@ -458,6 +459,8 @@ class Player(MobileObject):
         """
         # Try to use the ability.
         if self.is_dead:
+            return False
+        if abilities.abilityinstances[ability_id].power_cost > self.power:
             return False
         ability = self.element.use_ability(ability_id)
         if ability is not False:
