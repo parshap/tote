@@ -608,7 +608,7 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
                             object.is_moving = False
                     if object.type == "player":
                         if object.is_dead:
-                        object.is_dead = packet.is_dead
+                            object.is_dead = packet.is_dead
         
         # ObjectStatusUpdate
         elif ptype is packets.ObjectStatusUpdate:
