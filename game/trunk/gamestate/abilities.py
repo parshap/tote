@@ -30,7 +30,7 @@ class AbilityInstance(object):
 
 
 class EarthPrimaryInstance(AbilityInstance):
-    power_cost = 20
+    power_cost = 0
     hit_angle = math.pi/2
     damage = 25
     
@@ -228,7 +228,7 @@ class EarthPowerSwingInstance(AbilityInstance):
 
         
 class FirePrimaryInstance(AbilityInstance):
-    power_cost = 20
+    power_cost = 0
     damage = 18
     def __init__(self, player):
         AbilityInstance.__init__(self, player)
@@ -407,7 +407,7 @@ class FireRingOfFireInstance(AbilityInstance):
                 collider.apply_damage(self.damage_per_tick, self.player, 204)
     
 class AirPrimaryInstance(AbilityInstance):
-    power_cost = 20
+    power_cost = 0
     start_velocity = 100
     damage_divisor = 10
     acceleration = 500
@@ -586,7 +586,7 @@ class AirLightningBoltInstance(AbilityInstance):
         AbilityInstance.expire(self)
         
 class WaterPrimaryInstance(AbilityInstance):
-    power_cost = 20
+    power_cost = 0
     speed = 200
     projectile_radius = 20
     duration = 20
