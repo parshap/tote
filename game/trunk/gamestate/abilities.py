@@ -353,7 +353,6 @@ class FireRingOfFireInstance(AbilityInstance):
         # if the ability has expired...
         self.duration -= dt
         if self.duration <= 0:
-            print "effect destroyed"
             self.expire()
             return
         
@@ -377,7 +376,6 @@ class FireRingOfFireInstance(AbilityInstance):
             # if this player has already been hit
             if self.last_player_hit_times.has_key(collider):
                 if collider == self.player:
-                    print "player collided"
                     continue
                 # check to see if the player was hit long ago enough to hit him again
                 dt = self.player.world.time - self.last_player_hit_times[collider]

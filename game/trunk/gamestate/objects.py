@@ -204,7 +204,7 @@ class MobileObject(GameObject):
                 # If the object is not passable, then this is a critical error
                 # and we will completely deny the move by returning.
                 if not object.isPassable:
-                    print "DENIED MOVEMENT!!"
+                    print "*Player movement was denied."
                     
                     # must collide these two objects to throw the proper events
                     self.collide(object)
@@ -446,7 +446,6 @@ class Player(MobileObject):
             self.element = elements.AirElement(self)
         else:
             return
-        print "element changed to %s" % element_type
         self.element_changed(self)
         
     def is_ongcd(self):
