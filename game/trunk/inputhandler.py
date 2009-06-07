@@ -58,7 +58,8 @@ class InputHandler(OIS.MouseListener, OIS.KeyListener):
         mouseState = self.mouse.getMouseState()
         
         if self.scene.player:
-            if mouseState.buttonDown(MOUSE_CONTROLS["FACE"]):
+            if mouseState.buttonDown(MOUSE_CONTROLS["FACE"]) or \
+                mouseState.buttonDown(MOUSE_CONTROLS["ABILITY_1"]):
                 mousex = mouseState.X.abs
                 mousey = mouseState.Y.abs
                 angle = math.atan2(mousey - self.viewport.actualHeight/2,
