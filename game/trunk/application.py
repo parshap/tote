@@ -16,9 +16,10 @@ from event import Event, Scheduler
 class ClientApplication(object):
     app_title = "MyApplication"
     
-    def __init__(self, address, port=8981):
+    def __init__(self, player_name, address, port=8981):
         self.address = address
         self.port = port
+        self.player_name = player_name
 
     def go(self):
         # See Basic Tutorial 6 for details
@@ -76,7 +77,7 @@ class ClientApplication(object):
         vp.backGroundColor = (0, 0, 0)
 
     def createFrameListener(self):
-        self.playScene = PlayScene(self.sceneManager, self.address, self.port)
+        self.playScene = PlayScene(self.sceneManager, self.address, self.port, self.player_name)
         self.root.addFrameListener(self.playScene)
 
     def startRenderLoop(self):

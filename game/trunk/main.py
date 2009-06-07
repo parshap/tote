@@ -32,13 +32,14 @@ def main(argv=None):
     else:
         address = "localhost"
         port = 8981
-        if len(argv) > 1:
-            address = argv[1]
         if len(argv) > 2:
-            port = int(argv[2])
+            player_name = argv[1]
+            address = argv[2]
+        if len(argv) > 3:
+            port = int(argv[3])
         print address, port
         try:
-            app = application.ClientApplication(address, port)
+            app = application.ClientApplication(player_name, address, port)
             app.go()
         except ogre.OgreException, e:
             print e

@@ -262,14 +262,14 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
     frameStarted()).
     """
 
-    def __init__(self, sceneManager, address, port):
+    def __init__(self, sceneManager, address, port, player_name):
         # Initialize the various listener classes we are a subclass from
         ogre.FrameListener.__init__(self)
         ogre.WindowEventListener.__init__(self)
         
         self.address = address
         self.port = port
-        self.player_name = "Player1"
+        self.player_name = player_name
         self.is_round_active = False
         
         self.renderWindow = ogre.Root.getSingleton().getAutoCreatedWindow()
