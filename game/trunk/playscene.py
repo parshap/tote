@@ -560,7 +560,6 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
             else:
                 object = self.world.objects_hash[packet.object_id]
                 print "Updating object id=%s." % object.object_id
-                print "Update force vector: (%.2f, %.2f)" % (packet.force_x, packet.force_z)
                 if packet.forced:
                     object.position = (packet.x, packet.z)
                     object.rotation = packet.rotation
@@ -609,7 +608,6 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
                             object.is_moving = False
                     if object.type == "player":
                         if object.is_dead:
-                            print 'setting player to dead'
                         object.is_dead = packet.is_dead
         
         # ObjectStatusUpdate
@@ -628,7 +626,7 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
         
         # AbilityUsed
         elif ptype is packets.AbilityUsed:
-            print "Using ability id=%s on player_id=%s" % (packet.object_id, packet.ability_id)
+            print "Using ability id=%s on player_id=%s" % (packet.ability_id, packet.object_id)
             player = self.world.objects_hash[packet.object_id]
             player.use_ability(packet.ability_id)
             
@@ -719,16 +717,9 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
     def on_player_is_dead_changed(self, player):
         if self.player.is_dead and self.is_round_active:
             self.gui.element_selection.show()
-        
-        
-     # Is this being used anywhere? @todo: remove if not, uncomment if exception
-#    def on_static_node_expired(self, static_node):
-#        print static_node.unique_scene_node_name
-#        self.sceneManager.destroySceneNode(static_node.node_name)
 
     ## GUI event handlers
     def on_gui_element_selected(self, element_type):
-        print "selected:", element_type
         request = packets.SpawnRequest()
         request.element_type = element_type
         self.client.output.put_nowait(request)
