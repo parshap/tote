@@ -29,9 +29,9 @@ class Element(object):
 class EarthElement(Element):
     ability_cooldowns = {
         "Primary": 1,
-        "Hook": 2,
-        "Earthquake": 2,
-        "PowerSwing": 2,
+        "Hook": 4,
+        "Earthquake": 6,
+        "PowerSwing": 4,
     }
     ability_keys = {
         1: "Primary",
@@ -112,9 +112,9 @@ class EarthElement(Element):
 class FireElement(Element):
     ability_cooldowns = {
         "Primary": 1,
-        "FlameRush": 2,
-        "LavaSplash": 2,
-        "RingOfFire": 2,
+        "FlameRush": 6,
+        "LavaSplash": 6,
+        "RingOfFire": 10,
     }
     ability_keys = {
         1: "Primary",
@@ -194,10 +194,10 @@ class FireElement(Element):
 
 class AirElement(Element):
     ability_cooldowns = {
-        "Primary": 1,
-        "GustOfWind": 2,
-        "WindWhisk": 2,
-        "LightningBolt": 2,
+        "Primary": 1.5,
+        "GustOfWind": 4,
+        "WindWhisk": 6,
+        "LightningBolt": 6,
     }
     ability_keys = {
         1: "Primary",
@@ -277,9 +277,9 @@ class AirElement(Element):
 class WaterElement(Element):
     ability_cooldowns = {
         "Primary": 1,
-        "WaterGush": 2,
-        "TidalWave": 2,
-        "IceBurst": 2,
+        "WaterGush": 6,
+        "TidalWave": 5,
+        "IceBurst": 15,
     }
     ability_keys = {
         1: "Primary",
