@@ -236,7 +236,10 @@ class ServerApplication(object):
             self.world.remove_object(player)
         else:
             self.world.add_object(player)
-            
+    
+    def on_player_teleported(self, player):
+        self._send_update(player, time_check=False, forced=True)
+    
     def on_player_score_changed(self, player):
         update = packets.ScoreUpdate()
         update.player_id = player.object_id
@@ -342,12 +345,13 @@ class ServerApplication(object):
                 self._send_update(client.player, ignore=client.player, check_time=False)
                 self.server.output_broadcast.put_nowait((used, None))
     
-    def _send_update(self, object, ignore=None, check_time=True, check_data=True):
+    def _send_update(self, object, ignore=None, check_time=True, check_data=True, forced=False):
         # Only send updates for MobileObjects.
         if not isinstance(object, gamestate.objects.MobileObject):
             return
         
         update = self._get_update(object)
+        update.force = forced
 
         if self.last_updates.has_key(object):
             last_update_time, last_update = self.last_updates[object]

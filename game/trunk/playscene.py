@@ -560,47 +560,54 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
             else:
                 object = self.world.objects_hash[packet.object_id]
                 print "Updating object id=%s." % object.object_id
-                object.rotation = packet.rotation
-                if object == self.player:
-                    # This is an update about the player. We want to deal with
-                    # this case differently so we don't overwrite some client
-                    # states such as position.
+                if packet.forced:
+                    object.position = (packet.x, packet.z)
+                    object.rotation = packet.rotation
+                    object.move_speed = packet.move_speed
+                    object.move_direction = packet.move_direction
                     object.is_dead = packet.is_dead
-                    if packet.move_speed > 0:
-                        object.move_speed = packet.move_speed
-                    diff_vector = ogre.Vector2(packet.x - object.position[0],
-                                               packet.z - object.position[1])
-                    if diff_vector.squaredLength() > 500:
-                        # If the server tells us we're far from where we think
-                        # we are, then warp to the server's location.
-                        object.position = (packet.x, packet.z)
                 else:
-                    # This is an update for another game object.
-                    if packet.move_speed > 0:
-                        object.is_moving = True
-                        object.move_direction = packet.move_direction
-                        object.move_speed = packet.move_speed
-                        
-                        diff_vector = ogre.Vector3(packet.x - object.position[0], 0, packet.z - object.position[1])
+                    object.rotation = packet.rotation
+                    if object == self.player:
+                        # This is an update about the player. We want to deal with
+                        # this case differently so we don't overwrite some client
+                        # states such as position.
+                        object.is_dead = packet.is_dead
+                        if packet.move_speed > 0:
+                            object.move_speed = packet.move_speed
+                        diff_vector = ogre.Vector2(packet.x - object.position[0],
+                                                   packet.z - object.position[1])
                         if diff_vector.squaredLength() > 500:
-                            # If the server's location is far from where we
-                            # thinkt his player is, then, then don't smooth.
+                            # If the server tells us we're far from where we think
+                            # we are, then warp to the server's location.
                             object.position = (packet.x, packet.z)
-                            object.rotation = packet.rotation
-                        else:
-                            # Smooth the difference in locations.
-                            move_vector = ogre.Vector3(packet.move_speed * math.cos(packet.rotation + packet.move_direction), 0,
-                                                       packet.move_speed * math.sin(packet.rotation + packet.move_direction))
-                            resultant = diff_vector + move_vector
-                            angle = math.atan2(resultant.z, resultant.x)
-                            object.rotation = angle - packet.move_direction
                     else:
-                        object.position = (packet.x, packet.z)
-                        object.is_moving = False
-                if object.type == "player":
-                    if object.is_dead:
-                        print 'setting player to dead'
-                    object.is_dead = packet.is_dead
+                        # This is an update for another game object.
+                        if packet.move_speed > 0:
+                            object.is_moving = True
+                            object.move_direction = packet.move_direction
+                            object.move_speed = packet.move_speed
+                            
+                            diff_vector = ogre.Vector3(packet.x - object.position[0], 0, packet.z - object.position[1])
+                            if diff_vector.squaredLength() > 500:
+                                # If the server's location is far from where we
+                                # thinkt his player is, then, then don't smooth.
+                                object.position = (packet.x, packet.z)
+                                object.rotation = packet.rotation
+                            else:
+                                # Smooth the difference in locations.
+                                move_vector = ogre.Vector3(packet.move_speed * math.cos(packet.rotation + packet.move_direction), 0,
+                                                           packet.move_speed * math.sin(packet.rotation + packet.move_direction))
+                                resultant = diff_vector + move_vector
+                                angle = math.atan2(resultant.z, resultant.x)
+                                object.rotation = angle - packet.move_direction
+                        else:
+                            object.position = (packet.x, packet.z)
+                            object.is_moving = False
+                    if object.type == "player":
+                        if object.is_dead:
+                            print 'setting player to dead'
+                        object.is_dead = packet.is_dead
         
         # ObjectStatusUpdate
         elif ptype is packets.ObjectStatusUpdate:
