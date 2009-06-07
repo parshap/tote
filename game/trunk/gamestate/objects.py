@@ -89,8 +89,9 @@ class MobileObject(GameObject):
 
         # if a force is applied to this mobileobject
         if self.force_vector[0] != 0 or self.force_vector[1] != 0:
-                # move this object based on the force
-                self._move(self.force_vector)
+            # move this object based on the force
+            self._move((self.force_vector[0] * dt,
+                        self.force_vector[1] * dt))
                
         if self.is_moving:
             movespd = self.move_speed * dt

@@ -445,42 +445,44 @@ class AirGustOfWindInstance(AbilityInstance):
     
     def run(self):
         AbilityInstance.run(self)
-        # create the bounding circle to check collision against
-        bounding_cone = collision.BoundingCone(self.hit_radius, self.player.rotation, self.hit_angle) 
-        
-        # get a list of colliding players
-        self.targets = self.player.world.get_colliders(bounding_cone, self.player.position,
-                                                    [self.player], objects.Player)
-        
-        # for each player, apply effects
-        for player in self.targets:
-            # get force vector for other player
-            force_vector = ((player.position[0] - self.player.position[0],
-                             player.position[1] - self.player.position[1]))
-            force_vector = CollisionDetector.normalise_vector(force_vector)
-            player.force_vector = force_vector * self.starting_strength
-            print "Gust of wind collided with another player!"
+        if self.player.world.is_master:
+            # create the bounding circle to check collision against
+            bounding_cone = collision.BoundingCone(self.hit_radius, self.player.rotation, self.hit_angle) 
+            
+            # get a list of colliding players
+            self.targets = self.player.world.get_colliders(bounding_cone, self.player.position,
+                                                        [self.player], objects.Player)
+            
+            # for each player, apply effects
+            for player in self.targets:
+                # get force vector for other player
+                force_vector = ((player.position[0] - self.player.position[0],
+                                 player.position[1] - self.player.position[1]))
+                force_vector = CollisionDetector.normalise_vector(force_vector)
+                player.force_vector = force_vector * self.starting_strength
+                print "Gust of wind collided with another player!"
                 
         # end the effect
         self.expire()
         
     def update(self, dt):
         self.duration -= dt
-        if self.duration <= 0:
-            self.duration = 0
+        if self.player.world.is_master:
+            if self.duration <= 0:
+                self.duration = 0
+                for player in self.targets:
+                    player.force_vector = (0, 0)
+                self.expire()
+                
             for player in self.targets:
-                player.force_vector = (0, 0)
-            self.expire()
-            
-        for player in self.targets:
-            old_fv = player.force_vector
-            
-            # calculate new force vector
-            fv = (old_fv[0] * self.acceleration_factor,
-                  old_fv[1] * self.acceleration_factor)
-            
-            # apply the new force vector
-            player.force_vector = fv
+                old_fv = player.force_vector
+                
+                # calculate new force vector
+                fv = (old_fv[0] * self.acceleration_factor * dt,
+                      old_fv[1] * self.acceleration_factor * dt)
+                
+                # apply the new force vector
+                player.force_vector = fv
         
 class AirWindWhiskInstance(AbilityInstance):
     power_cost = 30
