@@ -527,7 +527,7 @@ class PlayerNode(MobileGameNode):
                 # Find a better way to do this someday. 
                 projectile_node = ProjectileNode(self.sceneManager, ability_instance.projectile)
                 projectile_node.set_particle_system("AirShot")
-                projectile_node.set_secondary_particle_system("LavaSplash")
+                projectile_node.set_secondary_particle_system("WaterSplash")
                 projectile_node.particle_effect_start()
                 
                 # Play Sound
