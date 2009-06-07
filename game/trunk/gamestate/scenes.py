@@ -66,5 +66,4 @@ class TestScene(Scene):
         self._setup_level_boundaries(os.path.join("media", "levelbounds.bounds"))
         
     def generate_spawn_position(self):
-        return (0, 0)
         return random.choice(self.spawn_locations)
