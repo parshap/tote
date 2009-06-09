@@ -9,8 +9,8 @@ _sources = { }
 _bg_music_player = None
 _bg_music_source = None
 
-_bg_music_volume = .1
-_sound_volume = .1
+_bg_music_volume = .5
+_sound_volume = .2
     
 def play_sound(name, volume = 1.0):
     """
