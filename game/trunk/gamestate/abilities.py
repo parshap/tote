@@ -664,6 +664,9 @@ class WaterWaterGushInstance(AbilityInstance):
         AbilityInstance.run(self)
         # hackish implementation
         # @todo: make this less hackish
+        print "%i, %i" % self.player.last_position
+        print "%i, %i" % self.player.position
+        
         if self.player.world.is_master:
             i = 0
             already_collided = defaultdict(int)

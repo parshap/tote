@@ -356,7 +356,7 @@ class ServerApplication(object):
             return
         
         update = self._get_update(object)
-        update.force = forced
+        update.forced = forced
 
         if self.last_updates.has_key(object):
             last_update_time, last_update = self.last_updates[object]

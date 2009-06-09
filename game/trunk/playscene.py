@@ -563,7 +563,10 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
                 if packet.forced:
                     object.position = (packet.x, packet.z)
                     object.rotation = packet.rotation
-                    object.move_speed = packet.move_speed
+                    if packet.move_speed > 0:
+                        object.move_speed = packet.move_speed
+                    else:
+                        object.is_moving = False
                     object.move_direction = packet.move_direction
                     object.force_vector = (packet.force_x, packet.force_z)
                     object.is_dead = packet.is_dead
@@ -579,10 +582,10 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
                             object.move_speed = packet.move_speed
                         diff_vector = ogre.Vector2(packet.x - object.position[0],
                                                    packet.z - object.position[1])
-                        if diff_vector.squaredLength() > 500:
+                 #       if diff_vector.squaredLength() > 500:
                             # If the server tells us we're far from where we think
                             # we are, then warp to the server's location.
-                            object.position = (packet.x, packet.z)
+                  #          object.position = (packet.x, packet.z)
                     else:
                         # This is an update for another game object.
                         if packet.move_speed > 0:
