@@ -11,7 +11,7 @@ import gamestate, net
 from net import packets
 import SceneLoader
 from inputhandler import InputHandler
-from event import Event
+from event import Event, SchedulerManager
 import nodes
 import gui
 import audio
@@ -255,7 +255,7 @@ class PlaySceneGUI(object):
         self.qscores_2_score.text = second_score
 
 
-class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
+class PlayScene(ogre.FrameListener, ogre.WindowEventListener, SchedulerManager):
     """
     This class represents the game's main scene - the play scene. This class
     sets up the initial scene and acts as the main game loop (via
@@ -266,6 +266,7 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
         # Initialize the various listener classes we are a subclass from
         ogre.FrameListener.__init__(self)
         ogre.WindowEventListener.__init__(self)
+        SchedulerManager.__init__(self)
         
         self.address = address
         self.port = port
@@ -440,7 +441,10 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
         while not self.client.input.empty():
             packet = self.client.input.get_nowait()
             self.process_packet(packet)
-
+        
+        # Add time to schedulers.
+        SchedulerManager.update(self, dt)
+        
         # Capture any buffered events (and fire any callbacks).
         self.inputHandler.capture()
         
@@ -734,7 +738,8 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
     def on_player_is_dead_changed(self, player):
         if self.player.is_dead and self.is_round_active:
             print "setting player to dead id=", player.object_id
-            self.gui.element_selection.show()
+            # Show the element selection screen after 3 seconds.
+            self.schedule(3, self.gui.element_selection.show)
 
     ## GUI event handlers
     def on_gui_element_selected(self, element_type):
