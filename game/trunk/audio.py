@@ -62,7 +62,7 @@ def set_background_music(path):
     global _bg_music_source
     global _bg_music_player
 
-    _bg_music_source = media.load(path, None, True)
+    _bg_music_source = media.load(path, None, False)
     _bg_music_player = media.Player()
     _bg_music_player.eos_action = media.Player.EOS_LOOP
     _bg_music_player.queue(_bg_music_source)

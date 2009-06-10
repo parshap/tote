@@ -1,0 +1,365 @@
+material Material.002/TEXFACE/right.PNG
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+			ambient 0.500000 0.500000 0.500000 1.000000
+			diffuse 0.800000 0.800000 0.800000 1.000000
+			emissive 0.000000 0.000000 0.000000 1.000000
+			texture_unit
+			{
+				texture right.PNG
+				colour_op replace
+				tex_address_mode clamp
+			}
+		}
+		pass
+		{
+			ambient 0.0 0.0 0.0
+			diffuse 0.0 0.0 0.0
+			specular 0.500000 0.500000 0.500000 1.000000 12.500000
+			scene_blend add
+		}
+
+	}
+}
+material Material.002/TEXFACE/lava.PNG
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+			ambient 0.500000 0.500000 0.500000 1.000000
+			diffuse 0.800000 0.800000 0.800000 1.000000
+			emissive 0.000000 0.000000 0.000000 1.000000
+			texture_unit
+			{
+				texture lava.PNG
+				colour_op replace
+				tex_address_mode clamp
+			}
+		}
+		pass
+		{
+			ambient 0.0 0.0 0.0
+			diffuse 0.0 0.0 0.0
+			specular 0.500000 0.500000 0.500000 1.000000 12.500000
+			scene_blend add
+		}
+	}
+}
+material Material.002/TEXFACE/left.PNG
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+			ambient 0.500000 0.500000 0.500000 1.000000
+			diffuse 0.800000 0.800000 0.800000 1.000000
+			emissive 0.000000 0.000000 0.000000 1.000000
+			texture_unit
+			{
+				texture left.PNG
+				colour_op replace
+				tex_address_mode clamp
+			}
+		}
+		pass
+		{
+			ambient 0.0 0.0 0.0
+			diffuse 0.0 0.0 0.0
+			specular 0.500000 0.500000 0.500000 1.000000 12.500000
+			scene_blend add
+		}
+	}
+}
+material Material.002/TEXFACE/bottomright.PNG
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+			ambient 0.500000 0.500000 0.500000 1.000000
+			diffuse 0.800000 0.800000 0.800000 1.000000
+			emissive 0.000000 0.000000 0.000000 1.000000
+			texture_unit
+			{
+				texture bottomright.PNG
+				colour_op replace
+				tex_address_mode clamp
+			}
+		}
+		pass
+		{
+			ambient 0.0 0.0 0.0
+			diffuse 0.0 0.0 0.0
+			specular 0.500000 0.500000 0.500000 1.000000 12.500000
+			scene_blend add
+		}
+	}
+}
+material Material.002/TEXFACE/top.PNG
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+			ambient 0.500000 0.500000 0.500000 1.000000
+			diffuse 0.800000 0.800000 0.800000 1.000000
+			emissive 0.000000 0.000000 0.000000 1.000000
+			texture_unit
+			{
+				texture top.PNG
+				colour_op replace
+				tex_address_mode clamp
+			}
+		}
+		pass
+		{
+			ambient 0.0 0.0 0.0
+			diffuse 0.0 0.0 0.0
+			specular 0.500000 0.500000 0.500000 1.000000 12.500000
+			scene_blend add
+		}
+	}
+}
+material Material.002/TEXFACE/topleft_conc.PNG
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+			ambient 0.500000 0.500000 0.500000 1.000000
+			diffuse 0.800000 0.800000 0.800000 1.000000
+			emissive 0.000000 0.000000 0.000000 1.000000
+			texture_unit
+			{
+				texture topleft_conc.PNG
+				colour_op replace
+				tex_address_mode clamp
+			}
+		}
+		pass
+		{
+			ambient 0.0 0.0 0.0
+			diffuse 0.0 0.0 0.0
+			specular 0.500000 0.500000 0.500000 1.000000 12.500000
+			scene_blend add
+		}
+	}
+}
+material Material.002/TEXFACE/topright.PNG
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+			ambient 0.500000 0.500000 0.500000 1.000000
+			diffuse 0.800000 0.800000 0.800000 1.000000
+			emissive 0.000000 0.000000 0.000000 1.000000
+			texture_unit
+			{
+				texture topright.PNG
+				colour_op replace
+				tex_address_mode clamp
+			}
+		}
+		pass
+		{
+			ambient 0.0 0.0 0.0
+			diffuse 0.0 0.0 0.0
+			specular 0.500000 0.500000 0.500000 1.000000 12.500000
+			scene_blend add
+		}
+	}
+}
+material Material.002/TEXFACE/bottom.PNG
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+			ambient 0.500000 0.500000 0.500000 1.000000
+			diffuse 0.800000 0.800000 0.800000 1.000000
+			emissive 0.000000 0.000000 0.000000 1.000000
+			texture_unit
+			{
+				texture bottom.PNG
+				colour_op replace
+				tex_address_mode clamp
+			}
+		}
+		pass
+		{
+			ambient 0.0 0.0 0.0
+			diffuse 0.0 0.0 0.0
+			specular 0.500000 0.500000 0.500000 1.000000 12.500000
+			scene_blend add
+		}
+	}
+}
+material Material.002/TEXFACE/solid.PNG
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+			ambient 0.500000 0.500000 0.500000 1.000000
+			diffuse 0.800000 0.800000 0.800000 1.000000
+			emissive 0.000000 0.000000 0.000000 1.000000
+			texture_unit
+			{
+				texture solid.PNG
+				colour_op replace
+				tex_address_mode clamp
+			}
+		}
+		pass
+		{
+			ambient 0.0 0.0 0.0
+			diffuse 0.0 0.0 0.0
+			specular 0.500000 0.500000 0.500000 1.000000 12.500000
+			scene_blend add
+		}
+	}
+}
+material Material.002/TEXFACE/bottomright_conc.PNG
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+			ambient 0.500000 0.500000 0.500000 1.000000
+			diffuse 0.800000 0.800000 0.800000 1.000000
+			emissive 0.000000 0.000000 0.000000 1.000000
+			texture_unit
+			{
+				texture bottomright_conc.PNG
+				colour_op replace
+				tex_address_mode clamp
+			}
+		}
+		pass
+		{
+			ambient 0.0 0.0 0.0
+			diffuse 0.0 0.0 0.0
+			specular 0.500000 0.500000 0.500000 1.000000 12.500000
+			scene_blend add
+		}
+	}
+}
+material Material.002/TEXFACE/bottomleft_conc.PNG
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+			ambient 0.500000 0.500000 0.500000 1.000000
+			diffuse 0.800000 0.800000 0.800000 1.000000
+			emissive 0.000000 0.000000 0.000000 1.000000
+			texture_unit
+			{
+				texture bottomleft_conc.PNG
+				colour_op replace
+				tex_address_mode clamp
+			}
+		}
+		pass
+		{
+			ambient 0.0 0.0 0.0
+			diffuse 0.0 0.0 0.0
+			specular 0.500000 0.500000 0.500000 1.000000 12.500000
+			scene_blend add
+		}
+	}
+}
+material Material.002/TEXFACE/topright_conc.PNG
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+			ambient 0.500000 0.500000 0.500000 1.000000
+			diffuse 0.800000 0.800000 0.800000 1.000000
+			emissive 0.000000 0.000000 0.000000 1.000000
+			texture_unit
+			{
+				texture topright_conc.PNG
+				colour_op replace
+				tex_address_mode clamp
+			}
+		}
+		pass
+		{
+			ambient 0.0 0.0 0.0
+			diffuse 0.0 0.0 0.0
+			specular 0.500000 0.500000 0.500000 1.000000 12.500000
+			scene_blend add
+		}
+	}
+}
+material Material.002/TEXFACE/topleft.PNG
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+			ambient 0.500000 0.500000 0.500000 1.000000
+			diffuse 0.800000 0.800000 0.800000 1.000000
+			emissive 0.000000 0.000000 0.000000 1.000000
+			texture_unit
+			{
+				texture topleft.PNG
+				colour_op replace
+				tex_address_mode clamp
+			}
+		}
+		pass
+		{
+			ambient 0.0 0.0 0.0
+			diffuse 0.0 0.0 0.0
+			specular 0.500000 0.500000 0.500000 1.000000 12.500000
+			scene_blend add
+		}
+	}
+}
+material Material.002/TEXFACE/bottomleft.PNG
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+			ambient 0.500000 0.500000 0.500000 1.000000
+			diffuse 0.800000 0.800000 0.800000 1.000000
+			emissive 0.000000 0.000000 0.000000 1.000000
+			texture_unit
+			{
+				texture bottomleft.PNG
+				colour_op replace
+				tex_address_mode clamp
+			}
+		}
+		pass
+		{
+			ambient 0.0 0.0 0.0
+			diffuse 0.0 0.0 0.0
+			specular 0.500000 0.500000 0.500000 1.000000 12.500000
+			scene_blend add
+		}
+	}
+}

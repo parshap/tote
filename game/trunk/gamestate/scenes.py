@@ -54,14 +54,11 @@ class TestScene(Scene):
         Scene.__init__(self, world)
         
         self.spawn_locations = []
-        self.spawn_locations.append((-548, 545))
-        self.spawn_locations.append((-420, 156))
-        self.spawn_locations.append((-530, 194))
-        self.spawn_locations.append((-83, -555))
-        self.spawn_locations.append((230, -506))
-        self.spawn_locations.append((507, 105))
-        self.spawn_locations.append((72, 61))
-        self.spawn_locations.append((-79, -149))       
+        self.spawn_locations.append((-480, 80))
+        self.spawn_locations.append((-400, 480))
+        self.spawn_locations.append((0, -480))
+        self.spawn_locations.append((-480, 0))
+        self.spawn_locations.append((0, 80))       
         # Add boundary lines for map walls.       
         self._setup_level_boundaries(os.path.join("media", "levelbounds.bounds"))
         

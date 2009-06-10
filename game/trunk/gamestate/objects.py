@@ -142,6 +142,8 @@ class MobileObject(GameObject):
         new_pos = (self._position[0] + move_vector[0],
                    self._position[1] + move_vector[1])
         
+        print "Position: (%.2f, %.2f)" % (new_pos[0], new_pos[1])
+        
         # If the object doesn't have a bounding shape then we don't need to
         # worry about collision detection & resolution and can simply update
         # the position and return.

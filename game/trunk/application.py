@@ -267,7 +267,7 @@ class ServerApplication(SchedulerManager):
 
     def process_packet(self, client, packet):
         ptype = type(packet)
-        print "Processing packet=%s: %s from client=%s." % (packet.id, ptype.__name__, client.client_id)
+        #print "Processing packet=%s: %s from client=%s." % (packet.id, ptype.__name__, client.client_id)
 
         # JoinRequest
         if ptype is packets.JoinRequest:
@@ -375,7 +375,7 @@ class ServerApplication(SchedulerManager):
                 update.is_dead == last_update.is_dead:
                 return
 
-        print "Broadcasting update for object id=%s." % object.object_id
+        # print "Broadcasting update for object id=%s." % object.object_id
         self.server.output_broadcast.put_nowait((update, ignore))
         self.last_updates[object] = (self.world.time, update)
 

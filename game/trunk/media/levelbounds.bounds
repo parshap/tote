@@ -1,392 +1,327 @@
 <segments>
-	<segment>
-		<point1 x="-280.0" z="640.0"/>
-		<point2 x="320.0" z="640.0"/>
-		<normal x="0" y="0" z="1"/>
-	</segment>
-	<segment>
-		<point1 x="320.0" z="640.0"/>
-		<point2 x="360.0" z="600.0"/>
-		<normal x="-1" y="0" z="1"/>
-	</segment>
-	<segment>
-		<point1 x="360.0" z="600.0"/>
-		<point2 x="360.0" z="520.0"/>
-		<normal x="-1" y="0" z="0"/>
-	</segment>
-	<segment>
-		<point1 x="360.0" z="520.0"/>
-		<point2 x="440.0" z="440.0"/>
-		<normal x="-1" y="0" z="1"/>
-	</segment>
-	<segment>
-		<point1 x="440.0" z="440.0"/>
-		<point2 x="440.0" z="360.0"/>
-		<normal x="-1" y="0" z="0"/>
-	</segment>
-	<segment>
-		<point1 x="440.0" z="360.0"/>
-		<point2 x="640.0" z="160.0"/>
-		<normal x="-1" y="0" z="1"/>
-	</segment>
-	<segment>
-		<point1 x="640.0" z="160.0"/>
-		<point2 x="640.0" z="-80.0"/>
-		<normal x="-1" y="0" z="0"/>
-	</segment>
-	<segment>
-		<point1 x="640.0" z="-80.0"/>
-		<point2 x="520.0" z="-200.0"/>
-		<normal x="-1" y="0" z="-1"/>
-	</segment>
-	<segment>
-		<point1 x="520.0" z="-200.0"/>
-		<point2 x="400.0" z="-200.0"/>
-		<normal x="0" y="0" z="-1"/>
-	</segment>
-	<segment>
-		<point1 x="400.0" z="-200.0"/>
-		<point2 x="280.0" z="-80.0"/>
-		<normal x="1" y="0" z="-1"/>
-	</segment>
-	<segment>
-		<point1 x="280.0" z="-80.0"/>
-		<point2 x="280.0" z="0.0"/>
-		<normal x="1" y="0" z="0"/>
+		<segment>
+		<point1 x="-360.0" z="595.0"/>
+		<point2 x="-360.0" z="590.0"/>
+		<normal x="0.0" y="0" z="1.0"/>
 	</segment>
 	<segment>
-		<point1 x="280.0" z="0.0"/>
-		<point2 x="160.0" z="0.0"/>
-		<normal x="0" y="0" z="-1"/>
+		<point1 x="-360.0" z="590.0"/>
+		<point2 x="350.0" z="595.0"/>
+		<normal x="0.0" y="0" z="1.0"/>
 	</segment>
 	<segment>
-		<point1 x="160.0" z="0.0"/>
-		<point2 x="160.0" z="-120.0"/>
-		<normal x="-1" y="0" z="0"/>
+		<point1 x="350.0" z="595.0"/>
+		<point2 x="350.0" z="435.0"/>
+		<normal x="-1.0" y="0" z="0.0"/>
 	</segment>
 	<segment>
-		<point1 x="160.0" z="-120.0"/>
-		<point2 x="120.0" z="-160.0"/>
-		<normal x="-1" y="0" z="-1"/>
+		<point1 x="350.0" z="435.0"/>
+		<point2 x="430.0" z="435.0"/>
+		<normal x="0.0" y="0" z="1.0"/>
 	</segment>
 	<segment>
-		<point1 x="120.0" z="-160.0"/>
-		<point2 x="-40.0" z="-160.0"/>
-		<normal x="0" y="0" z="-1"/>
+		<point1 x="430.0" z="435.0"/>
+		<point2 x="430.0" z="195.0"/>
+		<normal x="-1.0" y="0" z="0.0"/>
 	</segment>
 	<segment>
-		<point1 x="-40.0" z="-160.0"/>
-		<point2 x="-45.0" z="-280.0"/>
-		<normal x="-1" y="0" z="0"/>
+		<point1 x="430.0" z="195.0"/>
+		<point2 x="510.0" z="195.0"/>
+		<normal x="0.0" y="0" z="1.0"/>
 	</segment>
 	<segment>
-		<point1 x="-45.0" z="-280.0"/>
-		<point2 x="-80.0" z="-320.0"/>
-		<normal x="-1" y="0" z="-1"/>
+		<point1 x="510.0" z="195.0"/>
+		<point2 x="510.0" z="115.0"/>
+		<normal x="-1.0" y="0" z="0.0"/>
 	</segment>
 	<segment>
-		<point1 x="-80.0" z="-320.0"/>
-		<point2 x="-160.0" z="-320.0"/>
-		<normal x="0" y="0" z="-1"/>
+		<point1 x="510.0" z="115.0"/>
+		<point2 x="590.0" z="115.0"/>
+		<normal x="0.0" y="0" z="1.0"/>
 	</segment>
 	<segment>
-		<point1 x="-160.0" z="-320.0"/>
-		<point2 x="-360.0" z="-520.0"/>
-		<normal x="-1" y="0" z="-1"/>
+		<point1 x="590.0" z="115.0"/>
+		<point2 x="590.0" z="-120.0"/>
+		<normal x="-1.0" y="0" z="0.0"/>
 	</segment>
 	<segment>
-		<point1 x="-360.0" z="-520.0"/>
-		<point2 x="-360.0" z="-560.0"/>
-		<normal x="-1" y="0" z="0"/>
+		<point1 x="590.0" z="-120.0"/>
+		<point2 x="510.0" z="-120.0"/>
+		<normal x="0.0" y="0" z="-1.0"/>
 	</segment>
 	<segment>
-		<point1 x="-360.0" z="-560.0"/>
-		<point2 x="-440.0" z="-640.0"/>
-		<normal x="-1" y="0" z="-1"/>
+		<point1 x="510.0" z="-120.0"/>
+		<point2 x="510.0" z="-200.0"/>
+		<normal x="-1.0" y="0" z="0.0"/>
 	</segment>
 	<segment>
-		<point1 x="-440.0" z="-640.0"/>
-		<point2 x="-560.0" z="-640.0"/>
-		<normal x="0" y="0" z="-1"/>
+		<point1 x="510.0" z="-200.0"/>
+		<point2 x="360.0" z="-200.0"/>
+		<normal x="0.0" y="0" z="-1.0"/>
 	</segment>
 	<segment>
-		<point1 x="-560.0" z="-640.0"/>
-		<point2 x="-640.0" z="-560.0"/>
-		<normal x="1" y="0" z="-1"/>
+		<point1 x="360.0" z="-200.0"/>
+		<point2 x="360.0" z="-120.0"/>
+		<normal x="1.0" y="0" z="0.0"/>
 	</segment>
 	<segment>
-		<point1 x="-640.0" z="-560.0"/>
-		<point2 x="-640.0" z="-480.0"/>
-		<normal x="1" y="0" z="0"/>
+		<point1 x="360.0" z="-120.0"/>
+		<point2 x="280.0" z="-120.0"/>
+		<normal x="0.0" y="0" z="-1.0"/>
 	</segment>
 	<segment>
-		<point1 x="-640.0" z="-480.0"/>
-		<point2 x="-560.0" z="-400.0"/>
-		<normal x="1" y="0" z="1"/>
+		<point1 x="280.0" z="-120.0"/>
+		<point2 x="280.0" z="-40.0"/>
+		<normal x="1.0" y="0" z="0.0"/>
 	</segment>
 	<segment>
-		<point1 x="-560.0" z="-400.0"/>
-		<point2 x="-560.0" z="-280.0"/>
-		<normal x="1" y="0" z="0"/>
+		<point1 x="280.0" z="-40.0"/>
+		<point2 x="190.0" z="-40.0"/>
+		<normal x="0.0" y="0" z="-1.0"/>
 	</segment>
 	<segment>
-		<point1 x="-560.0" z="-280.0"/>
-		<point2 x="-600.0" z="-280.0"/>
-		<normal x="0" y="0" z="-1"/>
+		<point1 x="190.0" z="-40.0"/>
+		<point2 x="190.0" z="-200.0"/>
+		<normal x="-1.0" y="0" z="0.0"/>
 	</segment>
 	<segment>
-		<point1 x="-600.0" z="-280.0"/>
-		<point2 x="-640.0" z="-240.0"/>
-		<normal x="1" y="0" z="-1"/>
+		<point1 x="190.0" z="-200.0"/>
+		<point2 x="-50.0" z="-200.0"/>
+		<normal x="0.0" y="0" z="-1.0"/>
 	</segment>
 	<segment>
-		<point1 x="-640.0" z="-240.0"/>
-		<point2 x="-640.0" z="280.0"/>
-		<normal x="1" y="0" z="0"/>
+		<point1 x="-50.0" z="-200.0"/>
+		<point2 x="-50.0" z="-360.0"/>
+		<normal x="-1.0" y="0" z="0.0"/>
 	</segment>
 	<segment>
-		<point1 x="-640.0" z="280.0"/>
-		<point2 x="-600.0" z="320.0"/>
-		<normal x="1" y="0" z="1"/>
+		<point1 x="-50.0" z="-360.0"/>
+		<point2 x="-130.0" z="-360.0"/>
+		<normal x="0.0" y="0" z="-1.0"/>
 	</segment>
 	<segment>
-		<point1 x="-600.0" z="320.0"/>
-		<point2 x="-520.0" z="320.0"/>
-		<normal x="0" y="0" z="1"/>
+		<point1 x="-130.0" z="-360.0"/>
+		<point2 x="-130.0" z="-440.0"/>
+		<normal x="-1.0" y="0" z="0.0"/>
 	</segment>
 	<segment>
-		<point1 x="-520.0" z="320.0"/>
-		<point2 x="-480.0" z="360.0"/>
-		<normal x="1" y="0" z="1"/>
+		<point1 x="-130.0" z="-440.0"/>
+		<point2 x="-210.0" z="-440.0"/>
+		<normal x="0.0" y="0" z="-1.0"/>
 	</segment>
 	<segment>
-		<point1 x="-480.0" z="360.0"/>
-		<point2 x="-480.0" z="400.0"/>
-		<normal x="1" y="0" z="0"/>
+		<point1 x="-210.0" z="-440.0"/>
+		<point2 x="-210.0" z="-520.0"/>
+		<normal x="-1.0" y="0" z="0.0"/>
 	</segment>
 	<segment>
-		<point1 x="-480.0" z="400.0"/>
-		<point2 x="-400.0" z="480.0"/>
-		<normal x="1" y="0" z="1"/>
+		<point1 x="-210.0" z="-520.0"/>
+		<point2 x="-290.0" z="-520.0"/>
+		<normal x="0.0" y="0" z="-1.0"/>
 	</segment>
 	<segment>
-		<point1 x="-400.0" z="480.0"/>
-		<point2 x="-360.0" z="480.0"/>
-		<normal x="0" y="0" z="1"/>
+		<point1 x="-290.0" z="-520.0"/>
+		<point2 x="-290.0" z="-600.0"/>
+		<normal x="-1.0" y="0" z="0.0"/>
 	</segment>
 	<segment>
-		<point1 x="-360.0" z="480.0"/>
-		<point2 x="-320.0" z="520.0"/>
-		<normal x="1" y="0" z="1"/>
+		<point1 x="-290.0" z="-600.0"/>
+		<point2 x="-520.0" z="-600.0"/>
+		<normal x="0.0" y="0" z="-1.0"/>
 	</segment>
 	<segment>
-		<point1 x="-320.0" z="520.0"/>
-		<point2 x="-320.0" z="600.0"/>
-		<normal x="1" y="0" z="0"/>
+		<point1 x="-520.0" z="-600.0"/>
+		<point2 x="-520.0" z="-520.0"/>
+		<normal x="1.0" y="0" z="0.0"/>
 	</segment>
 	<segment>
-		<point1 x="-320.0" z="600.0"/>
-		<point2 x="-280.0" z="640.0"/>
-		<normal x="1" y="0" z="1"/>
+		<point1 x="-520.0" z="-520.0"/>
+		<point2 x="-600.0" z="-520.0"/>
+		<normal x="0.0" y="0" z="-1.0"/>
 	</segment>
 	<segment>
-		<point1 x="160.0" z="400.0"/>
-		<point2 x="240.0" z="400.0"/>
-		<normal x="0" y="0" z="-1"/>
+		<point1 x="-600.0" z="-520.0"/>
+		<point2 x="-600.0" z="-285.0"/>
+		<normal x="1.0" y="0" z="0.0"/>
 	</segment>
 	<segment>
-		<point1 x="240.0" z="400.0"/>
-		<point2 x="320.0" z="320.0"/>
-		<normal x="1" y="0" z="-1"/>
+		<point1 x="-600.0" z="-285.0"/>
+		<point2 x="-520.0" z="-285.0"/>
+		<normal x="0.0" y="0" z="1.0"/>
 	</segment>
 	<segment>
-		<point1 x="320.0" z="320.0"/>
-		<point2 x="360.0" z="320.0"/>
-		<normal x="0" y="0" z="-1"/>
+		<point1 x="-520.0" z="-285.0"/>
+		<point2 x="-520.0" z="-200.0"/>
+		<normal x="1.0" y="0" z="0.0"/>
 	</segment>
 	<segment>
-		<point1 x="360.0" z="320.0"/>
-		<point2 x="400.0" z="280.0"/>
-		<normal x="1" y="0" z="-1"/>
+		<point1 x="-520.0" z="-200.0"/>
+		<point2 x="-600.0" z="-200.0"/>
+		<normal x="0.0" y="0" z="-1.0"/>
 	</segment>
 	<segment>
-		<point1 x="400.0" z="280.0"/>
-		<point2 x="280.0" z="160.0"/>
-		<normal x="1" y="0" z="1"/>
+		<point1 x="-600.0" z="-200.0"/>
+		<point2 x="-600.0" z="275.0"/>
+		<normal x="1.0" y="0" z="0.0"/>
 	</segment>
 	<segment>
-		<point1 x="280.0" z="160.0"/>
-		<point2 x="280.0" z="80.0"/>
-		<normal x="1" y="0" z="0"/>
+		<point1 x="-600.0" z="275.0"/>
+		<point2 x="-520.0" z="275.0"/>
+		<normal x="0.0" y="0" z="1.0"/>
 	</segment>
 	<segment>
-		<point1 x="280.0" z="80.0"/>
-		<point2 x="160.0" z="80.0"/>
-		<normal x="0" y="0" z="1"/>
+		<point1 x="-520.0" z="275.0"/>
+		<point2 x="-520.0" z="435.0"/>
+		<normal x="1.0" y="0" z="0.0"/>
 	</segment>
 	<segment>
-		<point1 x="160.0" z="80.0"/>
-		<point2 x="160.0" z="240.0"/>
-		<normal x="-1" y="0" z="0"/>
+		<point1 x="-520.0" z="435.0"/>
+		<point2 x="-360.0" z="435.0"/>
+		<normal x="0.0" y="0" z="1.0"/>
 	</segment>
 	<segment>
-		<point1 x="160.0" z="240.0"/>
-		<point2 x="120.0" z="280.0"/>
-		<normal x="-1" y="0" z="1"/>
+		<point1 x="-360.0" z="435.0"/>
+		<point2 x="-360.0" z="600.0"/>
+		<normal x="1.0" y="0" z="0.0"/>
 	</segment>
 	<segment>
-		<point1 x="120.0" z="280.0"/>
-		<point2 x="120.0" z="360.0"/>
-		<normal x="-1" y="0" z="0"/>
+		<point1 x="-450.0" z="360.0"/>
+		<point2 x="-40.0" z="360.0"/>
+		<normal x="0.0" y="0" z="-1.0"/>
 	</segment>
 	<segment>
-		<point1 x="120.0" z="360.0"/>
-		<point2 x="160.0" z="400.0"/>
-		<normal x="-1" y="0" z="-1"/>
+		<point1 x="-40.0" z="360.0"/>
+		<point2 x="-40.0" z="195.0"/>
+		<normal x="1.0" y="0" z="0.0"/>
 	</segment>
 	<segment>
-		<point1 x="-280.0" z="440.0"/>
-		<point2 x="-240.0" z="440.0"/>
-		<normal x="0" y="0" z="-1"/>
+		<point1 x="-40.0" z="195.0"/>
+		<point2 x="-200.0" z="195.0"/>
+		<normal x="0.0" y="0" z="1.0"/>
 	</segment>
 	<segment>
-		<point1 x="-240.0" z="440.0"/>
-		<point2 x="-200.0" z="400.0"/>
-		<normal x="1" y="0" z="-1"/>
+		<point1 x="-200.0" z="195.0"/>
+		<point2 x="-200.0" z="35.0"/>
+		<normal x="1.0" y="0" z="0.0"/>
 	</segment>
 	<segment>
-		<point1 x="-200.0" z="400.0"/>
-		<point2 x="0.0" z="400.0"/>
-		<normal x="0" y="0" z="-1"/>
+		<point1 x="-200.0" z="35.0"/>
+		<point2 x="-290.0" z="35.0"/>
+		<normal x="0.0" y="0" z="1.0"/>
 	</segment>
 	<segment>
-		<point1 x="0.0" z="400.0"/>
-		<point2 x="40.0" z="360.0"/>
-		<normal x="1" y="0" z="-1"/>
+		<point1 x="-290.0" z="35.0"/>
+		<point2 x="-290.0" z="275.0"/>
+		<normal x="-1.0" y="0" z="0.0"/>
 	</segment>
 	<segment>
-		<point1 x="40.0" z="360.0"/>
-		<point2 x="40.0" z="280.0"/>
-		<normal x="1" y="0" z="0"/>
+		<point1 x="-290.0" z="275.0"/>
+		<point2 x="-450.0" z="275.0"/>
+		<normal x="0.0" y="0" z="1.0"/>
 	</segment>
 	<segment>
-		<point1 x="40.0" z="280.0"/>
-		<point2 x="0.0" z="240.0"/>
-		<normal x="1" y="0" z="1"/>
+		<point1 x="-450.0" z="275.0"/>
+		<point2 x="-450.0" z="360.0"/>
+		<normal x="-1.0" y="0" z="0.0"/>
 	</segment>
 	<segment>
-		<point1 x="0.0" z="240.0"/>
-		<point2 x="-120.0" z="240.0"/>
-		<normal x="0" y="0" z="1"/>
+		<point1 x="30.0" z="360.0"/>
+		<point2 x="360.0" z="360.0"/>
+		<normal x="0.0" y="0" z="-1.0"/>
 	</segment>
 	<segment>
-		<point1 x="-120.0" z="240.0"/>
-		<point2 x="-160.0" z="200.0"/>
-		<normal x="1" y="0" z="1"/>
+		<point1 x="360.0" z="360.0"/>
+		<point2 x="360.0" z="115.0"/>
+		<normal x="1.0" y="0" z="0.0"/>
 	</segment>
 	<segment>
-		<point1 x="-160.0" z="200.0"/>
-		<point2 x="-160.0" z="40.0"/>
-		<normal x="1" y="0" z="0"/>
+		<point1 x="360.0" z="115.0"/>
+		<point2 x="280.0" z="115.0"/>
+		<normal x="0.0" y="0" z="1.0"/>
 	</segment>
 	<segment>
-		<point1 x="-160.0" z="40.0"/>
-		<point2 x="-320.0" z="40.0"/>
-		<normal x="0" y="0" z="1"/>
+		<point1 x="280.0" z="115.0"/>
+		<point2 x="280.0" z="35.0"/>
+		<normal x="1.0" y="0" z="0.0"/>
 	</segment>
 	<segment>
-		<point1 x="-320.0" z="40.0"/>
-		<point2 x="-320.0" z="280.0"/>
-		<normal x="-1" y="0" z="0"/>
+		<point1 x="280.0" z="35.0"/>
+		<point2 x="190.0" z="35.0"/>
+		<normal x="0.0" y="0" z="1.0"/>
 	</segment>
 	<segment>
-		<point1 x="-320.0" z="280.0"/>
-		<point2 x="-360.0" z="320.0"/>
-		<normal x="-1" y="0" z="1"/>
+		<point1 x="190.0" z="35.0"/>
+		<point2 x="190.0" z="195.0"/>
+		<normal x="-1.0" y="0" z="0.0"/>
 	</segment>
 	<segment>
-		<point1 x="-360.0" z="320.0"/>
-		<point2 x="-400.0" z="320.0"/>
-		<normal x="0" y="0" z="1"/>
+		<point1 x="190.0" z="195.0"/>
+		<point2 x="30.0" z="195.0"/>
+		<normal x="0.0" y="0" z="1.0"/>
 	</segment>
 	<segment>
-		<point1 x="-400.0" z="320.0"/>
-		<point2 x="-400.0" z="360.0"/>
-		<normal x="-1" y="0" z="0"/>
+		<point1 x="30.0" z="195.0"/>
+		<point2 x="30.0" z="369.0"/>
+		<normal x="-1.0" y="0" z="0.0"/>
 	</segment>
 	<segment>
-		<point1 x="-400.0" z="360.0"/>
-		<point2 x="-360.0" z="400.0"/>
-		<normal x="-1" y="0" z="-1"/>
+		<point1 x="-290.0" z="-40.0"/>
+		<point2 x="-200.0" z="-40.0"/>
+		<normal x="0.0" y="0" z="-1.0"/>
 	</segment>
 	<segment>
-		<point1 x="-360.0" z="400.0"/>
-		<point2 x="-320.0" z="400.0"/>
-		<normal x="0" y="0" z="-1"/>
+		<point1 x="-200.0" z="-40.0"/>
+		<point2 x="-200.0" z="-200.0"/>
+		<normal x="1.0" y="0" z="0.0"/>
 	</segment>
 	<segment>
-		<point1 x="-320.0" z="400.0"/>
-		<point2 x="-280.0" z="440.0"/>
-		<normal x="-1" y="0" z="-1"/>
+		<point1 x="-200.0" z="-200.0"/>
+		<point2 x="-120.0" z="-200.0"/>
+		<normal x="0.0" y="0" z="-1.0"/>
 	</segment>
 	<segment>
-		<point1 x="-320.0" z="-40.0"/>
-		<point2 x="-160.0" z="-40.0"/>
-		<normal x="0" y="0" z="-1"/>
+		<point1 x="-120.0" z="-200.0"/>
+		<point2 x="-120.0" z="-285.0"/>
+		<normal x="1.0" y="0" z="0.0"/>
 	</segment>
 	<segment>
-		<point1 x="-160.0" z="-40.0"/>
-		<point2 x="-160.0" z="-120.0"/>
-		<normal x="1" y="0" z="0"/>
+		<point1 x="-120.0" z="-285.0"/>
+		<point2 x="-200.0" z="-285.0"/>
+		<normal x="0.0" y="0" z="1.0"/>
 	</segment>
 	<segment>
-		<point1 x="-160.0" z="-120.0"/>
-		<point2 x="-120.0" z="-160.0"/>
-		<normal x="1" y="0" z="-1"/>
+		<point1 x="-200.0" z="-285.0"/>
+		<point2 x="-200.0" z="-365.0"/>
+		<normal x="1.0" y="0" z="0.0"/>
 	</segment>
 	<segment>
-		<point1 x="-120.0" z="-160.0"/>
-		<point2 x="-120.0" z="-240.0"/>
-		<normal x="1" y="0" z="0"/>
+		<point1 x="-200.0" z="-365.0"/>
+		<point2 x="-370.0" z="-365.0"/>
+		<normal x="0.0" y="0" z="1.0"/>
 	</segment>
 	<segment>
-		<point1 x="-120.0" z="-240.0"/>
-		<point2 x="-200.0" z="-240.0"/>
-		<normal x="0" y="0" z="1"/>
+		<point1 x="-370.0" z="-365.0"/>
+		<point2 x="-370.0" z="-285.0"/>
+		<normal x="-1.0" y="0" z="0.0"/>
 	</segment>
 	<segment>
-		<point1 x="-200.0" z="-240.0"/>
-		<point2 x="-400.0" z="-440.0"/>
-		<normal x="1" y="0" z="1"/>
+		<point1 x="-370.0" z="-285.0"/>
+		<point2 x="-450.0" z="-285.0"/>
+		<normal x="0.0" y="0" z="1.0"/>
 	</segment>
 	<segment>
-		<point1 x="-400.0" z="-440.0"/>
-		<point2 x="-440.0" z="-400.0"/>
-		<normal x="-1" y="0" z="1"/>
+		<point1 x="-450.0" z="-285.0"/>
+		<point2 x="-450.0" z="-200.0"/>
+		<normal x="-1.0" y="0" z="0.0"/>
 	</segment>
 	<segment>
-		<point1 x="-440.0" z="-400.0"/>
-		<point2 x="-480.0" z="-400.0"/>
-		<normal x="0" y="0" z="1"/>
+		<point1 x="-450.0" z="-200.0"/>
+		<point2 x="-290.0" z="-200.0"/>
+		<normal x="0.0" y="0" z="-1.0"/>
 	</segment>
-	<segment>
-		<point1 x="-480.0" z="-400.0"/>
-		<point2 x="-480.0" z="-280.0"/>
-		<normal x="-1" y="0" z="0"/>
-	</segment>
-	<segment>
-		<point1 x="-480.0" z="-280.0"/>
-		<point2 x="-360.0" z="-280.0"/>
-		<normal x="0" y="0" z="-1"/>
-	</segment>
-	<segment>
-		<point1 x="-360.0" z="-280.0"/>
-		<point2 x="-320.0" z="-240.0"/>
-		<normal x="-1" y="0" z="-1"/>
-	</segment>
-	<segment>
-		<point1 x="-320.0" z="-240.0"/>
-		<point2 x="-320.0" z="-40.0"/>
-		<normal x="-1" y="0" z="0"/>
+		<segment>
+		<point1 x="-290.0" z="-200.0"/>
+		<point2 x="-290.0" z="-40.0"/>
+		<normal x="-1.0" y="0" z="0.0"/>
 	</segment>
 </segments>
