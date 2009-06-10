@@ -387,6 +387,13 @@ class PlayerNode(MobileGameNode):
         self.set_mesh(mesh_name)
         self.mesh.setMaterialName("Ninja-" + player.element.type)
         
+        # Create the billboarded health bar display.
+        bset = self.sceneManager.createBillboardSet(self._unique(), 2)
+        bset.setMaterialName("white")
+        self.bar_health = bset.createBillboard(0, -70, 0)
+        self.on_health_changed(player, player.health)
+        self.sceneNode.attachObject(bset)
+        
         self.corpse = None
         
         # Listen to the events we care about.
@@ -397,6 +404,7 @@ class PlayerNode(MobileGameNode):
         player.ability_instance_created += self.on_ability_instance_created
         player.element_changed += self.on_element_changed
         player.is_dead_changed += self.on_is_dead_changed
+        player.health_changed += self.on_health_changed
         
         # Hide the player if they are dead.
         self.sceneNode.setVisible(not player.is_dead)
@@ -422,6 +430,7 @@ class PlayerNode(MobileGameNode):
         self.object.ability_instance_created -= self.on_ability_instance_created
         self.object.element_changed -= self.on_element_changed
         self.object.is_dead_changed -= self.on_is_dead_changed
+        self.object.health_changed -= self.on_health_changed
         if self.corpse is not None:
             self.corpse.destroy()
             self.corpse = None
@@ -441,6 +450,14 @@ class PlayerNode(MobileGameNode):
         self.sceneNode.setVisible(not player.is_dead)
         if player.is_dead:
             self.spawn_corpse()
+    
+    def on_health_changed(self, player, value):
+        p = player.health / player.max_health
+        width = p * 120
+        r, g, b = 1 - p, p, 0
+        color = ogre.ColourValue(r, g, b, .5)
+        self.bar_health.setDimensions(width, 20)
+        self.bar_health.setColour(color)
         
     def on_element_changed(self, player):
         self.mesh.setMaterialName("Ninja-" + player.element.type)
