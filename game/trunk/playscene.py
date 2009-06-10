@@ -626,7 +626,6 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener, SchedulerManager):
                             object.is_moving = False
                     if object.type == "player":
                         if packet.is_dead:
-                            print self.game_nodes[object.object_id]
                             object.is_dead = packet.is_dead
         
         # ObjectStatusUpdate
@@ -655,7 +654,7 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener, SchedulerManager):
         
         # AbilityUsed
         elif ptype is packets.AbilityUsed:
-            print "Using ability id=%s on player_id=%s" % (packet.ability_id, packet.object_id)
+            # print "Using ability id=%s on player_id=%s" % (packet.ability_id, packet.object_id)
             player = self.world.objects_hash[packet.object_id]
             player.use_ability(packet.ability_id)
             

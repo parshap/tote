@@ -59,7 +59,7 @@ class EarthPrimaryInstance(AbilityInstance):
             self.player.position, [self.player], objects.Player)
         for player in colliders:
             if player not in self.hit_players:
-                print "Earth Primary ability collided with %s players." % (len(colliders))
+                # print "Earth Primary ability collided with %s players." % (len(colliders))
                 player.apply_damage(self.damage, self.player, 101)
                 self.hit_players.append(player)
         self.duration -= dt
@@ -122,7 +122,7 @@ class EarthHookInstance(AbilityInstance):
     def on_collided(self, object_collided_with):
         if object_collided_with.type == "player":
             if self.player.world.is_master:
-                print "hook collided with player"
+                # print "hook collided with player"
                 if not object_collided_with.is_hooked:
                     self.player_hooked = object_collided_with
                     object_collided_with.is_hooked = True
@@ -156,7 +156,7 @@ class EarthEarthquakeInstance(AbilityInstance):
         # if the ability has expired...
         self.time_lived += dt
         if self.time_lived >= self.duration:
-            print "Earthquake effect destroyed"
+            # print "Earthquake effect destroyed"
             self.expire()
             return
         if self.player.world.is_master:
@@ -507,7 +507,7 @@ class AirGustOfWindInstance(AbilityInstance):
                 force_vector = CollisionDetector.normalise_vector(force_vector)
                 player.force_vector = (force_vector[0] * self.starting_strength,
                     force_vector[1] * self.starting_strength)
-                print "Gust of wind collided with another player!"
+                # print "Gust of wind collided with another player!"
                 
         # end the effect
         self.expire()
@@ -675,8 +675,6 @@ class WaterWaterGushInstance(AbilityInstance):
         AbilityInstance.run(self)
         # hackish implementation
         # @todo: make this less hackish
-        print "%i, %i" % self.player.last_position
-        print "%i, %i" % self.player.position
         
         if self.player.world.is_master:
             i = 0
@@ -693,7 +691,7 @@ class WaterWaterGushInstance(AbilityInstance):
                         if not already_collided[collider]:
                             collider.apply_damage(self.damage, self.player, 402)
                             already_collided[collider] = True
-                            print "Water Gush collided with another player!"
+                            # print "Water Gush collided with another player!"
                     else:
                         self.has_collided = True
                 move_vector = (sample_position[0] - self.player.position[0], sample_position[1] - self.player.position[1])
@@ -745,7 +743,7 @@ class WaterIceBurstInstance(AbilityInstance):
         AbilityInstance.run(self)        
         self.player.is_invulnerable = True
         self.player.is_immobilized = True
-        print "Player invulnerable for 2 seconds!"
+        # print "Player invulnerable for 2 seconds!"
             
     def update(self, dt):
         AbilityInstance.update(self, dt)
