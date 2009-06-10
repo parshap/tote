@@ -7,6 +7,12 @@ class Element(object):
         self.player = player
         self.type = type
         self.last_ability_times = defaultdict(int)
+        self.player.is_dead_changed += self.on_is_dead_changed
+        
+    def on_is_dead_changed(self, player):
+        if player.is_dead:
+            for ability_name in self.last_ability_times:
+                self.last_ability_times[ability_name] = 0
         
     def use_ability(self, ability_id):
         """
