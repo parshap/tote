@@ -1,10 +1,10 @@
-import pyglet.media as media
-
-
 """
 GameAudioPlayer is a complete interface for playing sounds and music using pyglet.media.
 It currently only supports .wav media files.
 """
+
+import pyglet.media as media
+
 _sources = { }
 _bg_music_player = None
 _bg_music_source = None
