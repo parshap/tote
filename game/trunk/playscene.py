@@ -641,7 +641,17 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener, SchedulerManager):
         # ObjectRemove
         elif ptype is packets.ObjectRemove:
             object = self.world.objects_hash[packet.object_id]
-            self.world.remove_object(object)
+            if object.type == "player" and object.is_dead:
+                # This is a player that probably just died. We will delay the
+                # object's removal from the world for a short moment so that
+                # objects can still collide with it. This is a fix to the
+                # killing ability not showing collision with the player.
+                # @todo: Fix this bug another way - this is putting the client
+                # (slightly) out of synch with the server by keeping the object
+                # around in the world.
+                self.schedule(.25, self.world.remove_object, object)
+            else:
+                self.world.remove_object(object)
         
         # AbilityUsed
         elif ptype is packets.AbilityUsed:
@@ -737,7 +747,6 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener, SchedulerManager):
         
     def on_player_is_dead_changed(self, player):
         if self.player.is_dead and self.is_round_active:
-            print "setting player to dead id=", player.object_id
             # Show the element selection screen after 3 seconds.
             self.schedule(3, self.gui.element_selection.show)
 
