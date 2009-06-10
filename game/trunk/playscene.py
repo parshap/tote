@@ -345,131 +345,98 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener, SchedulerManager):
         sceneLoader.parseDotScene()
         
         # Place volcanoes
-        volcano1_node = self.sceneManager.getRootSceneNode().createChildSceneNode("volc1")
-        v1_particle = volcano1_node.createChildSceneNode("volc1_particle")
-        volc1 = self.sceneManager.createEntity("volcano1", "volcano.mesh")
-        volcano1_node.attachObject(volc1)
-        v1system =  self.sceneManager.createParticleSystem("v1system", "VolcanoEruption")
-        v1_particle.attachObject(v1system)
-        volcano1_node.setPosition(0, 0, 0)
-        v1_particle.setPosition(0, 15, -5)
-        v1_particle.setScale(10,10,10)
-        v1_obj = gamestate.objects.GameObject(self.world)
-        v1_obj.isPassable = False
-        v1_obj.bounding_shape = gamestate.collision.BoundingCircle(30)
-        v1_obj.position = (0, 0)
-        self.world.add_object(v1_obj)
+#        volcano1_node = self.sceneManager.getRootSceneNode().createChildSceneNode("volc1")
+#        v1_particle = volcano1_node.createChildSceneNode("volc1_particle")
+#        volc1 = self.sceneManager.createEntity("volcano1", "volcano.mesh")
+#        volcano1_node.attachObject(volc1)
+#        v1system =  self.sceneManager.createParticleSystem("v1system", "VolcanoEruption")
+#        v1_particle.attachObject(v1system)
+#        volcano1_node.setPosition(0, 0, 0)
+#        v1_particle.setPosition(0, 15, -5)
+#        v1_particle.setScale(10,10,10)
+
         
-        volcano2_node = self.sceneManager.getRootSceneNode().createChildSceneNode("volc2")
-        v2_particle = volcano2_node.createChildSceneNode("volc2_particle")
-        volc2 = self.sceneManager.createEntity("volcano2", "volcano.mesh")
-        volcano2_node.attachObject(volc2)
-        v2system =  self.sceneManager.createParticleSystem("v2system", "VolcanoEruption")
-        v2_particle.attachObject(v2system)
-        volcano2_node.setPosition(440, 0, 0)
-        v2_particle.setPosition(0, 15, -5)
-        v2_particle.setScale(10,10,10)
-        v2_obj = gamestate.objects.GameObject(self.world)
-        v2_obj.isPassable = False
-        v2_obj.bounding_shape = gamestate.collision.BoundingCircle(30)
-        v2_obj.position = (440, 0)
-        self.world.add_object(v2_obj)
+#        volcano2_node = self.sceneManager.getRootSceneNode().createChildSceneNode("volc2")
+#        v2_particle = volcano2_node.createChildSceneNode("volc2_particle")
+#        volc2 = self.sceneManager.createEntity("volcano2", "volcano.mesh")
+#        volcano2_node.attachObject(volc2)
+#        v2system =  self.sceneManager.createParticleSystem("v2system", "VolcanoEruption")
+#        v2_particle.attachObject(v2system)
+#        volcano2_node.setPosition(440, 0, 0)
+#        v2_particle.setPosition(0, 15, -5)
+#        v2_particle.setScale(10,10,10)
         
-        volcano3_node = self.sceneManager.getRootSceneNode().createChildSceneNode("volc3")
-        v3_particle = volcano3_node.createChildSceneNode("volc3_particle")
-        volc3 = self.sceneManager.createEntity("volcano3", "volcano.mesh")
-        volcano3_node.attachObject(volc3)
-        v3system =  self.sceneManager.createParticleSystem("v3system", "VolcanoEruption")
-        v3_particle.attachObject(v3system)
-        volcano3_node.setPosition(-440, 0, 440)
-        v3_particle.setPosition(0, 15, -5)
-        v3_particle.setScale(10,10,10)
-        v3_obj = gamestate.objects.GameObject(self.world)
-        v3_obj.isPassable = False
-        v3_obj.bounding_shape = gamestate.collision.BoundingCircle(30)
-        v3_obj.position = (-440, 440)
-        self.world.add_object(v3_obj)
+#        volcano3_node = self.sceneManager.getRootSceneNode().createChildSceneNode("volc3")
+#        v3_particle = volcano3_node.createChildSceneNode("volc3_particle")
+#        volc3 = self.sceneManager.createEntity("volcano3", "volcano.mesh")
+#        volcano3_node.attachObject(volc3)
+#        v3system =  self.sceneManager.createParticleSystem("v3system", "VolcanoEruption")
+#        v3_particle.attachObject(v3system)
+#        volcano3_node.setPosition(-440, 0, 440)
+#        v3_particle.setPosition(0, 15, -5)
+#        v3_particle.setScale(10,10,10)
         
-        volcano4_node = self.sceneManager.getRootSceneNode().createChildSceneNode("volc4")
-        v4_particle = volcano4_node.createChildSceneNode("volc4_particle")
-        volc4 = self.sceneManager.createEntity("volcano4", "volcano.mesh")
-        volcano4_node.attachObject(volc4)
-        v4system =  self.sceneManager.createParticleSystem("v4system", "VolcanoEruption")
-        v4_particle.attachObject(v4system)
-        volcano4_node.setPosition(-200, 0, -400)
-        v4_particle.setPosition(0, 15, -5)
-        v4_particle.setScale(10,10,10)
-        v4_obj = gamestate.objects.GameObject(self.world)
-        v4_obj.isPassable = False
-        v4_obj.bounding_shape = gamestate.collision.BoundingCircle(30)
-        v4_obj.position = (-200, -400)
-        self.world.add_object(v4_obj)
+#        volcano4_node = self.sceneManager.getRootSceneNode().createChildSceneNode("volc4")
+#        v4_particle = volcano4_node.createChildSceneNode("volc4_particle")
+#        volc4 = self.sceneManager.createEntity("volcano4", "volcano.mesh")
+#        volcano4_node.attachObject(volc4)
+#        v4system =  self.sceneManager.createParticleSystem("v4system", "VolcanoEruption")
+#        v4_particle.attachObject(v4system)
+#        volcano4_node.setPosition(-200, 0, -400)
+#        v4_particle.setPosition(0, 15, -5)
+#        v4_particle.setScale(10,10,10)
         
-        volcano5_node = self.sceneManager.getRootSceneNode().createChildSceneNode("volc5")
-        v5_particle = volcano5_node.createChildSceneNode("volc5_particle")
-        volc5 = self.sceneManager.createEntity("volcano5", "volcano.mesh")
-        volcano5_node.attachObject(volc5)
-        v5system =  self.sceneManager.createParticleSystem("v5system", "VolcanoEruption")
-        v5_particle.attachObject(v5system)
-        volcano5_node.setPosition(200, 0, -560)
-        v5_particle.setPosition(0, 15, -5)
-        v5_particle.setScale(10,10,10)
-        v5_obj = gamestate.objects.GameObject(self.world)
-        v5_obj.isPassable = False
-        v5_obj.bounding_shape = gamestate.collision.BoundingCircle(30)
-        v5_obj.position = (200, -560)
-        self.world.add_object(v5_obj)
         
-        volcano6_node = self.sceneManager.getRootSceneNode().createChildSceneNode("volc6")
-        v6_particle = volcano6_node.createChildSceneNode("volc6_particle")
-        volc6 = self.sceneManager.createEntity("volcano6", "volcano.mesh")
-        volcano6_node.attachObject(volc6)
-        v6system =  self.sceneManager.createParticleSystem("v6system", "VolcanoEruption")
-        v6_particle.attachObject(v6system)
-        volcano6_node.setPosition(-360, 0, -160)
-        v6_particle.setPosition(0, 15, -5)
-        v6_particle.setScale(10,10,10)
-        v6_obj = gamestate.objects.GameObject(self.world)
-        v6_obj.isPassable = False
-        v6_obj.bounding_shape = gamestate.collision.BoundingCircle(30)
-        v6_obj.position = (-360, -160)
-        self.world.add_object(v6_obj)
+#        volcano5_node = self.sceneManager.getRootSceneNode().createChildSceneNode("volc5")
+#        v5_particle = volcano5_node.createChildSceneNode("volc5_particle")
+#        volc5 = self.sceneManager.createEntity("volcano5", "volcano.mesh")
+#        volcano5_node.attachObject(volc5)
+#        v5system =  self.sceneManager.createParticleSystem("v5system", "VolcanoEruption")
+#        v5_particle.attachObject(v5system)
+#        volcano5_node.setPosition(200, 0, -560)
+#        v5_particle.setPosition(0, 15, -5)
+#        v5_particle.setScale(10,10,10)
         
-        volcano7_node = self.sceneManager.getRootSceneNode().createChildSceneNode("volc7")
-        v7_particle = volcano7_node.createChildSceneNode("volc7_particle")
-        volc7 = self.sceneManager.createEntity("volcano7", "volcano.mesh")
-        volcano7_node.attachObject(volc7)
-        v7system =  self.sceneManager.createParticleSystem("v7system", "VolcanoEruption")
-        v7_particle.attachObject(v7system)
-        volcano7_node.setPosition(-460, 0, 60)
-        v7_particle.setPosition(0, 15, -5)
-        v7_particle.setScale(10,10,10)
-        v7_obj = gamestate.objects.GameObject(self.world)
-        v7_obj.isPassable = False
-        v7_obj.bounding_shape = gamestate.collision.BoundingCircle(30)
-        v7_obj.position = (-460, 60)
-        self.world.add_object(v7_obj)
         
-        volcano8_node = self.sceneManager.getRootSceneNode().createChildSceneNode("volc8")
-        v8_particle = volcano8_node.createChildSceneNode("volc8_particle")
-        volc8 = self.sceneManager.createEntity("volcano8", "volcano.mesh")
-        volcano8_node.attachObject(volc8)
-        v8system =  self.sceneManager.createParticleSystem("v8system", "VolcanoEruption")
-        v8_particle.attachObject(v8system)
-        volcano8_node.setPosition(-80, 0, -120)
-        v8_particle.setPosition(0, 15, -5)
-        v8_particle.setScale(10,10,10)
-        v8_obj = gamestate.objects.GameObject(self.world)
-        v8_obj.isPassable = False
-        v8_obj.bounding_shape = gamestate.collision.BoundingCircle(30)
-        v8_obj.position = (-80, -120)
-        self.world.add_object(v8_obj)
+#        volcano6_node = self.sceneManager.getRootSceneNode().createChildSceneNode("volc6")
+#        v6_particle = volcano6_node.createChildSceneNode("volc6_particle")
+#        volc6 = self.sceneManager.createEntity("volcano6", "volcano.mesh")
+#        volcano6_node.attachObject(volc6)
+#        v6system =  self.sceneManager.createParticleSystem("v6system", "VolcanoEruption")
+#        v6_particle.attachObject(v6system)
+#        volcano6_node.setPosition(-360, 0, -160)
+#        v6_particle.setPosition(0, 15, -5)
+#        v6_particle.setScale(10,10,10)
+        
+        
+#        volcano7_node = self.sceneManager.getRootSceneNode().createChildSceneNode("volc7")
+#        v7_particle = volcano7_node.createChildSceneNode("volc7_particle")
+#        volc7 = self.sceneManager.createEntity("volcano7", "volcano.mesh")
+#        volcano7_node.attachObject(volc7)
+#        v7system =  self.sceneManager.createParticleSystem("v7system", "VolcanoEruption")
+#        v7_particle.attachObject(v7system)
+#        volcano7_node.setPosition(-460, 0, 60)
+#        v7_particle.setPosition(0, 15, -5)
+#        v7_particle.setScale(10,10,10)
+        
+        
+#        volcano8_node = self.sceneManager.getRootSceneNode().createChildSceneNode("volc8")
+#        v8_particle = volcano8_node.createChildSceneNode("volc8_particle")
+#        volc8 = self.sceneManager.createEntity("volcano8", "volcano.mesh")
+#        volcano8_node.attachObject(volc8)
+#        v8system =  self.sceneManager.createParticleSystem("v8system", "VolcanoEruption")
+#        v8_particle.attachObject(v8system)
+#        volcano8_node.setPosition(-80, 0, -120)
+#        v8_particle.setPosition(0, 15, -5)
+#        v8_particle.setScale(10,10,10)
+        
+        # Attach a handler to world.object_added and removed
+        self.world.object_added += self.on_world_object_added
+        self.world.object_removed += self.on_world_object_removed
         
         # Load the scene into the game state.
         self.scene = gamestate.scenes.TestScene(self.world)
-        
-        
-        
+
         # Create the client and set listeners.
         self.client = net.client.GameClient(self.world, self.address, self.port)
         self.client.connected += self.on_client_connected
@@ -478,10 +445,6 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener, SchedulerManager):
         self.client_thread = threading.Thread(target=self.client.go)
         self.client_thread.start()
         
-        # Attach a handler to world.object_added and removed
-        self.world.object_added += self.on_world_object_added
-        self.world.object_removed += self.on_world_object_removed
-
         # Setup camera
         self.camera.nearClipDistance = 1
         self.camera.farClipDistance = 500
@@ -847,6 +810,10 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener, SchedulerManager):
             node.set_scale(.1)
             node.rotation -= math.pi/2
             self.game_nodes[object.object_id] = node
+        elif object.type == "volcano":
+            v = nodes.GameNode(self.sceneManager, object)
+            v.set_mesh("volcano.mesh")
+            v.set_particle_system("VolcanoEruption", position_offset=(0, 15, -5), scale=10)
             
     def on_world_object_removed(self, object):
         # @todo: Remove nodes at some point for players no longer here.

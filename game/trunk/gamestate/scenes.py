@@ -58,9 +58,21 @@ class TestScene(Scene):
         self.spawn_locations.append((-400, 480))
         self.spawn_locations.append((0, -480))
         self.spawn_locations.append((-480, 0))
-        self.spawn_locations.append((0, 80))       
-        # Add boundary lines for map walls.       
+        self.spawn_locations.append((0, 80))
+        
+        # Add boundary lines for map walls.
         self._setup_level_boundaries(os.path.join("media", "levelbounds.bounds"))
         
+        # Add static volcanos
+        volcano_positions = [(0, 0), (440, 0), (-440, 440), (-200, -400),
+            (200, -560), (-360, -160), (-460, 60), (-80, -120)]
+        for pos in volcano_positions:
+            v = gamestate.objects.GameObject(self.world)
+            v.type = "volcano"
+            v.isPassable = False
+            v.bounding_shape = gamestate.collision.BoundingCircle(30)
+            v.position = pos
+            self.world.add_object(v)
+    
     def generate_spawn_position(self):
         return random.choice(self.spawn_locations)
