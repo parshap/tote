@@ -248,7 +248,7 @@ UI
             {
                 metrics_mode pixels
                 
-                font_name Sansation
+                font_name arial
                 char_height 20
                 colour 1 1 1 0.8
             }
@@ -275,7 +275,7 @@ UI
             {
                 metrics_mode pixels
                 
-                font_name Sansation
+                font_name arial
                 char_height 20
                 colour 1 1 1 0.8
             }
