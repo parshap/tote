@@ -64,3 +64,19 @@ class Scheduler(object):
         if self._clock >= self._delay:
             self.is_fired = True
             self.fired(*self.params)
+
+
+class SchedulerManager(object):
+    def __init__(self):
+        self._schedulers = []
+        
+    def schedule(self, delay, callback, *params):
+        """ Schedules the callback to be called after delay seconds. """
+        s = Scheduler(delay, *params)
+        s.fired += lambda *_: self._schedulers.remove(s)
+        s.fired += callback
+        self._schedulers.append(s)
+        
+    def update(self, dt):
+        for s in self._schedulers:
+            s.addtime(dt)
