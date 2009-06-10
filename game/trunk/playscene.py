@@ -624,7 +624,7 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener, SchedulerManager):
                 last_update.move_direction == update.move_direction:
                 return
         
-        print "Sending player update to server."
+        # print "Sending player update to server."
         self.client.output.put_nowait(update)
         self.last_update = (self.world.time, update)
     
