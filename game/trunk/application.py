@@ -13,12 +13,15 @@ import gamestate, net
 from net import packets
 from event import Event, SchedulerManager
 
+
 version = (0, 5, 0)
-build = $Revision$
+revision_string = "$Revision$"
+revision = revision_string[11:len(revision-string)-2]
+
 
 class ClientApplication(object):
-    app_title = "Tides of the Elements %d.%d.%d b%d" % \
-        (version[0], version[1], version[2], build)
+    app_title = "Tides of the Elements %d.%d.%d build %s" % \
+        (version[0], version[1], version[2], revision)
     
     def __init__(self, player_name, address, port=8981):
         self.address = address
