@@ -22,7 +22,7 @@ revision = revision_string[11:len(revision_string)-2]
 class ClientApplication(object):
     app_title = "Tides of the Elements %d.%d.%d build %s" % \
         (version[0], version[1], version[2], revision)
-    
+
     def __init__(self, player_name, address, port=8981):
         self.address = address
         self.port = port
@@ -73,7 +73,7 @@ class ClientApplication(object):
 
     def setupScene(self):
         self.sceneManager = self.root.createSceneManager(ogre.ST_GENERIC, "PrimarySceneManager")
-        
+
         # Create the camera and attach it to a scene node.
         camera = self.sceneManager.createCamera("PrimaryCamera")
         cameraNode = self.sceneManager.getRootSceneNode().createChildSceneNode('PrimaryCamera')
@@ -101,56 +101,56 @@ class ServerApplication(SchedulerManager):
         SchedulerManager.__init__(self)
         self.port = port
         self.is_round_active = False
-        
+
     def go(self):
         self.world = gamestate.world.World(master=True)
         self.world.object_added += self.on_world_object_added
         self.world.object_removed += self.on_world_object_removed
-        
+
         self.server = net.server.GameServer(self.world, self.port)
         self.server.client_connected += self.on_client_connected
         self.server.client_disconnected += self.on_client_disconnected
         self.server_thread = threading.Thread(target=self.server.go)
         self.server_thread.start()
-        
+
         self.last_updates = { }
-        
+
         # A set of players who's status updates need to be sent out.
         self.status_updates = set()
-        
+
         self.scene = gamestate.scenes.TestScene(self.world)
-        
+
         self.is_round_active = True
         self.run = True
-        
+
         last = time.clock()
         while self.run:
             new = time.clock()
             dt = new - last
             self.update(dt)
             last = new
-    
+
     def stop(self):
         self.run = False
         self.server.stop()
-        
+
     def update(self, dt):
         # Add time to schedulers.
         SchedulerManager.update(self, dt)
-        
+
         # Get buffered input from clients and process it.
         while not self.server.input.empty():
             (client, packet) = self.server.input.get_nowait()
             self.process_packet(client, packet)
-        
+
         # Update the game state world.
         self.world.update(dt)
-        
+
         # Send necessary ObjectUpdate packets.
         for object in self.world.objects:
             if object.type == "player":
                 self._send_update(object)
-            
+
         # Send necessary ObjectStatusUpdate packets.
         for object in self.status_updates:
             update = packets.ObjectStatusUpdate()
@@ -158,15 +158,15 @@ class ServerApplication(SchedulerManager):
             update.health, update.power = object.health, object.power
             self.server.output_broadcast.put_nowait((update, None))
         self.status_updates.clear()
-        
+
         # Send buffered output to clients.
         reactor.callFromThread(self.server.send)
-        
+
         # Sleep some if we're updating too fast.
         extra = 0.01 - dt
         if extra >= 0.001:
             time.sleep(extra)
-        
+
     def round_start(self):
         self.is_round_active = True
         # Reset everyone's score to 0.
@@ -176,7 +176,7 @@ class ServerApplication(SchedulerManager):
         # Tell everyone that the round is starting.
         start = packets.RoundStart()
         self.server.output_broadcast.put_nowait((start, None))
-    
+
     def round_end(self, winner_player):
         self.is_round_active = False
         # Send RoundEnd packet.
@@ -212,10 +212,10 @@ class ServerApplication(SchedulerManager):
             remove = packets.ObjectRemove()
             remove.object_id = object.object_id
             self.server.output_broadcast.put_nowait((remove, None))
-            
+
     def on_player_status_changed(self, player, value):
         self.status_updates.add(player)
-    
+
     def on_player_is_dead_changed(self, player):
         self._send_update(player, check_time=False)
         if player.is_dead:
@@ -237,10 +237,10 @@ class ServerApplication(SchedulerManager):
             self.world.remove_object(player)
         else:
             self.world.add_object(player)
-    
+
     def on_player_teleported(self, player):
         self._send_update(player, check_time=False, forced=True)
-    
+
     def on_player_score_changed(self, player):
         update = packets.ScoreUpdate()
         update.player_id = player.object_id
@@ -252,11 +252,11 @@ class ServerApplication(SchedulerManager):
             # packets being processed (player is killed before ability_used is
             # sent.)
             self.schedule(0, self.round_end, player)
-    
+
     ## Network event handlers & helpers
     def on_client_connected(self, client):
         pass
-    
+
     def on_client_disconnected(self, client):
         if client.player is not None and client.player.is_active:
             self.world.remove_object(client.player)
@@ -268,7 +268,7 @@ class ServerApplication(SchedulerManager):
     def process_packet(self, client, packet):
         ptype = type(packet)
         print "Processing packet=%s: %s from client=%s." % (packet.id, ptype.__name__, client.client_id)
-        
+
         # JoinRequest
         if ptype is packets.JoinRequest:
             # @todo: deny conditions
@@ -286,12 +286,12 @@ class ServerApplication(SchedulerManager):
             client.player = player
             print "Creating player in world with id=%s for client id=%s." % \
                 (player.object_id, client.client_id)
-                
+
             # Send the JoinResponse.
             response = packets.JoinResponse()
             response.player_id = player.object_id
             self.server.output.put_nowait((client, response))
-            
+
             # Send ObjectUpdate and ObjectInit to the player for each object.
             for object in self.world.objects:
                 if object.type != "player":
@@ -299,7 +299,7 @@ class ServerApplication(SchedulerManager):
                 if object == player:
                     continue
                 init = packets.ObjectInit()
-                init.object_id = object.object_id                    
+                init.object_id = object.object_id
                 init.object_type = object.type
                 init.element_type = object.element.type
                 init.name = object.name
@@ -310,7 +310,7 @@ class ServerApplication(SchedulerManager):
                 score.player_id = object.object_id
                 score.score = object.score
                 self.server.output.put_nowait((client, score))
-        
+
         # SpawnRequest
         elif ptype is packets.SpawnRequest:
             if self.is_round_active:
@@ -337,7 +337,7 @@ class ServerApplication(SchedulerManager):
                 client.player.move_direction = packet.move_direction
             else:
                 client.player.is_moving = False
-        
+
         # AbilityRequest
         elif ptype is packets.AbilityRequest:
             # @todo: deny conditions
@@ -349,22 +349,22 @@ class ServerApplication(SchedulerManager):
                 # data when using the ability.
                 self._send_update(client.player, ignore=client.player, check_time=False)
                 self.server.output_broadcast.put_nowait((used, None))
-    
+
     def _send_update(self, object, ignore=None, check_time=True, check_data=True, forced=False):
         # Only send updates for MobileObjects.
         if not isinstance(object, gamestate.objects.MobileObject):
             return
-        
+
         update = self._get_update(object)
         update.forced = forced
 
         if self.last_updates.has_key(object):
             last_update_time, last_update = self.last_updates[object]
-            
+
             # Only send if update threshold has expired.
             if check_time and last_update_time + 0.05 > self.world.time:
                 return
-            
+
             # Only send if there is new information to be sent.
             if check_data and update.object_id == last_update.object_id and \
                 update.x == last_update.x and update.z == last_update.z and \
@@ -374,7 +374,7 @@ class ServerApplication(SchedulerManager):
                 update.force_x == last_update.force_x and update.force_z == last_update.force_z and \
                 update.is_dead == last_update.is_dead:
                 return
-        
+
         print "Broadcasting update for object id=%s." % object.object_id
         self.server.output_broadcast.put_nowait((update, ignore))
         self.last_updates[object] = (self.world.time, update)
