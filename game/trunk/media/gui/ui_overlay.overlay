@@ -80,7 +80,7 @@ UI
                     width 64
                     height 32
                     
-                    font_name arial
+                    font_name Sansation
                     char_height 40
                     colour 1 0 0
                 }
@@ -116,7 +116,7 @@ UI
                     width 64
                     height 32
                     
-                    font_name arial
+                    font_name Sansation
                     char_height 40
                     colour 1 0 0
                 }
@@ -153,7 +153,7 @@ UI
                     width 64
                     height 32
                     
-                    font_name arial
+                    font_name Sansation
                     char_height 40
                     colour 1 0 0
                 }
@@ -189,7 +189,7 @@ UI
                     width 64
                     height 32
                     
-                    font_name arial
+                    font_name Sansation
                     char_height 40
                     colour 1 0 0
                 }
@@ -210,7 +210,7 @@ UI
             
             alignment right
             
-            font_name arial
+            font_name Sansation
             char_height 30
             colour 1 1 1
         }
@@ -225,7 +225,7 @@ UI
             vert_align top
             top 30
             
-            font_name arial
+            font_name Sansation
             alignment center
             char_height 40
             colour 1 1 1
@@ -248,7 +248,7 @@ UI
             {
                 metrics_mode pixels
                 
-                font_name arial
+                font_name Sansation
                 char_height 20
                 colour 1 1 1 0.8
             }
@@ -259,7 +259,7 @@ UI
                 horz_align right
                 alignment right
                 
-                font_name arial
+                font_name Sansation
                 char_height 20
                 colour 1 1 1 0.8
             }
@@ -275,7 +275,7 @@ UI
             {
                 metrics_mode pixels
                 
-                font_name arial
+                font_name Sansation
                 char_height 20
                 colour 1 1 1 0.8
             }
@@ -286,7 +286,7 @@ UI
                 horz_align right
                 alignment right
                 
-                font_name arial
+                font_name Sansation
                 char_height 20
                 colour 1 1 1 0.8
             }

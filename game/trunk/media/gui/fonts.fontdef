@@ -13,3 +13,11 @@ arial
 	size 		16
 	resolution 	96
 }
+
+Sansation
+{
+	type 		truetype
+	source 		Sansation_Regular.ttf
+	size 		16
+	resolution 	96
+}
