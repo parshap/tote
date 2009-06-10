@@ -11,7 +11,7 @@ import threading, time
 from playscene import PlayScene
 import gamestate, net
 from net import packets
-from event import Event, Scheduler
+from event import Event, SchedulerManager
 
 class ClientApplication(object):
     app_title = "Tides of the Elements 0.5.0"
@@ -89,10 +89,10 @@ class ClientApplication(object):
         pass
 
 
-class ServerApplication(object):
+class ServerApplication(SchedulerManager):
     def __init__(self, port=8981):
+        SchedulerManager.__init__(self)
         self.port = port
-        self.schedulers = []
         self.is_round_active = False
         
     def go(self):
@@ -129,8 +129,7 @@ class ServerApplication(object):
         
     def update(self, dt):
         # Add time to schedulers.
-        for scheduler in self.schedulers:
-            scheduler.addtime(dt)
+        SchedulerManager.update(self, dt)
         
         # Get buffered input from clients and process it.
         while not self.server.input.empty():
@@ -160,12 +159,6 @@ class ServerApplication(object):
         extra = 0.01 - dt
         if extra >= 0.001:
             time.sleep(extra)
-            
-    def schedule(self, in_time, callback, *params):
-        s = Scheduler(in_time, *params)
-        s.fired += lambda *_: self.schedulers.remove(s)
-        s.fired += callback
-        self.schedulers.append(s)
         
     def round_start(self):
         self.is_round_active = True
