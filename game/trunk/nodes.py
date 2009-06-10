@@ -435,11 +435,6 @@ class PlayerNode(MobileGameNode):
             self.corpse.destroy()
             self.corpse = None
         
-    def animations_addtime(self, time):
-        MobileGameNode.animations_addtime(self, time)
-        if self.corpse is not None:
-            self.corpse.animations_addtime(time)
-        
     def spawn_corpse(self):
         if self.corpse is not None:
             self.corpse.destroy()
