@@ -29,6 +29,9 @@ import audio
 class Node(object):
     """Node represents a ogre scene node with a position relative to the root scene node."""
     _unique_count = 0
+    node_created = Event()
+    node_destroyed = Event()
+    
     @staticmethod
     def _unique(prefix=""):
         """ Return a unique name prefixed with the optional parameter. """
@@ -49,9 +52,15 @@ class Node(object):
         # Node renderables
         self.mesh = None
         self.particle_system = None
+        self.particle_systems = []
+        self.animations = { }
+        
+        # Fire the node_created event.
+        Node.node_created(self)
         
     def destroy(self):
         self.sceneNode.getParentSceneNode().removeAndDestroyChild(self.node_name)
+        Node.node_destroyed(self)
         
     # spatial properties
     def set_position(self, position_offset):
@@ -80,12 +89,13 @@ class Node(object):
         """
         self.particle_system = self.sceneManager.createParticleSystem(Node._unique("PE%s" % name), name)
         if self.particle_system is not None:
+            self.particle_systems.append(self.particle_system)
             for i in xrange(0, self.particle_system.getNumEmitters()):
                 self.particle_system.getEmitter(i).setEnabled(False)
         particleNode = self.sceneNode.createChildSceneNode()
         particleNode.attachObject(self.particle_system)
         particleNode.position = position_offset
-        particleNode.rotate((0, -1, 0), rotation)     
+        particleNode.rotate((0, -1, 0), rotation)
     
     def get_particle_system(self):
         return self.particle_system
@@ -157,7 +167,10 @@ class Node(object):
                 anim.addTime(time * speed)
                 if reset and anim.hasEnded():
                     anim.setEnabled(False)
-        
+                    
+    def update(self, dt):
+        self.animations_addtime(dt)
+    
 class GameNode(Node):
     """GameNode represents a Node that is attached to a gameObject."""
     def __init__(self, sceneManager, gameObject):
@@ -201,6 +214,17 @@ class MobileGameNode(GameNode):
         if self.object.type == "projectile":
             self.object.expired -= self.on_expired
         
+    def update(self, dt):
+        GameNode.update(self, dt)
+        if not self.is_active:
+            # Destroy the node if we are ready to (no more particles are playing).
+            destroy_ready = True
+            for system in self.particle_systems:
+                if system.getNumParticles() > 0:
+                    destroy_ready = False
+                    break
+            if destroy_ready:
+                self.destroy()
 
     ## Game state event listeners
     def on_position_changed(self, mobileObject, position):
@@ -216,7 +240,7 @@ class MobileGameNode(GameNode):
         
     def expire(self, projectileObject):
         # @todo: if our game is really slow, this might be a memory leak
-       self.particle_effect_stop()
+        self.particle_effect_stop()
 
 
 class ProjectileNode(MobileGameNode):
@@ -224,19 +248,24 @@ class ProjectileNode(MobileGameNode):
         MobileGameNode.__init__(self, sceneManager, projectileObject)
         
         self.secondary_particle_system = None
-        projectileObject.collided += self.on_collided
-        projectileObject.expired += self.on_expired
+        self.object.collided += self.on_collided
+        if self.object.type != "projectile":
+            # @todo: Find out if this is ever a case, remove if not.
+            self.object.expired += self.on_expired
         self.collide_sound = None
+
     def destroy(self):
         MobileGameNode.destroy(self)
         # Stop listening to events.
         self.object.collided -= self.on_collided
-        self.object.expired -= self.on_expired
-        projectileObject.expired -= self.on_expired
+        if self.object.type != "projectile":
+            # @todo: Find out if this is ever a case, remove if not.
+            self.object.expired -= self.on_expired
         self.collide_sound = None
     
     def set_secondary_particle_system(self, system_name, position_offset = (0,0,0), rotation = 0, scale = 1):
         self.secondary_particle_system = self.sceneManager.createParticleSystem(Node._unique("PE%s" % system_name), system_name)
+        self.particle_systems.append(self.secondary_particle_system)
         particleNode = self.sceneNode.createChildSceneNode()
         particleNode.attachObject(self.secondary_particle_system)
         particleNode.position = position_offset
@@ -291,23 +320,29 @@ class StaticEffectNode(Node):
         self.triggerable = triggerable
         self.triggered_sound = None
         self.world = world
-        if time_to_live is not False:
-            world.world_updated += self.on_world_updated
         self.static_node_expired = Event()
-        
-    def destroy(self):
-        StaticEffectNode.destroy(self)
-        # Stop listening to events.
-        if self.time_to_live is not False:
-            self.world.world_updated -= self.on_world_updated
+        self.is_active = True
     
-    def on_world_updated(self, dt):
-        if not self.triggerable or self.triggered:
-            self.time_to_live -= dt
-            if self.time_to_live <= 0:
-                self.expire()
-                return False
-            
+    def update(self, dt):
+        Node.update(self, dt)
+        
+        # Expire the node if ttl is 0.
+        if self.time_to_live is not False:
+            if not self.triggerable or self.triggered:
+                self.time_to_live -= dt
+                if self.time_to_live <= 0:
+                    self.expire()
+        
+        if not self.is_active:
+            # Destroy the node if we are ready to (no more particles are playing).
+            destroy_ready = True
+            for system in self.particle_systems:
+                if system.getNumParticles() > 0:
+                    destroy_ready = False
+                    break
+            if destroy_ready:
+                self.destroy()
+        
     def set_triggered_sound(self, sound_name):
         self.triggered_sound = sound_name
     
@@ -318,6 +353,7 @@ class StaticEffectNode(Node):
         if self.mesh is not None:
             self.sceneNode.setVisible(False)
         self.static_node_expired()
+        self.is_active = False
         
     def on_triggered(self):
         self.triggered = True
@@ -437,7 +473,7 @@ class PlayerNode(MobileGameNode):
         if ability.type == "FireFlameRushInstance":
             ability.collided += self.on_flame_rush_collided
         if ability.type == "EarthHookInstance":
-            self.create_hook_projectile_node(ability.hook_projectile)       
+            self.create_hook_projectile_node(ability.hook_projectile)
     
     def on_flame_rush_collided(self, player):
         effect_node = StaticEffectNode(self.sceneManager, player.world, 2)

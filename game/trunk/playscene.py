@@ -283,8 +283,13 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
         self.last_update = None
         self.scores = { }
         self.scores_changed = Event()
-        self.nodes = { }
+        self.game_nodes = { }
         self.players = { }
+        
+        # Come up with a non-static way of doing this.
+        self.nodes = []
+        nodes.Node.node_created += self.on_node_created
+        nodes.Node.node_destroyed += self.on_node_destroyed
         
         # Set up the scene.
         self.setupScene()
@@ -455,8 +460,8 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
         reactor.callFromThread(self.client.send)
         
         # Add time to animations.
-        for object_id in self.nodes:
-            self.nodes[object_id].animations_addtime(dt)
+        for node in self.nodes:
+            node.update(dt)
 
         # Neatly close our FrameListener if our renderWindow has been shut down
         # or we are quitting.
@@ -464,6 +469,12 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
             return False
         
         return True
+        
+    def on_node_created(self, node):
+        self.nodes.append(node)
+        
+    def on_node_destroyed(self, node):
+        self.nodes.remove(node)
         
     ## Net event callbacks & helpers
     def _send_update(self, check_time=True):
@@ -611,7 +622,7 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
                             object.is_moving = False
                     if object.type == "player":
                         if packet.is_dead:
-                            print self.nodes[object.object_id]
+                            print self.game_nodes[object.object_id]
                             object.is_dead = packet.is_dead
         
         # ObjectStatusUpdate
@@ -664,9 +675,9 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
             
         # ClientDisconnect
         elif ptype is packets.ClientDisconnect:
-            if self.nodes.has_key(packet.player_id):
-                node = self.nodes[packet.player_id]
-                del self.nodes[packet.player_id]
+            if self.game_nodes.has_key(packet.player_id):
+                node = self.game_nodes[packet.player_id]
+                del self.game_nodes[packet.player_id]
                 node.destroy()
             if self.players.has_key(packet.player_id):
                 del self.players[packet.player_id]
@@ -683,10 +694,10 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
     ## Game event callbacks
     def on_world_object_added(self, object):
         if object.type == "player":
-            if self.nodes.has_key(object.object_id):
+            if self.game_nodes.has_key(object.object_id):
                 # We already have a node for this game object, but it may be
                 # represented by another object in memory.
-                node = self.nodes[object.object_id]
+                node = self.game_nodes[object.object_id]
                 if node.object == object:
                     # If it's the same object, we don't need a new node.
                     if node.corpse is not None:
@@ -698,7 +709,7 @@ class PlayScene(ogre.FrameListener, ogre.WindowEventListener):
             node = nodes.PlayerNode(self.sceneManager, object, "ninja.mesh")
             node.set_scale(.1)
             node.rotation -= math.pi/2
-            self.nodes[object.object_id] = node
+            self.game_nodes[object.object_id] = node
             
     def on_world_object_removed(self, object):
         # @todo: Remove nodes at some point for players no longer here.
