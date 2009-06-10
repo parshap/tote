@@ -16,7 +16,7 @@ from event import Event, SchedulerManager
 
 version = (0, 5, 0)
 revision_string = "$Revision$"
-revision = revision_string[11:len(revision-string)-2]
+revision = revision_string[11:len(revision_string)-2]
 
 
 class ClientApplication(object):
