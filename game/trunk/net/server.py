@@ -79,4 +79,4 @@ class GameServer(protocol.ServerFactory):
         reactor.run(installSignalHandlers=0)
         
     def stop(self):
-        reactor.stop()
+        if reactor.running: reactor.stop()

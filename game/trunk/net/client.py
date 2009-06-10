@@ -55,11 +55,11 @@ class GameClient(protocol.ClientFactory):
 
     def clientConnectionFailed(self, connector, reason):
         print "Connection failed: %s" % reason
-        reactor.stop()
+        if reactor.running: reactor.stop()
     
     def clientConnectionLost(self, connector, reason):
         print "Connection lost: %s" % reason
-        reactor.stop()
+        if reactor.running: reactor.stop()
         
     def send(self):
         while not self.output.empty():
@@ -71,4 +71,4 @@ class GameClient(protocol.ClientFactory):
         reactor.run(installSignalHandlers=0)
     
     def stop(self):
-        reactor.stop()
+        if reactor.running: reactor.stop()
