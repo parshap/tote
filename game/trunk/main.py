@@ -11,6 +11,14 @@ import random
 # Import internal packages and modules modules.
 import application
 
+def get_script_dir():
+    """ Returns the absolute path to the script that is currently executing. """
+    if hasattr(sys, "frozen"):
+        # We are excuting from an executable (via py2exe).
+        return os.path.dirname(os.path.abspath(sys.executable))
+    else:
+        # We are executing normally.
+        return os.path.abspath(sys.path[0])
 
 def main(argv=None):
     # Get command line arguments or passed parameters.
@@ -22,7 +30,7 @@ def main(argv=None):
     
     # Change the working directory to this file's directory so other necessary
     # files can be found.
-    os.chdir(sys.path[0])
+    os.chdir(get_script_dir())
     
     # Start the application.
     if len(argv) > 1 and argv[1] == "server":
