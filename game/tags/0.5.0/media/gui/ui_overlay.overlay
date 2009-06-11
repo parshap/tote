@@ -1,0 +1,366 @@
+UI
+{
+    zorder 500
+    
+    container Panel(UI/StatusBars)
+    {
+        metrics_mode pixels
+        vert_align bottom
+        horz_align center
+        left -128
+        top -84
+        width 256
+        height 20
+        
+        material black
+        transparent false
+        
+        container Panel(UI/StatusBars/Health)
+        {
+            metrics_mode pixels
+            vert_align top
+            width 256
+            height 10
+            
+            material green
+            transparent false
+        }
+        
+        container Panel(UI/StatusBars/Power)
+        {
+            metrics_mode pixels
+            vert_align top
+            top 10
+            width 256
+            height 10
+            
+            material blue
+            transparent false
+        }
+    }
+    
+    container Panel(UI/AbilityBar)
+    {
+        metrics_mode pixels
+        vert_align bottom
+        horz_align center
+        left -128
+        top -64
+        width 256
+        height 64
+        
+        material white
+        transparent false
+        
+        container Panel(UI/AbilityBar/Ability1)
+        {
+            metrics_mode pixels
+            left 0
+            width 64
+            height 64
+            
+            material EarthIconAbility1
+            transparent false
+            container Panel(UI/AbilityBar/Ability1/CooldownContainer)
+            {
+                metrics_mode pixels
+                left 0
+                width 64
+                height 64
+                
+                material mat_cooldown_overlay
+                
+                element TextArea(UI/AbilityBar/Ability1/Cooldown)
+                {
+                    metrics_mode pixels
+                    horz_align center
+                    left 0
+                    top 16
+                    alignment center
+                    width 64
+                    height 32
+                    
+                    font_name arial
+                    char_height 40
+                    colour 1 0 0
+                }
+            }
+        }
+        
+        container Panel(UI/AbilityBar/Ability2)
+        {
+            metrics_mode pixels
+            left 64
+            width 64
+            height 64
+            
+            material EarthIconAbility1
+            transparent false
+            
+            container Panel(UI/AbilityBar/Ability2/CooldownContainer)
+            {
+                metrics_mode pixels
+                left 0
+                width 64
+                height 64
+                
+                material mat_cooldown_overlay
+                
+                element TextArea(UI/AbilityBar/Ability2/Cooldown)
+                {
+                    metrics_mode pixels
+                    horz_align center
+                    left 0
+                    top 16
+                    alignment center
+                    width 64
+                    height 32
+                    
+                    font_name arial
+                    char_height 40
+                    colour 1 0 0
+                }
+            }
+        }
+        
+        container Panel(UI/AbilityBar/Ability3)
+        {
+            metrics_mode pixels
+            left 128
+            width 64
+            height 64
+            
+            material EarthIconAbility1
+            transparent false
+            
+            
+            container Panel(UI/AbilityBar/Ability3/CooldownContainer)
+            {
+                metrics_mode pixels
+                left 0
+                width 64
+                height 64
+                
+                material mat_cooldown_overlay
+                
+                element TextArea(UI/AbilityBar/Ability3/Cooldown)
+                {
+                    metrics_mode pixels
+                    horz_align center
+                    left 0
+                    top 16
+                    alignment center
+                    width 64
+                    height 32
+                    
+                    font_name arial
+                    char_height 40
+                    colour 1 0 0
+                }
+            }
+        }
+        
+        container Panel(UI/AbilityBar/Ability4)
+        {
+            metrics_mode pixels
+            left 192
+            width 64
+            height 64
+            
+            material EarthIconAbility1
+            transparent false
+            
+            container Panel(UI/AbilityBar/Ability4/CooldownContainer)
+            {
+                metrics_mode pixels
+                left 0
+                width 64
+                height 64
+                
+                material mat_cooldown_overlay
+                
+                element TextArea(UI/AbilityBar/Ability4/Cooldown)
+                {
+                    metrics_mode pixels
+                    horz_align center
+                    left 0
+                    top 16
+                    alignment center
+                    width 64
+                    height 32
+                    
+                    font_name arial
+                    char_height 40
+                    colour 1 0 0
+                }
+            }
+        }
+    }
+    
+    container Panel(UI/FPSLabelContainer)
+    {
+        element TextArea(UI/FPSLabel)
+        {
+            metrics_mode pixels
+            horz_align right
+            left -5
+            top 5
+            width 100
+            height 64
+            
+            alignment right
+            
+            font_name arial
+            char_height 30
+            colour 1 1 1
+        }
+    }
+    
+    container Panel(UI/MessageLabelContianer)
+    {
+        element TextArea(UI/MessageLabel)
+        {
+            metrics_mode pixels
+            horz_align center
+            vert_align top
+            top 30
+            
+            font_name arial
+            alignment center
+            char_height 40
+            colour 1 1 1
+        }
+    }
+    
+    container Panel(UI/QuickScores)
+    {
+        metrics_mode pixels
+        top 5
+        left 5
+        width 200
+        
+        container Panel(UI/QuickScores/1)
+        {
+            metrics_mode pixels
+            width 200
+            
+            element TextArea(UI/QuickScores/1/Name)
+            {
+                metrics_mode pixels
+                
+                font_name arial
+                char_height 20
+                colour 1 1 1 0.8
+            }
+            
+            element TextArea(UI/QuickScores/1/Score)
+            {
+                metrics_mode pixels
+                horz_align right
+                alignment right
+                
+                font_name arial
+                char_height 20
+                colour 1 1 1 0.8
+            }
+        }
+        
+        container Panel(UI/QuickScores/2)
+        {
+            metrics_mode pixels
+            top 18
+            width 200
+            
+            element TextArea(UI/QuickScores/2/Name)
+            {
+                metrics_mode pixels
+                
+                font_name arial
+                char_height 20
+                colour 1 1 1 0.8
+            }
+            
+            element TextArea(UI/QuickScores/2/Score)
+            {
+                metrics_mode pixels
+                horz_align right
+                alignment right
+                
+                font_name arial
+                char_height 20
+                colour 1 1 1 0.8
+            }
+        }
+    }
+
+    container Panel(UI/ElementSelection)
+    {
+        metrics_mode pixels
+        horz_align center
+        vert_align center
+        
+        width 600
+        height 600
+        left -300
+        top -300
+
+        material UI/ElementSelectionBG
+        transparent false
+        
+        element Panel(UI/ElementSelection/Earth)
+        {
+            metrics_mode pixels
+            horz_align left
+            vert_align top
+            left 40
+            top  40
+            width 212
+            height 212
+            
+            material UI/EarthSymbol
+            transparent false
+        }
+        
+        element Panel(UI/ElementSelection/Fire)
+        {
+            metrics_mode pixels
+            horz_align left
+            vert_align bottom
+            left 40
+            top  -252
+            width 212
+            height 212
+            
+            material UI/FireSymbol
+            transparent false
+        }
+        
+        element Panel(UI/ElementSelection/Water)
+        {
+            metrics_mode pixels
+            horz_align right
+            vert_align top
+            left -252
+            top  40
+            width 212
+            height 212
+            
+            material UI/WaterSymbol
+            transparent false
+        }
+        
+        element Panel(UI/ElementSelection/Air)
+        {
+            metrics_mode pixels
+            horz_align right
+            vert_align bottom
+            left -252
+            top  -252
+            width 212
+            height 212
+            
+            material UI/AirSymbol
+            transparent false
+        }
+    }
+}
