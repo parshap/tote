@@ -15,7 +15,7 @@ from event import Event, SchedulerManager
 
 
 version = (0, 5, 1)
-revision_string = "$Revision$"
+revision_string = "$Revision$" #
 revision = revision_string[11:len(revision_string)-2]
 
 
