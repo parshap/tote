@@ -5,7 +5,7 @@ import exceptions
 import ogre.renderer.OGRE as ogre
 
 # Import other external packages and modules.
-import sys
+import sys, os
 import random
 
 # Import internal packages and modules modules.
@@ -13,11 +13,17 @@ import application
 
 
 def main(argv=None):
-    random.seed()
     # Get command line arguments or passed parameters.
     if argv is None:
         argv = sys.argv
-
+    
+    # Seed the RNG.
+    random.seed()
+    
+    # Change the working directory to this file's directory so other necessary
+    # files can be found.
+    os.chdir(sys.path[0])
+    
     # Start the application.
     if len(argv) > 1 and argv[1] == "server":
         # Run as a server.
