@@ -274,6 +274,7 @@ class Player(MobileObject):
         self.last_damage_player = None
         self.teleported = Event()
         self.last_position = None
+        self.last_combat_time = 0
         
         self._health = 100
         self._power = 100
@@ -328,7 +329,18 @@ class Player(MobileObject):
             self._is_dead = value
             self.is_dead_changed(self)
     is_dead = property(_get_is_dead, _set_is_dead)
-        
+    
+    def _get_is_incombat(self):
+        """
+        Gets whether or not this player was involved in combat activity
+        recently.
+        """
+        return self.last_combat_time + 5 >= self.world.time
+    is_incombat = property(_get_is_incombat)
+    
+    def combat_tick(self):
+        self.last_combat_time = self.world.time
+    
     def _get_power(self):
         return self._power
     def _set_power(self, value):
@@ -347,9 +359,12 @@ class Player(MobileObject):
     
     def apply_damage(self, amount, player, code):
         if not self.is_invulnerable:
+            self.combat_tick()
+            if player is not None:
+                player.combat_tick()
             self.last_damage_code = code
             self.last_damage_player = player
-            self.health = self.health - amount
+            self.health -= amount
                 
     def use_power(self, amount):
         self.power = self.power - amount
