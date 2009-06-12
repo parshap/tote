@@ -264,7 +264,17 @@ class Player(MobileObject):
     
     def __init__(self, world):
         MobileObject.__init__(self, world)
+        self.bounding_shape = collision.BoundingCircle(6)
+        self.type = "player"
+        self.name = ""
         self.move_speed = 100
+        self.is_invulnerable = False
+        self.is_immobilized = False
+        self.last_damage_code = 0
+        self.last_damage_player = None
+        self.teleported = Event()
+        self.last_position = None
+        
         self._health = 100
         self._power = 100
         self.max_power = 100
@@ -272,24 +282,17 @@ class Player(MobileObject):
         self.health_regen = 1
         self.power_regen = 10
         self.regen_last_time = 0
-        self._is_dead = False
-        self.is_dead_changed = Event()
-        self.bounding_shape = collision.BoundingCircle(6)
-        self.type = "player"
-        self.last_damage_code = 0
-        self.last_damage_player = None
-        self.name = ""
+        self.health_changed = Event()
+        self.power_changed = Event()
+        
         self._score = 0
         self.score_changed = Event()
-        self.teleported = Event()
-        self.last_position = None
-        
+        self._is_dead = False
+        self.is_dead_changed = Event()
         self._is_charging = False
-        self._is_hooked = False
         self.is_charging_changed = Event()
+        self._is_hooked = False
         self.is_hooked_changed = Event()
-        self.is_invulnerable = False
-        self.is_immobilized = False
         
         # Create an Element and pass it a reference to this player make it our
         # current active element.
@@ -301,11 +304,8 @@ class Player(MobileObject):
         self.last_ability_time = 0
         self.ability_used = Event()
         self.ability_instance_created = Event()
-        
-        self.health_changed = Event()
-        self.power_changed = Event()
         self.ability_requested = Event()
-        
+
     def _get_health(self):
         return self._health
     def _set_health(self, value):
