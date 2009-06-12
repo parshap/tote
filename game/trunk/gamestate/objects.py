@@ -280,8 +280,8 @@ class Player(MobileObject):
         self._power = 100
         self.max_power = 100
         self.max_health = 100
-        self.health_regen = 1
-        self.power_regen = 10
+        self.health_regen = 2
+        self.power_regen = 8
         self.regen_last_time = 0
         self.health_changed = Event()
         self.power_changed = Event()
@@ -416,8 +416,10 @@ class Player(MobileObject):
             if self.world.is_master:
                 # Only the master world performs regen.
                 if self.world.time > self.regen_last_time + self.regen_frequency:
-                    self.health += self.health_regen * (self.world.time - self.regen_last_time)
-                    self.power += self.power_regen * (self.world.time - self.regen_last_time)
+                    # Scale the regen by 10x if we are not in combat.
+                    regen_scale = 3 if not self.is_incombat else 1
+                    self.health += self.health_regen * (self.world.time - self.regen_last_time) * regen_scale
+                    self.power += self.power_regen * (self.world.time - self.regen_last_time) * regen_scale
                     self.regen_last_time = self.world.time
             
             if self.is_charging:
