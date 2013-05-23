@@ -5,10 +5,9 @@ It was designed and written by
 [Jeff Gaskill](https://github.com/mistergaskill),
 [Preston Lewis](https://github.com/hosemagi), and
 [Parsha Pourkhomami](https://github.com/parshap)
-n the Spring 2009 for CS 113 (*Computer Game Development*) at
-the *University of California, Irvine*. Contributions were made by
-several others, notably art by Aaron Moore and David Woo of the *Laguna
-College of Art and Design* and sound by Andria Coyne.
+in Spring 2009 for CS 113, *Computer Game Development*, taught by
+[Dan Frost](http://frost.ics.uci.edu) at the *University of California,
+Irvine*. Contributions were made by several others, notably art by Aaron Moore and David Woo of the *Laguna College of Art and Design* and sound by Andria Coyne.
 
 A design document for the game can be found at:
 https://sites.google.com/site/iso25tides.
