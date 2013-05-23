@@ -18,5 +18,12 @@ screenshots](media/screenshots) are included in this repository.
 The original README included with the game [is also
 included](game/trunk/readme.txt).
 
+Interesting parts of the source include:
+
+ * [Collision detection and resolution](game/trunk/gamestate/collision.py) for rectangles, circles, line segments, and cones in a 2d world (Preston Lewis)
+ * [Netcode and binary protocol](game/trunk/net) (Parsha Pourkhomami)
+ * [Client and server-side game loops](game/trunk/application.py)
+ * Model-View decoupling between [game state](game/trunk/gamestate) and the [rendered visuals](game/trunk/nodes.py) that represent them using events for message passing
+
 This repository is here for historical reasons. This code is not
 intended to be used.
