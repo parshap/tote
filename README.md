@@ -1,5 +1,4 @@
-Tides of the Elements is a real-time multiplayer networked game written
-in Python using bindings to the Ogre rendering engine.
+Tides of the Elements is a real-time networked 3D fighting game created with Python and the [OGRE 3D rendering engine](http://www.ogre3d.org/).
 
 It was designed and written by
 [Jeff Gaskill](https://github.com/mistergaskill),
